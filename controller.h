@@ -19,7 +19,7 @@ signals:
     /* Inform the user about some changes */
     void statusChanged(QString status, int timeout);
 
-    /* Database related */
+    /* Connection related */
     void retrieveDrivers(QStringList &drivers);
     void displayDrivers(QStringList &drivers);
     void attemptToConnect(QHash<QString, QString> &options, bool &result);
