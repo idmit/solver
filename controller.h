@@ -12,7 +12,6 @@ public:
 signals:
 
 public slots:
-    void quitApp();
     void showConnectionWindow();
 };
 

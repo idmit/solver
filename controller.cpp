@@ -11,7 +11,6 @@ void Controller::showConnectionWindow()
 
 }
 
-void Controller::quitApp()
 {
 
 }
