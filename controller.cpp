@@ -12,8 +12,6 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     connectionWindow = _connectionWindow;
     model = _model;
 
-    mainWindow->setEnabledInputs(false);
-
     QObject::connect(this, SIGNAL(retrieveDrivers(QStringList&)), model, SLOT(drivers(QStringList&)));
     QObject::connect(this, SIGNAL(displayDrivers(QStringList&)), connectionWindow, SLOT(refreshDrivers(QStringList&)));
 
@@ -21,7 +19,6 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     QObject::connect(this, SIGNAL(attemptToConnect(QHash<QString,QString>&)), model, SLOT(attemptToAddConnection(QHash<QString,QString>&)));
 
     QObject::connect(model, SIGNAL(connectionAttemptFinished(bool)), connectionWindow, SLOT(setHidden(bool)));
-    QObject::connect(model, SIGNAL(connectionAttemptFinished(bool)), mainWindow, SLOT(setEnabledInputs(bool)));
 
     QObject::connect(model, SIGNAL(statusChanged(QString,int)), this, SIGNAL(statusChanged(QString,int)));
     QObject::connect(this, SIGNAL(statusChanged(QString,int)), mainWindow, SLOT(refreshStatus(QString,int)));

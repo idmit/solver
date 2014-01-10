@@ -9,11 +9,12 @@ int main(int argc, char *argv[])
     Controller controller;
     Model model;
     MainWindow *mainWindow = new MainWindow(&controller);
-    ConnectionWindow *connectionWindow = new ConnectionWindow(&controller);
+    ConnectionWindow *connectionWindow = new ConnectionWindow(mainWindow);
 
     controller.initialize(mainWindow, connectionWindow, &model);
 
     mainWindow->show();
+    controller.showConnectionWindow();
 
     return a.exec();
 }

@@ -20,7 +20,6 @@ public:
 
 public slots:
     void refreshStatus(QString status, int timeout);
-    void setEnabledInputs(bool);
 
 private:
     Ui::MainWindow *ui;

@@ -7,6 +7,8 @@ ConnectionWindow::ConnectionWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    setWindowModality(Qt::WindowModal);
+
     setWindowTitle(CONNECTION_WINDOW_TITLE);
 }
 
