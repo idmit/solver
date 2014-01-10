@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#define MAIN_WINDOW_HEADER "Solver"
+
 namespace Ui {
 class MainWindow;
 }
