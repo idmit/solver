@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QShortcut>
 
 #define MAIN_WINDOW_HEADER "Solver"
 
