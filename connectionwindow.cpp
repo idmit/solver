@@ -33,6 +33,7 @@ void ConnectionWindow::getOptions(QHash<QString, QString> &options)
 void ConnectionWindow::on_okButton_clicked()
 {
     emit optionsSpecified();
+    on_cancelButton_clicked();
 }
 
 
@@ -44,5 +45,5 @@ void ConnectionWindow::on_cancelButton_clicked()
 void ConnectionWindow::closeEvent(QCloseEvent *event)
 {
     event->ignore();
-    this->hide();
+    on_cancelButton_clicked();
 }
