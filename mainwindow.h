@@ -18,6 +18,10 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void refreshStatus(QString status, int timeout);
+    void setEnabledInputs(bool);
+
 private:
     Ui::MainWindow *ui;
 };

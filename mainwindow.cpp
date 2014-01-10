@@ -17,3 +17,15 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+void MainWindow::setEnabledInputs(bool enable)
+{
+    ui->taskHistoryList->setEnabled(enable);
+    ui->taskTypesCombo->setEnabled(enable);
+    ui->newTaskButton->setEnabled(enable);
+}
+
+void MainWindow::refreshStatus(QString status, int timeout)
+{
+    this->statusBar()->showMessage(status, timeout);
+}
