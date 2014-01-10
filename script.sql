@@ -1,0 +1,64 @@
+DROP DATABASE IF EXISTS `solver`;
+CREATE DATABASE `solver`;
+USE `solver`;
+
+CREATE TABLE `Types`
+(
+id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+name VARCHAR(10) NOT NULL
+);
+
+CREATE TABLE `Methods`
+(
+id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+name VARCHAR(30) NOT NULL,
+type_id INT NOT NULL,
+FOREIGN KEY (type_id) REFERENCES Types (id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
+CREATE TABLE `Tasks`
+(
+id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+content VARCHAR(50) NOT NULL,
+type_id INT NOT NULL,
+FOREIGN KEY (type_id) REFERENCES Types (id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
+CREATE TABLE `Solutions` 
+(
+id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+task_id INT NOT NULL,
+method_id INT NOT NULL,
+FOREIGN KEY (task_id) REFERENCES Tasks (id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
+FOREIGN KEY (method_id) REFERENCES Methods (id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
+result DOUBLE NOT NULL
+);
+
+CREATE TABLE `Meta` 
+(
+id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+solution_id INT,
+task_id INT,
+FOREIGN KEY (solution_id) REFERENCES Solutions (id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
+FOREIGN KEY (task_id) REFERENCES Tasks (id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
+name VARCHAR(50) NOT NULL,
+value DOUBLE NOT NULL
+);
+
+
+INSERT INTO `Types` (name) VALUES ("LE"), ("SLAE"), ("ODE");
+
+INSERT INTO `Methods` (name, type_id) VALUES ('Native', 1), ('Bisection', 1);
+INSERT INTO `Methods` (name, type_id) VALUES ('Reflection', 2), ('Seidel', 2);
