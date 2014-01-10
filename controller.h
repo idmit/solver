@@ -24,10 +24,17 @@ signals:
     void displayDrivers(QStringList &drivers);
     void attemptToConnect(QHash<QString, QString> &options, bool &result);
 
+    /* */
+    void retrieveTaskTypes(QStringList &taskTypes);
+    void displayTaskTypes(QStringList &taskTypes);
+
 public slots:
     void initialize(MainWindow *_mainWindow, ConnectionWindow *_connectionWindow, Model *_model);
+
     void showConnectionWindow();
     void processConnectionOptions();
+
+    void showTaskTypes(bool connectionExists);
 
 private:
     MainWindow *mainWindow;

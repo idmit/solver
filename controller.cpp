@@ -21,6 +21,10 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
 
     QObject::connect(model, SIGNAL(statusChanged(QString,int)), this, SIGNAL(statusChanged(QString,int)));
     QObject::connect(this, SIGNAL(statusChanged(QString,int)), mainWindow, SLOT(refreshStatus(QString,int)));
+
+    QObject::connect(this, SIGNAL(retrieveTaskTypes(QStringList&)), model, SLOT(taskTypes(QStringList&)));
+    QObject::connect(this, SIGNAL(displayTaskTypes(QStringList&)), mainWindow, SLOT(refreshTaskTypesCombo(QStringList&)));
+
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -56,6 +60,18 @@ void Controller::processConnectionOptions()
         msgBox.exec();
     }
     connectionWindow->setHidden(result);
+    showTaskTypes(result);
 }
 
 /* CONNECTION CREATION END */
+
+void Controller::showTaskTypes(bool connectionExists)
+{
+    QStringList taskTypes;
+
+    if (!connectionExists)
+        return;
+
+    emit retrieveTaskTypes(taskTypes);
+    emit displayTaskTypes(taskTypes);
+}

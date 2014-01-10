@@ -32,3 +32,15 @@ void Model::attemptToAddConnection(QHash<QString, QString> &options, bool &resul
 }
 
 /* CONNECTION CREATION END */
+
+void Model::taskTypes(QStringList &taskTypes)
+{
+    QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
+    QSqlQuery query(db);
+
+    query.exec(SELECT_TYPES);
+    while (query.next())
+    {
+        taskTypes << query.value(0).toString();
+    }
+}

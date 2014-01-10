@@ -20,6 +20,7 @@ public:
 
 public slots:
     void refreshStatus(QString status, int timeout);
+    void refreshTaskTypesCombo(QStringList &taskTypes);
 
 private:
     Ui::MainWindow *ui;

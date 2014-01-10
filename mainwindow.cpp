@@ -22,3 +22,9 @@ void MainWindow::refreshStatus(QString status, int timeout)
 {
     this->statusBar()->showMessage(status, timeout);
 }
+
+void MainWindow::refreshTaskTypesCombo(QStringList &taskTypes)
+{
+    ui->taskTypesCombo->clear();
+    ui->taskTypesCombo->addItems(taskTypes);
+}
