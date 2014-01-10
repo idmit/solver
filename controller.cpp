@@ -1,4 +1,5 @@
 #include "controller.h"
+#include <QMessageBox>
 
 Controller::Controller(QWidget *parent) :
     QWidget(parent)
@@ -16,9 +17,7 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     QObject::connect(this, SIGNAL(displayDrivers(QStringList&)), connectionWindow, SLOT(refreshDrivers(QStringList&)));
 
     QObject::connect(connectionWindow, SIGNAL(optionsSpecified()), this, SLOT(processConnectionOptions()));
-    QObject::connect(this, SIGNAL(attemptToConnect(QHash<QString,QString>&)), model, SLOT(attemptToAddConnection(QHash<QString,QString>&)));
-
-    QObject::connect(model, SIGNAL(connectionAttemptFinished(bool)), connectionWindow, SLOT(setHidden(bool)));
+    QObject::connect(this, SIGNAL(attemptToConnect(QHash<QString,QString>&,bool&)), model, SLOT(attemptToAddConnection(QHash<QString,QString>&,bool&)));
 
     QObject::connect(model, SIGNAL(statusChanged(QString,int)), this, SIGNAL(statusChanged(QString,int)));
     QObject::connect(this, SIGNAL(statusChanged(QString,int)), mainWindow, SLOT(refreshStatus(QString,int)));
@@ -33,7 +32,6 @@ void Controller::showConnectionWindow()
     emit retrieveDrivers(drivers);
     emit displayDrivers(drivers);
 
-
     connectionWindow->show();
     connectionWindow->setFocus();
 }
@@ -41,9 +39,23 @@ void Controller::showConnectionWindow()
 void Controller::processConnectionOptions()
 {
     QHash<QString, QString> options;
+    QMessageBox msgBox(connectionWindow);
+    bool result = false;
 
     connectionWindow->getOptions(options);
-    emit attemptToConnect(options);
+    emit attemptToConnect(options, result);
+
+    if (result)
+    {
+        statusChanged(CONNECTION_SUCC, 2000);
+    }
+    else
+    {
+        msgBox.setWindowModality(Qt::WindowModal);
+        msgBox.setText(CONNECTION_ERR);
+        msgBox.exec();
+    }
+    connectionWindow->setHidden(result);
 }
 
 /* CONNECTION CREATION END */

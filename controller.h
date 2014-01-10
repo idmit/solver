@@ -6,6 +6,9 @@
 #include "connectionwindow.h"
 #include "model.h"
 
+#define CONNECTION_SUCC "Connection successful"
+#define CONNECTION_ERR  "Error occured"
+
 class Controller : public QWidget
 {
     Q_OBJECT
@@ -19,7 +22,7 @@ signals:
     /* Database related */
     void retrieveDrivers(QStringList &drivers);
     void displayDrivers(QStringList &drivers);
-    void attemptToConnect(QHash<QString, QString> &options);
+    void attemptToConnect(QHash<QString, QString> &options, bool &result);
 
 public slots:
     void initialize(MainWindow *_mainWindow, ConnectionWindow *_connectionWindow, Model *_model);

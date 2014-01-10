@@ -6,8 +6,6 @@
 
 /* SQL QUERIES */
 #define CONNECTION_NAME  "Solver"
-#define CONNECTION_SUCC "Connection successful"
-#define CONNECTION_ERR  "Error occured"
 
 class Model : public QObject
 {
@@ -23,7 +21,7 @@ public slots:
     /* Export db drivers */
     void drivers(QStringList &drivers);
     /* Attempt to open a connection */
-    void attemptToAddConnection(QHash<QString, QString> &options);
+    void attemptToAddConnection(QHash<QString, QString> &options, bool &result);
 };
 
 #endif // MODEL_H

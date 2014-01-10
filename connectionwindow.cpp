@@ -35,7 +35,6 @@ void ConnectionWindow::getOptions(QHash<QString, QString> &options)
 void ConnectionWindow::on_okButton_clicked()
 {
     emit optionsSpecified();
-    on_cancelButton_clicked();
 }
 
 
