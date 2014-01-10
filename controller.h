@@ -13,7 +13,10 @@ public:
     explicit Controller(QWidget *parent = 0);
 
 signals:
+    /* Inform the user about some changes */
     void statusChanged(QString status, int timeout);
+
+    /* Database related */
     void retrieveDrivers(QStringList &drivers);
     void displayDrivers(QStringList &drivers);
     void attemptToConnect(QHash<QString, QString> &options);

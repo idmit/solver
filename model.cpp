@@ -6,6 +6,8 @@ Model::Model(QObject *parent) :
 {
 }
 
+/* CONNECTION CREATION BEGIN */
+
 void Model::drivers(QStringList &drivers)
 {
     drivers = QSqlDatabase::drivers();
@@ -40,3 +42,5 @@ void Model::attemptToAddConnection(QHash<QString, QString> &options)
 
     emit connectionAttemptFinished(result);
 }
+
+/* CONNECTION CREATION END */

@@ -27,12 +27,15 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     QObject::connect(this, SIGNAL(statusChanged(QString,int)), mainWindow, SLOT(refreshStatus(QString,int)));
 }
 
+/* CONNECTION CREATION BEGIN */
+
 void Controller::showConnectionWindow()
 {
     QStringList drivers;
 
     emit retrieveDrivers(drivers);
     emit displayDrivers(drivers);
+
 
     connectionWindow->show();
     connectionWindow->setFocus();
@@ -46,3 +49,4 @@ void Controller::processConnectionOptions()
     emit attemptToConnect(options);
 }
 
+/* CONNECTION CREATION END */

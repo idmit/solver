@@ -17,8 +17,8 @@ class ConnectionWindow : public QDialog
 
 public:
     explicit ConnectionWindow(QWidget *parent = 0);
-    void closeEvent(QCloseEvent *event);
     ~ConnectionWindow();
+    void closeEvent(QCloseEvent *event);
 
 signals:
     void optionsSpecified();
@@ -26,7 +26,7 @@ signals:
 public slots:
     /* Refresh db drivers list */
     void refreshDrivers(QStringList &drivers);
-    /* Export chosen connection's options */
+    /* Export specified connection's options */
     void getOptions(QHash<QString, QString> &options);
 
 private slots:
