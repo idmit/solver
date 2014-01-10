@@ -6,9 +6,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     Controller controller;
+    MainWindow *mainWindow = new MainWindow(&controller);
 
-    MainWindow *w = new MainWindow(&controller);
-    w->show();
+    mainWindow->show();
 
     return a.exec();
 }
