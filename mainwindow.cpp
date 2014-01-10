@@ -8,8 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     QMenu *mainMenu = this->menuBar()->addMenu(QObject::tr("File"));
-    mainMenu->addAction(QObject::tr("Connect to server"), parent, SLOT(showConnectionWindow()));
-    mainMenu->addAction(QObject::tr("Exit"), parent, SLOT(quitApp()));
+    mainMenu->addAction(QObject::tr("Conect to server"), parent, SLOT(showConnectionWindow()));
 
     setWindowTitle(MAIN_WINDOW_HEADER);
 }
