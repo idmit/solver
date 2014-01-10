@@ -2,6 +2,9 @@
 #define CONTROLLER_H
 
 #include <QWidget>
+#include "mainwindow.h"
+#include "connectionwindow.h"
+#include "model.h"
 
 class Controller : public QWidget
 {
@@ -10,9 +13,20 @@ public:
     explicit Controller(QWidget *parent = 0);
 
 signals:
+    void statusChanged(QString status, int timeout);
+    void retrieveDrivers(QStringList &drivers);
+    void displayDrivers(QStringList &drivers);
+    void attemptToConnect(QHash<QString, QString> &options);
 
 public slots:
+    void initialize(MainWindow *_mainWindow, ConnectionWindow *_connectionWindow, Model *_model);
     void showConnectionWindow();
+    void processConnectionOptions();
+
+private:
+    MainWindow *mainWindow;
+    ConnectionWindow *connectionWindow;
+    Model *model;
 };
 
 #endif // CONTROLLER_H
