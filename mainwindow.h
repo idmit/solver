@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QShortcut>
 
-#define MAIN_WINDOW_HEADER "Solver"
+#define MAIN_WINDOW_TITLE "Solver"
 
 namespace Ui {
 class MainWindow;
