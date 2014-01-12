@@ -16,12 +16,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     controller.cpp \
     connectionwindow.cpp \
-    model.cpp
+    model.cpp \
+    matrix.cpp
 
 HEADERS  += mainwindow.h \
     controller.h \
     connectionwindow.h \
-    model.h
+    model.h \
+    matrix.h
 
 FORMS    += mainwindow.ui \
     connectionwindow.ui
