@@ -58,7 +58,7 @@ value DOUBLE NOT NULL
 );
 
 
-INSERT INTO `Types` (name) VALUES ("LE"), ("SLAE"), ("ODE");
+INSERT INTO `Types` (name) VALUES ("LE"), ("SLAE");
 
 INSERT INTO `Methods` (name, type_id) VALUES ('Native', 1), ('Bisection', 1);
-INSERT INTO `Methods` (name, type_id) VALUES ('Reflection', 2), ('Seidel', 2);
+INSERT INTO `Methods` (name, type_id) VALUES ('Reflection', 2);
