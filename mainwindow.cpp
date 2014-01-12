@@ -28,3 +28,14 @@ void MainWindow::refreshTaskTypesCombo(QStringList &taskTypes)
     ui->taskTypesCombo->clear();
     ui->taskTypesCombo->addItems(taskTypes);
 }
+
+void MainWindow::refreshTaskHistoryList(QStringList &taskHistory)
+{
+    ui->taskHistoryList->clear();
+    ui->taskHistoryList->addItems(taskHistory);
+}
+
+void MainWindow::on_taskTypesCombo_currentIndexChanged(int index)
+{
+    emit currentTaskTypeIndexChanged(index);
+}

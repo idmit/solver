@@ -7,6 +7,7 @@
 /* SQL QUERIES */
 #define CONNECTION_NAME  "Solver"
 #define SELECT_TYPES "SELECT name FROM TYPES"
+#define SELECT_HISRTORY "SELECT content FROM TASKS WHERE type_id = :typeId"
 
 class Model : public QObject
 {
@@ -25,6 +26,7 @@ public slots:
     void attemptToAddConnection(QHash<QString, QString> &options, bool &result);
 
     void taskTypes(QStringList &taskTypes);
+    void taskHistory(int taskTypeId, QStringList &taskHistory);
 };
 
 #endif // MODEL_H

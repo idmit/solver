@@ -28,6 +28,10 @@ signals:
     void retrieveTaskTypes(QStringList &taskTypes);
     void displayTaskTypes(QStringList &taskTypes);
 
+    /* */
+    void retrieveTaskHistory(int taskTypeId, QStringList &taskHistory);
+    void displayTaskHistory(QStringList &taskHistory);
+
 public slots:
     void initialize(MainWindow *_mainWindow, ConnectionWindow *_connectionWindow, Model *_model);
 
@@ -35,6 +39,7 @@ public slots:
     void processConnectionOptions();
 
     void showTaskTypes(bool connectionExists);
+    void showTaskHistory(int taskTypeIndex);
 
 private:
     MainWindow *mainWindow;

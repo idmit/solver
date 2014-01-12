@@ -18,9 +18,16 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+signals:
+    void currentTaskTypeIndexChanged(int newIndex);
+
 public slots:
     void refreshStatus(QString status, int timeout);
     void refreshTaskTypesCombo(QStringList &taskTypes);
+    void refreshTaskHistoryList(QStringList &taskHistory);
+
+private slots:
+    void on_taskTypesCombo_currentIndexChanged(int index);
 
 private:
     Ui::MainWindow *ui;

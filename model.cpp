@@ -44,3 +44,17 @@ void Model::taskTypes(QStringList &taskTypes)
         taskTypes << query.value(0).toString();
     }
 }
+
+void Model::taskHistory(int taskTypeId, QStringList &taskHistory)
+{
+    QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
+    QSqlQuery query(db);
+
+    query.prepare(SELECT_HISRTORY);
+    query.bindValue(":typeId", taskTypeId);
+    query.exec();
+    while (query.next())
+    {
+        taskHistory << query.value(0).toString();
+    }
+}

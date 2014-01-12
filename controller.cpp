@@ -25,6 +25,9 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     QObject::connect(this, SIGNAL(retrieveTaskTypes(QStringList&)), model, SLOT(taskTypes(QStringList&)));
     QObject::connect(this, SIGNAL(displayTaskTypes(QStringList&)), mainWindow, SLOT(refreshTaskTypesCombo(QStringList&)));
 
+    QObject::connect(mainWindow, SIGNAL(currentTaskTypeIndexChanged(int)), this, SLOT(showTaskHistory(int)));
+    QObject::connect(this, SIGNAL(retrieveTaskHistory(int,QStringList&)), model, SLOT(taskHistory(int,QStringList&)));
+    QObject::connect(this, SIGNAL(displayTaskHistory(QStringList&)), mainWindow, SLOT(refreshTaskHistoryList(QStringList&)));
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -74,4 +77,13 @@ void Controller::showTaskTypes(bool connectionExists)
 
     emit retrieveTaskTypes(taskTypes);
     emit displayTaskTypes(taskTypes);
+}
+
+void Controller::showTaskHistory(int taskTypeIndex)
+{
+    QStringList taskHistory;
+    int taskTypeId = taskTypeIndex + 1;
+
+    emit retrieveTaskHistory(taskTypeId, taskHistory);
+    emit displayTaskHistory(taskHistory);
 }
