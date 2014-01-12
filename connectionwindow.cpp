@@ -37,14 +37,8 @@ void ConnectionWindow::on_okButton_clicked()
     emit optionsSpecified();
 }
 
-
-void ConnectionWindow::on_cancelButton_clicked()
-{
-    this->hide();
-}
-
 void ConnectionWindow::closeEvent(QCloseEvent *event)
 {
     event->ignore();
-    on_cancelButton_clicked();
+    this->hide();
 }

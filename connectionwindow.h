@@ -31,7 +31,6 @@ public slots:
 
 private slots:
     void on_okButton_clicked();
-    void on_cancelButton_clicked();
 
 private:
     Ui::ConnectionWindow *ui;
