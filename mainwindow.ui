@@ -25,7 +25,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QListView" name="taskHistoryList"/>
+       <widget class="QListWidget" name="taskHistoryList"/>
       </item>
      </layout>
     </item>
