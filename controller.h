@@ -39,7 +39,7 @@ public slots:
     void showConnectionWindow();
     void processConnectionOptions();
 
-    void showTaskWindow();
+    void showTaskWindow(int taskNumberInHistory);
 
     void showTaskTypes(bool connectionExists);
     void showTaskHistory(int taskTypeIndex);

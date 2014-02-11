@@ -20,7 +20,7 @@ public:
 
 signals:
     void currentTaskTypeIndexChanged(int newIndex);
-    void newTaskButtonClicked();
+    void newTaskButtonClicked(int taskNumberInHistory);
 
 public slots:
     void refreshStatus(QString status, int timeout);

@@ -30,7 +30,7 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     QObject::connect(this, SIGNAL(retrieveTaskHistory(int,QStringList&)), model, SLOT(taskHistory(int,QStringList&)));
     QObject::connect(this, SIGNAL(displayTaskHistory(QStringList&)), mainWindow, SLOT(refreshTaskHistoryList(QStringList&)));
 
-    QObject::connect(mainWindow, SIGNAL(newTaskButtonClicked()), this, SLOT(showTaskWindow()));
+    QObject::connect(mainWindow, SIGNAL(newTaskButtonClicked(int)), this, SLOT(showTaskWindow(int)));
 
 }
 
@@ -92,7 +92,7 @@ void Controller::showTaskHistory(int taskTypeIndex)
     emit displayTaskHistory(taskHistory);
 }
 
-void Controller::showTaskWindow()
+void Controller::showTaskWindow(int taskNumberInHistory)
 {
     taskWindow->show();
 }
