@@ -1,6 +1,7 @@
 #include "controller.h"
 #include "mainwindow.h"
 #include "connectionwindow.h"
+#include "taskwindow.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
@@ -10,8 +11,9 @@ int main(int argc, char *argv[])
     Model model;
     MainWindow *mainWindow = new MainWindow(&controller);
     ConnectionWindow *connectionWindow = new ConnectionWindow(mainWindow);
+    TaskWindow *taskWindow = new TaskWindow(mainWindow);
 
-    controller.initialize(mainWindow, connectionWindow, &model);
+    controller.initialize(mainWindow, connectionWindow, taskWindow, &model);
 
     mainWindow->show();
     controller.showConnectionWindow();

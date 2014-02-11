@@ -7,10 +7,11 @@ Controller::Controller(QWidget *parent) :
 
 }
 
-void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connectionWindow, Model *_model)
+void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connectionWindow, TaskWindow *_taskWindow, Model *_model)
 {
     mainWindow = _mainWindow;
     connectionWindow = _connectionWindow;
+    taskWindow = _taskWindow;
     model = _model;
 
     QObject::connect(this, SIGNAL(retrieveDrivers(QStringList&)), model, SLOT(drivers(QStringList&)));
@@ -28,6 +29,9 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     QObject::connect(mainWindow, SIGNAL(currentTaskTypeIndexChanged(int)), this, SLOT(showTaskHistory(int)));
     QObject::connect(this, SIGNAL(retrieveTaskHistory(int,QStringList&)), model, SLOT(taskHistory(int,QStringList&)));
     QObject::connect(this, SIGNAL(displayTaskHistory(QStringList&)), mainWindow, SLOT(refreshTaskHistoryList(QStringList&)));
+
+    QObject::connect(mainWindow, SIGNAL(newTaskButtonClicked()), this, SLOT(showTaskWindow()));
+
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -86,4 +90,9 @@ void Controller::showTaskHistory(int taskTypeIndex)
 
     emit retrieveTaskHistory(taskTypeId, taskHistory);
     emit displayTaskHistory(taskHistory);
+}
+
+void Controller::showTaskWindow()
+{
+    taskWindow->show();
 }

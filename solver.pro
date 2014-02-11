@@ -18,12 +18,15 @@ SOURCES += main.cpp\
     connectionwindow.cpp \
     model.cpp \
     matrix.cpp
+    taskwindow.cpp
 
 HEADERS  += mainwindow.h \
     controller.h \
     connectionwindow.h \
     model.h \
     matrix.h
+    taskwindow.h
 
 FORMS    += mainwindow.ui \
-    connectionwindow.ui
+    connectionwindow.ui \
+    taskwindow.ui

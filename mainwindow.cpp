@@ -39,3 +39,8 @@ void MainWindow::on_taskTypesCombo_currentIndexChanged(int index)
 {
     emit currentTaskTypeIndexChanged(index);
 }
+
+void MainWindow::on_newTaskButton_clicked()
+{
+    emit newTaskButtonClicked();
+}

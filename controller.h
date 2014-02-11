@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "mainwindow.h"
 #include "connectionwindow.h"
+#include "taskwindow.h"
 #include "model.h"
 
 #define CONNECTION_SUCC "Connection successful"
@@ -33,10 +34,12 @@ signals:
     void displayTaskHistory(QStringList &taskHistory);
 
 public slots:
-    void initialize(MainWindow *_mainWindow, ConnectionWindow *_connectionWindow, Model *_model);
+    void initialize(MainWindow *_mainWindow, ConnectionWindow *_connectionWindow, TaskWindow *_taskWindow, Model *_model);
 
     void showConnectionWindow();
     void processConnectionOptions();
+
+    void showTaskWindow();
 
     void showTaskTypes(bool connectionExists);
     void showTaskHistory(int taskTypeIndex);
@@ -44,6 +47,7 @@ public slots:
 private:
     MainWindow *mainWindow;
     ConnectionWindow *connectionWindow;
+    TaskWindow *taskWindow;
     Model *model;
 };
 

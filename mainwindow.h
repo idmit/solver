@@ -20,6 +20,7 @@ public:
 
 signals:
     void currentTaskTypeIndexChanged(int newIndex);
+    void newTaskButtonClicked();
 
 public slots:
     void refreshStatus(QString status, int timeout);
@@ -28,6 +29,7 @@ public slots:
 
 private slots:
     void on_taskTypesCombo_currentIndexChanged(int index);
+    void on_newTaskButton_clicked();
 
 private:
     Ui::MainWindow *ui;
