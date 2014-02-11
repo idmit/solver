@@ -16,3 +16,14 @@ TaskWindow::~TaskWindow()
 {
     delete ui;
 }
+
+void TaskWindow::refreshSolutionMethods(QStringList &solutionMethods)
+{
+    ui->solutionMethodsCombo->clear();
+    ui->solutionMethodsCombo->addItems(solutionMethods);
+}
+
+void TaskWindow::on_pushButton_clicked()
+{
+    this->hide();
+}

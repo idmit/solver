@@ -17,6 +17,12 @@ public:
     explicit TaskWindow(QWidget *parent = 0);
     ~TaskWindow();
 
+public slots:
+    void refreshSolutionMethods(QStringList &solutionMethods);
+
+private slots:
+    void on_pushButton_clicked();
+
 private:
     Ui::TaskWindow *ui;
 };

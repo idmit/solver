@@ -33,6 +33,10 @@ signals:
     void retrieveTaskHistory(int taskTypeId, QStringList &taskHistory);
     void displayTaskHistory(QStringList &taskHistory);
 
+    /* */
+    void retrieveSolutionMethods(int taskTypeId, QStringList &solutionMethods);
+    void displaySolutionMethods(QStringList &solutionMethods);
+
 public slots:
     void initialize(MainWindow *_mainWindow, ConnectionWindow *_connectionWindow, TaskWindow *_taskWindow, Model *_model);
 
@@ -43,6 +47,7 @@ public slots:
 
     void showTaskTypes(bool connectionExists);
     void showTaskHistory(int taskTypeIndex);
+    void showSolutionMethods(int taskTypeId);
 
 private:
     MainWindow *mainWindow;

@@ -32,6 +32,8 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
 
     QObject::connect(mainWindow, SIGNAL(newTaskButtonClicked(int)), this, SLOT(showTaskWindow(int)));
 
+    QObject::connect(this, SIGNAL(retrieveSolutionMethods(int,QStringList&)), model, SLOT(solutionMethods(int,QStringList&)));
+    QObject::connect(this, SIGNAL(displaySolutionMethods(QStringList&)), taskWindow, SLOT(refreshSolutionMethods(QStringList&)));
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -90,6 +92,14 @@ void Controller::showTaskHistory(int taskTypeIndex)
 
     emit retrieveTaskHistory(taskTypeId, taskHistory);
     emit displayTaskHistory(taskHistory);
+}
+
+void Controller::showSolutionMethods(int taskTypeId)
+{
+    QStringList solutionMethods;
+
+    emit retrieveSolutionMethods(taskTypeId, solutionMethods);
+    emit displaySolutionMethods(solutionMethods);
 }
 
 void Controller::showTaskWindow(int taskNumberInHistory)

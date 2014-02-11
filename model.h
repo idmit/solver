@@ -8,6 +8,7 @@
 #define CONNECTION_NAME  "Solver"
 #define SELECT_TYPES "SELECT name FROM TYPES"
 #define SELECT_HISTORY "SELECT content FROM TASKS WHERE type_id = :typeId"
+#define SELECT_METHODS "SELECT name FROM METHODS WHERE type_id = :typeId"
 
 class Model : public QObject
 {
@@ -27,6 +28,7 @@ public slots:
 
     void taskTypes(QStringList &taskTypes);
     void taskHistory(int taskTypeId, QStringList &taskHistory);
+    void solutionMethods(int taskTypeId, QStringList &solutionMethods);
 };
 
 #endif // MODEL_H
