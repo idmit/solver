@@ -26,6 +26,7 @@ public slots:
     void refreshStatus(QString status, int timeout);
     void refreshTaskTypesCombo(QStringList &taskTypes);
     void refreshTaskHistoryList(QStringList &taskHistory);
+    void currentTypeIndex(int &currentIndex);
 
 private slots:
     void on_taskTypesCombo_currentIndexChanged(int index);

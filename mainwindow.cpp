@@ -35,6 +35,11 @@ void MainWindow::refreshTaskHistoryList(QStringList &taskHistory)
     ui->taskHistoryList->addItems(taskHistory);
 }
 
+void MainWindow::currentTypeIndex(int &currentIndex)
+{
+    currentIndex = ui->taskTypesCombo->currentIndex();
+}
+
 void MainWindow::on_taskTypesCombo_currentIndexChanged(int index)
 {
     emit currentTaskTypeIndexChanged(index);
