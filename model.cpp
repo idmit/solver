@@ -50,7 +50,7 @@ void Model::taskHistory(int taskTypeId, QStringList &taskHistory)
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
 
-    query.prepare(SELECT_HISRTORY);
+    query.prepare(SELECT_HISTORY);
     query.bindValue(":typeId", taskTypeId);
     query.exec();
     while (query.next())

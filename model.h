@@ -7,7 +7,7 @@
 /* SQL QUERIES */
 #define CONNECTION_NAME  "Solver"
 #define SELECT_TYPES "SELECT name FROM TYPES"
-#define SELECT_HISRTORY "SELECT content FROM TASKS WHERE type_id = :typeId"
+#define SELECT_HISTORY "SELECT content FROM TASKS WHERE type_id = :typeId"
 
 class Model : public QObject
 {
