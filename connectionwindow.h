@@ -32,6 +32,8 @@ public slots:
 private slots:
     void on_okButton_clicked();
 
+    void on_quitButton_clicked();
+
 private:
     Ui::ConnectionWindow *ui;
 };

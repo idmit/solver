@@ -42,3 +42,8 @@ void ConnectionWindow::closeEvent(QCloseEvent *event)
     event->ignore();
     this->hide();
 }
+
+void ConnectionWindow::on_quitButton_clicked()
+{
+    exit(0);
+}
