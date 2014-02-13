@@ -42,7 +42,11 @@ void TaskWindow::addLineAtIndex(int index)
 
     nextEmptyRow += 1;
 
-    ui->taskContentLayout->itemAtPosition(0, 3)->widget()->setEnabled(index != 0);
+    /* Doesn't work another way */
+    if (index == 0)
+        remove->setEnabled(false);
+    if (index != 0)
+        ui->taskContentLayout->itemAtPosition(0, 3)->widget()->setEnabled(true);
 }
 
 void TaskWindow::removeLineAtIndex(int index)
@@ -107,6 +111,16 @@ void TaskWindow::removeLine()
         toBeDisabled->setEnabled(nextEmptyRow != 1);
     if (clickedPosition == 1)
         ui->taskContentLayout->itemAtPosition(0, 3)->widget()->setEnabled(nextEmptyRow != 1);
+}
+
+void TaskWindow::clear()
+{
+    for (int i = 0; i < nextEmptyRow; ++i)
+    {
+        removeLineAtIndex(i);
+    }
+
+    nextEmptyRow = 0;
 }
 
 void TaskWindow::on_solveButton_clicked()

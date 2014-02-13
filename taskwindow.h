@@ -26,6 +26,7 @@ public slots:
     void appendLine();
     void addLine();
     void removeLine();
+    void clear();
 
 private slots:
     void on_solveButton_clicked();
