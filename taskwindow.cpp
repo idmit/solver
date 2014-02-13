@@ -5,7 +5,8 @@
 TaskWindow::TaskWindow(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::TaskWindow),
-    nextEmptyRow(0)
+    nextEmptyRow(0),
+    firstAddButtonDisabled(false)
 {
     ui->setupUi(this);
 
@@ -44,12 +45,12 @@ void TaskWindow::addLineAtIndex(int index)
 
     /* Doesn't work another way */
     if (index == 0)
+    {
         remove->setEnabled(false);
+        add->setEnabled(!firstAddButtonDisabled);
+    }
     if (index != 0)
         ui->taskContentLayout->itemAtPosition(0, 3)->widget()->setEnabled(true);
-
-    if (firstAddButtonDisabled && index == 0)
-        add->setEnabled(false);
 }
 
 void TaskWindow::removeLineAtIndex(int index)
