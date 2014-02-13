@@ -104,5 +104,26 @@ void Controller::showSolutionMethods(int taskTypeId)
 
 void Controller::showTaskWindow(int taskNumberInHistory)
 {
+    int taskTypeIndex = 0,
+        taskTypeId    = 0;
+    bool taskIsNew = false;
+
+    mainWindow->currentTypeIndex(taskTypeIndex);
+    taskTypeId = taskTypeIndex + 1;
+
+    showSolutionMethods(taskTypeId);
+
+    if (taskTypeId == LE_TYPE_ID)
+        taskWindow->enableFirstAddButton(false);
+    else if (SLAE_TYPE_ID)
+        taskWindow->enableFirstAddButton(true);
+
+    taskIsNew = taskNumberInHistory ? false : true;
+    if (taskIsNew)
+    {
+        taskWindow->clear();
+        taskWindow->appendLine();
+    }
+
     taskWindow->show();
 }
