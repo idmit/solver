@@ -29,6 +29,7 @@ public slots:
     void taskTypes(QStringList &taskTypes);
     void taskHistory(int taskTypeId, QStringList &taskHistory);
     void solutionMethods(int taskTypeId, QStringList &solutionMethods);
+    void taskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
 };
 
 #endif // MODEL_H

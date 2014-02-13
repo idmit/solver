@@ -109,3 +109,55 @@ void Model::solutionMethods(int taskTypeId, QStringList &solutionMethods)
         solutionMethods << query.value(0).toString();
     }
 }
+
+void Model::taskFromHistory(int &expTaskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues)
+{
+    QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
+    QSqlQuery query(db);
+
+    query.prepare(SELECT_HISTORY);
+    query.bindValue(":typeId", taskTypeId);
+    query.exec();
+
+    int prevTaskId = 0, taskId = 1, i = 1;
+    QString value = "";
+    bool leftOrRight = false, prevLeftOrRight = false;
+    QStringList *values = &lValues;
+
+    while (query.next() && i != taskNumberInHistory)
+    {
+        prevTaskId = taskId;
+        prevLeftOrRight = leftOrRight;
+        taskId = query.value(2).toInt();
+
+        if (taskId != prevTaskId)
+        {
+            i++;
+        }
+    }
+
+    taskId = query.value(2).toInt();
+    expTaskId = taskId;
+
+    do
+    {
+        prevTaskId = taskId;
+        prevLeftOrRight = leftOrRight;
+
+        value = query.value(0).toString();
+        leftOrRight = query.value(1).toBool();
+        taskId = query.value(2).toInt();
+
+        if (taskId != prevTaskId)
+        {
+            break;
+        }
+
+        if (leftOrRight != prevLeftOrRight)
+        {
+            values = leftOrRight ? &rValues : &lValues;
+        }
+
+        values->append(value + " ");
+    } while (query.next());
+}
