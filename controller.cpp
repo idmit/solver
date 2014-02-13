@@ -30,10 +30,13 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     QObject::connect(this, SIGNAL(retrieveTaskHistory(int,QStringList&)), model, SLOT(taskHistory(int,QStringList&)));
     QObject::connect(this, SIGNAL(displayTaskHistory(QStringList&)), mainWindow, SLOT(refreshTaskHistoryList(QStringList&)));
 
-    QObject::connect(mainWindow, SIGNAL(newTaskButtonClicked(int)), this, SLOT(showTaskWindow(int)));
+    QObject::connect(mainWindow, SIGNAL(processTask(int)), this, SLOT(showTaskWindow(int)));
 
     QObject::connect(this, SIGNAL(retrieveSolutionMethods(int,QStringList&)), model, SLOT(solutionMethods(int,QStringList&)));
     QObject::connect(this, SIGNAL(displaySolutionMethods(QStringList&)), taskWindow, SLOT(refreshSolutionMethods(QStringList&)));
+
+    QObject::connect(this, SIGNAL(retrieveTaskFromHistory(int&,int,int,QStringList&,QStringList&)), model, SLOT(taskFromHistory(int&,int,int,QStringList&,QStringList&)));
+    QObject::connect(this, SIGNAL(displayTaskFromHistory(QStringList,QStringList)), taskWindow, SLOT(refreshLines(QStringList,QStringList)));
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -102,11 +105,14 @@ void Controller::showSolutionMethods(int taskTypeId)
     emit displaySolutionMethods(solutionMethods);
 }
 
-void Controller::showTaskWindow(int taskNumberInHistory)
+void Controller::showTaskWindow(int taskIndexInHistory)
 {
     int taskTypeIndex = 0,
-        taskTypeId    = 0;
+        taskTypeId    = 0,
+        taskNumberInHistory = taskIndexInHistory + 1,
+            taskId = 0;
     bool taskIsNew = false;
+    QStringList lValues, rValues;
 
     mainWindow->currentTypeIndex(taskTypeIndex);
     taskTypeId = taskTypeIndex + 1;
@@ -123,6 +129,13 @@ void Controller::showTaskWindow(int taskNumberInHistory)
     {
         taskWindow->clear();
         taskWindow->appendLine();
+        emit regTask(0, taskTypeId, true);
+    }
+    else
+    {
+        emit retrieveTaskFromHistory(taskId, taskTypeId, taskNumberInHistory, lValues, rValues);
+        emit displayTaskFromHistory(lValues, rValues);
+        emit regTask(taskId, taskTypeId, false);
     }
 
     taskWindow->show();

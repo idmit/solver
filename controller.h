@@ -37,13 +37,19 @@ signals:
     void retrieveSolutionMethods(int taskTypeId, QStringList &solutionMethods);
     void displaySolutionMethods(QStringList &solutionMethods);
 
+    void regTask(int taskId, int taskTypeId, bool isNewTask);
+
+    /* */
+    void retrieveTaskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
+    void displayTaskFromHistory(QStringList lValues, QStringList rValues);
+
 public slots:
     void initialize(MainWindow *_mainWindow, ConnectionWindow *_connectionWindow, TaskWindow *_taskWindow, Model *_model);
 
     void showConnectionWindow();
     void processConnectionOptions();
 
-    void showTaskWindow(int taskNumberInHistory);
+    void showTaskWindow(int taskIndexInHistory);
 
     void showTaskTypes(bool connectionExists);
     void showTaskHistory(int taskTypeIndex);

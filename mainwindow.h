@@ -20,7 +20,7 @@ public:
 
 signals:
     void currentTaskTypeIndexChanged(int newIndex);
-    void newTaskButtonClicked(int taskNumberInHistory);
+    void processTask(int taskNumberInHistory);
 
 public slots:
     void refreshStatus(QString status, int timeout);
@@ -31,6 +31,7 @@ public slots:
 private slots:
     void on_taskTypesCombo_currentIndexChanged(int index);
     void on_newTaskButton_clicked();
+    void on_taskHistoryList_doubleClicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow *ui;

@@ -47,5 +47,10 @@ void MainWindow::on_taskTypesCombo_currentIndexChanged(int index)
 
 void MainWindow::on_newTaskButton_clicked()
 {
-    emit newTaskButtonClicked(0);
+    emit processTask(-1);
+}
+
+void MainWindow::on_taskHistoryList_doubleClicked(const QModelIndex &index)
+{
+    emit processTask(index.row());
 }
