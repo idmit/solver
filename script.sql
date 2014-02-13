@@ -21,9 +21,19 @@ FOREIGN KEY (type_id) REFERENCES Types (id)
 CREATE TABLE `Tasks`
 (
 id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-content TEXT NOT NULL,
 type_id INT NOT NULL,
 FOREIGN KEY (type_id) REFERENCES Types (id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
+CREATE TABLE `Equations`
+(
+id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+task_id INT NOT NULL,
+value DOUBLE NOT NULL,
+left_right BOOL NOT NULL,
+FOREIGN KEY (task_id) REFERENCES Tasks (id)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 );
@@ -62,6 +72,12 @@ INSERT INTO `Types` (name) VALUES ("LE"), ("SLAE");
 
 INSERT INTO `Methods` (name, type_id) VALUES ('Native', 1), ('Bisection', 1);
 INSERT INTO `Methods` (name, type_id) VALUES ('Reflection', 2);
-INSERT INTO `Tasks` (content, type_id) VALUES ('4+1', 1);
-INSERT INTO `Tasks` (content, type_id) VALUES ('Hello', 1);
 
+INSERT INTO `Tasks` (type_id) VALUES (1);
+INSERT INTO `Tasks` (type_id) VALUES (1);
+INSERT INTO `Equations` (value, left_right, task_id) VALUES (10, 0, 1);
+INSERT INTO `Equations` (value, left_right, task_id) VALUES (15, 1, 1);
+INSERT INTO `Equations` (value, left_right, task_id) VALUES (3, 0, 2);
+INSERT INTO `Equations` (value, left_right, task_id) VALUES (30, 1, 2);
+INSERT INTO `Equations` (value, left_right, task_id) VALUES (7, 0, 2);
+INSERT INTO `Equations` (value, left_right, task_id) VALUES (70, 1, 2);

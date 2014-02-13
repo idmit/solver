@@ -53,10 +53,38 @@ void Model::taskHistory(int taskTypeId, QStringList &taskHistory)
     query.prepare(SELECT_HISTORY);
     query.bindValue(":typeId", taskTypeId);
     query.exec();
+    int prevTaskId = 0, taskId = 1;
+    double value = 0;
+    bool leftOrRight = false, prevLeftOrRight = false;
+    QString task;
     while (query.next())
     {
-        taskHistory << query.value(0).toString();
+        prevTaskId = taskId;
+        prevLeftOrRight = leftOrRight;
+
+        value = query.value(0).toDouble();
+        leftOrRight = query.value(1).toBool();
+        taskId = query.value(2).toInt();
+
+        if (taskId != prevTaskId)
+        {
+            taskHistory << task;
+            task = "";
+        }
+
+        if (!task.isEmpty() && leftOrRight != prevLeftOrRight)
+        {
+            task += leftOrRight ? " =" : " ,";
+        }
+
+        if (!task.isEmpty())
+        {
+            task += " ";
+        }
+        task += QString::number(value);
     }
+
+    taskHistory << task;
 }
 
 void Model::solutionMethods(int taskTypeId, QStringList &solutionMethods)

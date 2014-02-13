@@ -7,7 +7,7 @@
 /* SQL QUERIES */
 #define CONNECTION_NAME  "Solver"
 #define SELECT_TYPES "SELECT name FROM TYPES"
-#define SELECT_HISTORY "SELECT content FROM TASKS WHERE type_id = :typeId"
+#define SELECT_HISTORY "SELECT value, left_right, task_id FROM EQUATIONS WHERE task_id IN (SELECT id FROM TASKS WHERE type_id = :typeId)"
 #define SELECT_METHODS "SELECT name FROM METHODS WHERE type_id = :typeId"
 
 class Model : public QObject
