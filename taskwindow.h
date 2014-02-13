@@ -17,14 +17,18 @@ public:
     explicit TaskWindow(QWidget *parent = 0);
     ~TaskWindow();
 
+signals:
+
 public slots:
     void refreshSolutionMethods(QStringList &solutionMethods);
+    void appendLine();
 
 private slots:
-    void on_pushButton_clicked();
+    void on_solveButton_clicked();
 
 private:
     Ui::TaskWindow *ui;
+    int nextEmptyRow;
 };
 
 #endif // TASKWINDOW_H
