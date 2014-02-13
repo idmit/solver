@@ -21,7 +21,11 @@ signals:
 
 public slots:
     void refreshSolutionMethods(QStringList &solutionMethods);
+    void addLineAtIndex(int index);
+    void removeLineAtIndex(int index);
     void appendLine();
+    void addLine();
+    void removeLine();
 
 private slots:
     void on_solveButton_clicked();
