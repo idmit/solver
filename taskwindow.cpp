@@ -47,6 +47,9 @@ void TaskWindow::addLineAtIndex(int index)
         remove->setEnabled(false);
     if (index != 0)
         ui->taskContentLayout->itemAtPosition(0, 3)->widget()->setEnabled(true);
+
+    if (firstAddButtonDisabled && index == 0)
+        add->setEnabled(false);
 }
 
 void TaskWindow::removeLineAtIndex(int index)
@@ -121,6 +124,11 @@ void TaskWindow::clear()
     }
 
     nextEmptyRow = 0;
+}
+
+void TaskWindow::enableFirstAddButton(bool en)
+{
+    firstAddButtonDisabled = !en;
 }
 
 void TaskWindow::on_solveButton_clicked()

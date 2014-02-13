@@ -28,12 +28,15 @@ public slots:
     void removeLine();
     void clear();
 
+    void enableFirstAddButton(bool en);
+
 private slots:
     void on_solveButton_clicked();
 
 private:
     Ui::TaskWindow *ui;
     int nextEmptyRow;
+    bool firstAddButtonDisabled;
 };
 
 #endif // TASKWINDOW_H
