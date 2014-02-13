@@ -11,8 +11,6 @@ TaskWindow::TaskWindow(QWidget *parent) :
 
     setWindowModality(Qt::WindowModal);
     setWindowTitle(TASK_WINDOW_TITLE);
-
-    appendLine();
 }
 
 TaskWindow::~TaskWindow()
