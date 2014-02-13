@@ -21,7 +21,7 @@ signals:
 
 public slots:
     void refreshSolutionMethods(QStringList &solutionMethods);
-    void addLineAtIndex(int index);
+    void addLineAtIndex(int index, QString lValue = "", QString rValue = "");
     void removeLineAtIndex(int index);
     void appendLine();
     void addLine();
@@ -29,6 +29,7 @@ public slots:
     void clear();
 
     void enableFirstAddButton(bool en);
+    void refreshLines(QStringList lValues, QStringList rValues);
 
 private slots:
     void on_solveButton_clicked();

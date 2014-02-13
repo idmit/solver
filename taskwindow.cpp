@@ -25,9 +25,9 @@ void TaskWindow::refreshSolutionMethods(QStringList &solutionMethods)
     ui->solutionMethodsCombo->addItems(solutionMethods);
 }
 
-void TaskWindow::addLineAtIndex(int index)
+void TaskWindow::addLineAtIndex(int index, QString lValue, QString rValue)
 {
-    QLineEdit *leftSide = new QLineEdit(), *rightSide = new QLineEdit();
+    QLineEdit *leftSide = new QLineEdit(lValue), *rightSide = new QLineEdit(rValue);
     QPushButton *add = new QPushButton("+"), *remove = new QPushButton("-");
 
     add->setObjectName(QString::number(index));
@@ -130,6 +130,16 @@ void TaskWindow::clear()
 void TaskWindow::enableFirstAddButton(bool en)
 {
     firstAddButtonDisabled = !en;
+}
+
+void TaskWindow::refreshLines(QStringList lValues, QStringList rValues)
+{
+    clear();
+
+    for (int i = 0; i < lValues.size(); ++i)
+    {
+        addLineAtIndex(i, lValues[i], rValues[i]);
+    }
 }
 
 void TaskWindow::on_solveButton_clicked()
