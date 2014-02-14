@@ -43,6 +43,8 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     QObject::connect(taskWindow, SIGNAL(editButtonClicked()), taskWindow, SLOT(allowEdit()));
     QObject::connect(taskWindow, SIGNAL(editButtonClicked()), taskWindow, SLOT(hideEditButton()));
     QObject::connect(taskWindow, SIGNAL(editButtonClicked()), model, SLOT(makeTaskNew()));
+
+    QObject::connect(taskWindow, SIGNAL(solveButtonClicked(QStringList,QStringList)), this, SLOT(processTask(QStringList,QStringList)));
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -149,4 +151,30 @@ void Controller::showTaskWindow(int taskIndexInHistory)
         taskWindow->forbidEdit();
 
     taskWindow->show();
+}
+
+void Controller::processTask(QStringList lValues, QStringList rValues)
+{
+    for (int i = 0; i < lValues.size(); ++i)
+    {
+        while(lValues[i].endsWith(' '))
+            lValues[i].chop(1);
+        while(rValues[i].endsWith(' '))
+            rValues[i].chop(1);
+        if (lValues[i].isEmpty() || rValues[i].isEmpty())
+        {
+            lValues.removeAt(i);
+            rValues.removeAt(i);
+            i--;
+        }
+    }
+    if (lValues.size() == 0)
+    {
+        QMessageBox msgBox(taskWindow);
+        msgBox.setWindowModality(Qt::WindowModal);
+        msgBox.setText("Your task is empty");
+        msgBox.exec();
+    }
+    else
+        taskWindow->hide();
 }

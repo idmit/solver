@@ -144,7 +144,18 @@ void TaskWindow::refreshLines(QStringList lValues, QStringList rValues)
 
 void TaskWindow::on_solveButton_clicked()
 {
-    this->hide();
+    QLineEdit *lSide = 0, *rSide = 0;
+    QStringList lValues, rValues;
+
+    for (int i = 0; i < nextEmptyRow; ++i)
+    {
+        lSide = dynamic_cast<QLineEdit *>(ui->taskContentLayout->itemAtPosition(i, 0)->widget());
+        lValues << lSide->text();
+        rSide = dynamic_cast<QLineEdit *>(ui->taskContentLayout->itemAtPosition(i, 1)->widget());
+        rValues << rSide->text();
+    }
+
+    emit solveButtonClicked(lValues, rValues);
 }
 
 void TaskWindow::forbidEdit()

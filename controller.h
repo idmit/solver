@@ -56,6 +56,8 @@ public slots:
     void showSolutionMethods(int taskTypeId);
     void showTaskWindow(int taskIndexInHistory);
 
+    void processTask(QStringList lValues, QStringList rValues);
+
 private:
     MainWindow *mainWindow;
     ConnectionWindow *connectionWindow;

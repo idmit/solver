@@ -19,6 +19,7 @@ public:
 
 signals:
     void editButtonClicked();
+    void solveButtonClicked(QStringList lValues, QStringList rValues);
 
 public slots:
     void refreshSolutionMethods(QStringList &solutionMethods);
