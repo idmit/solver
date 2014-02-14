@@ -45,6 +45,8 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     QObject::connect(taskWindow, SIGNAL(editButtonClicked()), model, SLOT(makeTaskNew()));
 
     QObject::connect(taskWindow, SIGNAL(solveButtonClicked(QStringList,QStringList)), this, SLOT(processTask(QStringList,QStringList)));
+
+    QObject::connect(this, SIGNAL(retrieveSolutionMethodId(int&,int)), model, SLOT(solutionMethodFromList(int&,int)));
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -174,7 +176,15 @@ void Controller::processTask(QStringList lValues, QStringList rValues)
         msgBox.setWindowModality(Qt::WindowModal);
         msgBox.setText("Your task is empty");
         msgBox.exec();
+        return;
     }
-    else
-        taskWindow->hide();
+
+    int solutionMethodNumberInList = 0,
+            solutionMethodIndex = 0,
+            solutionMethodId = 0;
+
+    taskWindow->currentSolutionMethodIndex(solutionMethodIndex);
+    solutionMethodNumberInList = solutionMethodIndex + 1;
+    emit retrieveSolutionMethodId(solutionMethodId, solutionMethodNumberInList);
+    taskWindow->hide();
 }

@@ -38,11 +38,11 @@ public slots:
     void showEditButton(bool en);
     void hideEditButton();
 
+    void currentSolutionMethodIndex(int &solutionMethodIndex);
+
 private slots:
     void on_solveButton_clicked();
-
     void on_editButton_clicked();
-
     void on_closeButton_clicked();
 
 private:

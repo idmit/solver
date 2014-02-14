@@ -45,6 +45,7 @@ public slots:
     void taskHistory(int taskTypeId, QStringList &taskHistory);
     void solutionMethods(int taskTypeId, QStringList &solutionMethods);
     void taskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
+    void solutionMethodFromList(int &solutionMethodId, int solutionMethodNumberInList);
 
     void regTask(int taskId, int taskTypeId, bool isNew);
     void makeTaskNew();

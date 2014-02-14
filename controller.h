@@ -44,6 +44,8 @@ signals:
     void retrieveTaskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
     void displayTaskFromHistory(QStringList lValues, QStringList rValues);
 
+    void retrieveSolutionMethodId(int &solutionMethodId, int solutionMethodNumberInList);
+
 public slots:
     void initialize(MainWindow *_mainWindow, ConnectionWindow *_connectionWindow, TaskWindow *_taskWindow, Model *_model);
 

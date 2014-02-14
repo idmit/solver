@@ -187,3 +187,8 @@ void TaskWindow::on_closeButton_clicked()
 {
     this->hide();
 }
+
+void TaskWindow::currentSolutionMethodIndex(int &solutionMethodIndex)
+{
+    solutionMethodIndex = ui->solutionMethodsCombo->currentIndex();
+}

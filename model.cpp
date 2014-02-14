@@ -175,3 +175,16 @@ void Model::makeTaskNew()
     processedTask->id = 0;
     processedTask->isNew = true;
 }
+
+void Model::solutionMethodFromList(int &solutionMethodId, int solutionMethodNumberInList)
+{
+    int i = 0;
+    QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
+    QSqlQuery query(db);
+
+    query.prepare("SELECT id FROM Methods WHERE type_id = :typeId");
+    query.bindValue(":typeId", processedTask->typeId);
+    query.exec();
+    while (query.next() && (++i) != solutionMethodNumberInList);
+    solutionMethodId = query.value(0).toInt();
+}
