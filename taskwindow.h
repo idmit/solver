@@ -23,6 +23,7 @@ signals:
 
 public slots:
     void refreshSolutionMethods(QStringList &solutionMethods);
+    void refreshSolution(QString solution);
     void addLineAtIndex(int index, QString lValue = "", QString rValue = "");
     void removeLineAtIndex(int index);
     void appendLine();

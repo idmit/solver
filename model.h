@@ -15,6 +15,7 @@
 #define SELECT_TYPES "SELECT name FROM TYPES"
 #define SELECT_HISTORY "SELECT value, left_right, task_id FROM EQUATIONS WHERE task_id IN (SELECT id FROM TASKS WHERE type_id = :typeId)"
 #define SELECT_METHODS "SELECT name FROM METHODS WHERE type_id = :typeId"
+#define INSERT_TASK  "INSERT INTO Tasks (content, type_id) VALUES (:taskContent, :typeId)"
 
 struct Task
 {
@@ -31,6 +32,7 @@ class Model : public QObject
     Q_OBJECT
 public:
     explicit Model(QObject *parent = 0);
+    int processedTaskTypeId() { return processedTask->typeId; }
 
 signals:
     void statusChanged(QString status, int timeout);
@@ -47,14 +49,21 @@ public slots:
     void solutionMethods(int taskTypeId, QStringList &solutionMethods);
     void taskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
     void solutionMethodFromList(int &solutionMethodId, int solutionMethodNumberInList);
+    void solution(QString &solution, int solutionMethodId);
 
     void regTask(int taskId, int taskTypeId, bool isNew);
     void makeTaskNew();
+
+    void solveTask(QStringList lValues, QStringList rValues, int solutionMethodId);
+
 private:
     Task *processedTask;
 
     bool taskIsValid(QStringList lValues, QStringList rValues);
     void parseTask(QStringList lValues, QStringList rValues, Matrix &matrix, Vector &column);
+    int saveTask(Matrix matrix, Vector column);
+    void saveSolution(Vector result, int solutionMethodId);
+    void attemptToFindSolution(int solutionMethodId, bool &found);
 };
 
 #endif // MODEL_H

@@ -125,26 +125,29 @@ void Model::taskFromHistory(int &expTaskId, int taskTypeId, int taskNumberInHist
     bool leftOrRight = false, prevLeftOrRight = false;
     QStringList *values = &lValues;
 
-    while (query.next())
-    {
-        prevTaskId = taskId;
-        prevLeftOrRight = leftOrRight;
-        taskId = query.value(2).toInt();
-
-        if (i == 0)
+    if (taskNumberInHistory == 1)
+        query.next();
+    else
+        while (query.next())
         {
-            prevTaskId = taskId; i = 1;
-        }
+            prevTaskId = taskId;
+            prevLeftOrRight = leftOrRight;
+            taskId = query.value(2).toInt();
 
-        if (taskId != prevTaskId)
-        {
-            i++;
-            if (i == taskNumberInHistory)
+            if (i == 0)
             {
-                break;
+                prevTaskId = taskId; i = 1;
+            }
+
+            if (taskId != prevTaskId)
+            {
+                i++;
+                if (i == taskNumberInHistory)
+                {
+                    break;
+                }
             }
         }
-    }
 
     taskId = query.value(2).toInt();
     expTaskId = taskId;
@@ -235,5 +238,115 @@ void Model::parseTask(QStringList lValues, QStringList rValues, Matrix &matrix, 
 
         column[i] = rValues[i].split(" ", QString::SkipEmptyParts)[0].toDouble();
     }
+}
 
+int Model::saveTask(Matrix matrix, Vector column)
+{
+    int newTaskId = 0;
+    QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
+    QSqlQuery query(db);
+
+    query.prepare("INSERT INTO Tasks (type_id) VALUES (:typeId)");
+    query.bindValue(":typeId", processedTask->typeId);
+    query.exec();
+
+    newTaskId = query.lastInsertId().toInt();
+
+    for (int i = 0; i < matrix.dim(); ++i)
+    {
+        for (int j = 0; j < matrix.dim(); ++j)
+        {
+            query.prepare("INSERT INTO Equations (value, left_right, task_id) VALUES (:value, :leftRight, :taskId)");
+            query.bindValue(":taskId", newTaskId);
+            query.bindValue(":value", matrix[i][j]);
+            query.bindValue(":leftRight", 0);
+            query.exec();
+        }
+        query.prepare("INSERT INTO Equations (value, left_right, task_id) VALUES (:value, :leftRight, :taskId)");
+        query.bindValue(":taskId", newTaskId);
+        query.bindValue(":value", column[i]);
+        query.bindValue(":leftRight", 1);
+        query.exec();
+    }
+
+    return newTaskId;
+}
+
+void Model::solution(QString &solution, int solutionMethodId)
+{
+    QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
+    QSqlQuery query(db);
+
+    query.prepare("SELECT value FROM Solutions WHERE task_id = :taskId AND method_id = :methodId");
+    query.bindValue(":taskId", processedTask->id);
+    query.bindValue(":methodId", solutionMethodId);
+    query.exec();
+
+    solution = "";
+    while (query.next())
+    {
+        solution += query.value(0).toString() + "\n";
+    }
+}
+
+void Model::saveSolution(Vector result, int solutionMethodId)
+{
+    QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
+    QSqlQuery query(db);
+
+    for (int i = 0; i < result.dim(); ++i)
+    {
+        query.prepare("INSERT INTO Solutions (task_id, method_id, value) VALUES (:taskId, :methodId, :value)");
+        query.bindValue(":taskId", processedTask->id);
+        query.bindValue(":value", result[i]);
+        query.bindValue(":methodId", solutionMethodId);
+        query.exec();
+    }
+}
+
+void Model::attemptToFindSolution(int solutionMethodId, bool &found)
+{
+    QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
+    QSqlQuery query(db);
+
+    query.prepare("SELECT id FROM SOLUTIONS WHERE task_id = :taskId AND method_id = :methodId");
+    query.bindValue(":taskId", processedTask->id);
+    query.bindValue(":methodId", solutionMethodId);
+    query.exec();
+
+    found = false;
+
+    while (query.next() && (found = true));
+}
+
+void Model::solveTask(QStringList lValues, QStringList rValues, int solutionMethodId)
+{
+    int dim = lValues.size();
+    bool found = false;
+    processedTask->matrix = Matrix(dim);
+    processedTask->vector = Vector(dim);
+
+    if (!processedTask->isNew)
+        attemptToFindSolution(solutionMethodId, found);
+
+    if (found)
+        return;
+
+    if (!taskIsValid(lValues, rValues))
+    {
+        emit statusChanged("Wrong!", 3000);
+        return;
+    }
+
+    Vector column(dim), result(dim);
+    Matrix matrix(dim);
+
+    parseTask(lValues, rValues, matrix, column);
+
+    result = matrix.reflection(column);
+
+    if (processedTask->isNew)
+        processedTask->id = saveTask(matrix, column);
+
+    saveSolution(result, solutionMethodId);
 }

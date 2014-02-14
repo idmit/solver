@@ -49,7 +49,7 @@ FOREIGN KEY (task_id) REFERENCES Tasks (id)
 FOREIGN KEY (method_id) REFERENCES Methods (id)
     ON UPDATE CASCADE
     ON DELETE CASCADE,
-result DOUBLE NOT NULL
+value DOUBLE NOT NULL
 );
 
 CREATE TABLE `Meta` 

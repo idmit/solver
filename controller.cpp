@@ -47,6 +47,11 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     QObject::connect(taskWindow, SIGNAL(solveButtonClicked(QStringList,QStringList)), this, SLOT(processTask(QStringList,QStringList)));
 
     QObject::connect(this, SIGNAL(retrieveSolutionMethodId(int&,int)), model, SLOT(solutionMethodFromList(int&,int)));
+
+    QObject::connect(this, SIGNAL(solveTask(QStringList,QStringList,int)), model, SLOT(solveTask(QStringList,QStringList,int)));
+
+    QObject::connect(this, SIGNAL(retrieveSolution(QString&,int)), model, SLOT(solution(QString&,int)));
+    QObject::connect(this, SIGNAL(displaySolution(QString)), taskWindow, SLOT(refreshSolution(QString)));
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -155,6 +160,13 @@ void Controller::showTaskWindow(int taskIndexInHistory)
     taskWindow->show();
 }
 
+void Controller::showSolution(int solutionMethodId)
+{
+    QString solution;
+    emit retrieveSolution(solution, solutionMethodId);
+    emit displaySolution(solution);
+}
+
 void Controller::processTask(QStringList lValues, QStringList rValues)
 {
     for (int i = 0; i < lValues.size(); ++i)
@@ -186,5 +198,11 @@ void Controller::processTask(QStringList lValues, QStringList rValues)
     taskWindow->currentSolutionMethodIndex(solutionMethodIndex);
     solutionMethodNumberInList = solutionMethodIndex + 1;
     emit retrieveSolutionMethodId(solutionMethodId, solutionMethodNumberInList);
+
+    emit solveTask(lValues, rValues, solutionMethodId);
+
+    showSolution(solutionMethodId);
+
+    showTaskHistory(model->processedTaskTypeId() - 1);
     taskWindow->hide();
 }

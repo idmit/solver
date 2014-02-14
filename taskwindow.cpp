@@ -1,5 +1,6 @@
 #include "taskwindow.h"
 #include <QLineEdit>
+#include <QMessageBox>
 #include "ui_taskwindow.h"
 
 TaskWindow::TaskWindow(QWidget *parent) :
@@ -191,4 +192,13 @@ void TaskWindow::on_closeButton_clicked()
 void TaskWindow::currentSolutionMethodIndex(int &solutionMethodIndex)
 {
     solutionMethodIndex = ui->solutionMethodsCombo->currentIndex();
+}
+
+void TaskWindow::refreshSolution(QString solution)
+{
+    QMessageBox msgBox(this);
+
+    msgBox.setWindowModality(Qt::WindowModal);
+    msgBox.setText(solution);
+    msgBox.exec();
 }
