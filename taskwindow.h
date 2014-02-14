@@ -43,6 +43,8 @@ private slots:
 
     void on_editButton_clicked();
 
+    void on_closeButton_clicked();
+
 private:
     Ui::TaskWindow *ui;
     int nextEmptyRow;

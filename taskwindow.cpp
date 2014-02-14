@@ -182,3 +182,8 @@ void TaskWindow::hideEditButton()
 {
     showEditButton(false);
 }
+
+void TaskWindow::on_closeButton_clicked()
+{
+    this->hide();
+}
