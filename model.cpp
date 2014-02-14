@@ -121,7 +121,7 @@ void Model::taskFromHistory(int &expTaskId, int taskTypeId, int taskNumberInHist
     query.exec();
 
     int prevTaskId = 0, taskId = 1, i = 1;
-    QString value = "";
+    QString value = "", row = "";
     bool leftOrRight = false, prevLeftOrRight = false;
     QStringList *values = &lValues;
 
@@ -156,11 +156,14 @@ void Model::taskFromHistory(int &expTaskId, int taskTypeId, int taskNumberInHist
 
         if (leftOrRight != prevLeftOrRight)
         {
+            values->append(row);
+            row = "";
             values = leftOrRight ? &rValues : &lValues;
         }
 
-        values->append(value + " ");
+        row += value + " ";
     } while (query.next());
+    rValues.append(row);
 }
 
 void Model::regTask(int taskId, int taskTypeId, bool isNew)
