@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QHash>
+#include <QStringList>
 #include "matrix.h"
 
 /* Type IDS in DB */
@@ -51,6 +52,9 @@ public slots:
     void makeTaskNew();
 private:
     Task *processedTask;
+
+    bool taskIsValid(QStringList lValues, QStringList rValues);
+    void parseTask(QStringList lValues, QStringList rValues, Matrix &matrix, Vector &column);
 };
 
 #endif // MODEL_H

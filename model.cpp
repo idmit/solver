@@ -188,3 +188,40 @@ void Model::solutionMethodFromList(int &solutionMethodId, int solutionMethodNumb
     while (query.next() && (++i) != solutionMethodNumberInList);
     solutionMethodId = query.value(0).toInt();
 }
+
+bool Model::taskIsValid(QStringList lValues, QStringList rValues)
+{
+    int expectedDim = lValues.size();
+
+    if (processedTask->typeId == SLAE_TYPE_ID)
+    {
+        for (int i = 0; i < expectedDim; ++i)
+        {
+           if (lValues[i].split(" ", QString::SkipEmptyParts).size() != expectedDim || rValues[i].split(" ", QString::SkipEmptyParts).size() != 1)
+           {
+               return false;
+           }
+        }
+    }
+
+    return true;
+}
+
+void Model::parseTask(QStringList lValues, QStringList rValues, Matrix &matrix, Vector &column)
+{
+    int dim = lValues.size();
+    QVector<double> row(0);
+
+    for (int i = 0; i < dim; ++i)
+    {
+        row.clear();
+        foreach (const QString &number, lValues[i].split(" ", QString::SkipEmptyParts))
+        {
+            row << number.toDouble();
+        }
+        matrix[i] = row;
+
+        column[i] = rValues[i].split(" ", QString::SkipEmptyParts)[0].toDouble();
+    }
+
+}
