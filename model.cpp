@@ -120,20 +120,29 @@ void Model::taskFromHistory(int &expTaskId, int taskTypeId, int taskNumberInHist
     query.bindValue(":typeId", taskTypeId);
     query.exec();
 
-    int prevTaskId = 0, taskId = 1, i = 1;
+    int prevTaskId = 0, taskId = 1, i = 0;
     QString value = "", row = "";
     bool leftOrRight = false, prevLeftOrRight = false;
     QStringList *values = &lValues;
 
-    while (query.next() && i != taskNumberInHistory)
+    while (query.next())
     {
         prevTaskId = taskId;
         prevLeftOrRight = leftOrRight;
         taskId = query.value(2).toInt();
 
+        if (i == 0)
+        {
+            prevTaskId = taskId; i = 1;
+        }
+
         if (taskId != prevTaskId)
         {
             i++;
+            if (i == taskNumberInHistory)
+            {
+                break;
+            }
         }
     }
 
