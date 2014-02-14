@@ -1,5 +1,6 @@
 #include "controller.h"
 #include <QMessageBox>
+#include <QPushButton>
 
 Controller::Controller(QWidget *parent) :
     QWidget(parent)
@@ -37,6 +38,11 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
 
     QObject::connect(this, SIGNAL(retrieveTaskFromHistory(int&,int,int,QStringList&,QStringList&)), model, SLOT(taskFromHistory(int&,int,int,QStringList&,QStringList&)));
     QObject::connect(this, SIGNAL(displayTaskFromHistory(QStringList,QStringList)), taskWindow, SLOT(refreshLines(QStringList,QStringList)));
+
+    QObject::connect(this, SIGNAL(regTask(int,int,bool)), model, SLOT(regTask(int,int,bool)));
+    QObject::connect(taskWindow, SIGNAL(editButtonClicked()), taskWindow, SLOT(allowEdit()));
+    QObject::connect(taskWindow, SIGNAL(editButtonClicked()), taskWindow, SLOT(hideEditButton()));
+    QObject::connect(taskWindow, SIGNAL(editButtonClicked()), model, SLOT(makeTaskNew()));
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -110,7 +116,7 @@ void Controller::showTaskWindow(int taskIndexInHistory)
     int taskTypeIndex = 0,
         taskTypeId    = 0,
         taskNumberInHistory = taskIndexInHistory + 1,
-            taskId = 0;
+        taskId        = 0;
     bool taskIsNew = false;
     QStringList lValues, rValues;
 
@@ -137,6 +143,10 @@ void Controller::showTaskWindow(int taskIndexInHistory)
         emit displayTaskFromHistory(lValues, rValues);
         emit regTask(taskId, taskTypeId, false);
     }
+
+    taskWindow->showEditButton(!taskIsNew);
+    if (!taskIsNew)
+        taskWindow->forbidEdit();
 
     taskWindow->show();
 }

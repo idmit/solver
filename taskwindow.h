@@ -18,6 +18,7 @@ public:
     ~TaskWindow();
 
 signals:
+    void editButtonClicked();
 
 public slots:
     void refreshSolutionMethods(QStringList &solutionMethods);
@@ -31,8 +32,15 @@ public slots:
     void enableFirstAddButton(bool en);
     void refreshLines(QStringList lValues, QStringList rValues);
 
+    void allowEdit();
+    void forbidEdit();
+    void showEditButton(bool en);
+    void hideEditButton();
+
 private slots:
     void on_solveButton_clicked();
+
+    void on_editButton_clicked();
 
 private:
     Ui::TaskWindow *ui;

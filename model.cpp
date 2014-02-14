@@ -4,6 +4,7 @@
 Model::Model(QObject *parent) :
     QObject(parent)
 {
+    processedTask = new Task(1);
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -160,4 +161,17 @@ void Model::taskFromHistory(int &expTaskId, int taskTypeId, int taskNumberInHist
 
         values->append(value + " ");
     } while (query.next());
+}
+
+void Model::regTask(int taskId, int taskTypeId, bool isNew)
+{
+    processedTask->id = taskId;
+    processedTask->typeId = taskTypeId;
+    processedTask->isNew = isNew;
+}
+
+void Model::makeTaskNew()
+{
+    processedTask->id = 0;
+    processedTask->isNew = true;
 }

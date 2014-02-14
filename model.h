@@ -3,12 +3,27 @@
 
 #include <QObject>
 #include <QHash>
+#include "matrix.h"
+
+/* Type IDS in DB */
+#define LE_TYPE_ID   1
+#define SLAE_TYPE_ID 2
 
 /* SQL QUERIES */
 #define CONNECTION_NAME  "Solver"
 #define SELECT_TYPES "SELECT name FROM TYPES"
 #define SELECT_HISTORY "SELECT value, left_right, task_id FROM EQUATIONS WHERE task_id IN (SELECT id FROM TASKS WHERE type_id = :typeId)"
 #define SELECT_METHODS "SELECT name FROM METHODS WHERE type_id = :typeId"
+
+struct Task
+{
+    Task(int dim): id(0), typeId(0), isNew(false), matrix(dim), vector(dim) {}
+    int id;
+    int typeId;
+    bool isNew;
+    Matrix matrix;
+    Vector vector;
+};
 
 class Model : public QObject
 {
@@ -30,6 +45,11 @@ public slots:
     void taskHistory(int taskTypeId, QStringList &taskHistory);
     void solutionMethods(int taskTypeId, QStringList &solutionMethods);
     void taskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
+
+    void regTask(int taskId, int taskTypeId, bool isNew);
+    void makeTaskNew();
+private:
+    Task *processedTask;
 };
 
 #endif // MODEL_H

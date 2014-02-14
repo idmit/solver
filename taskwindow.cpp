@@ -146,3 +146,28 @@ void TaskWindow::on_solveButton_clicked()
 {
     this->hide();
 }
+
+void TaskWindow::forbidEdit()
+{
+    ui->scrollArea->setEnabled(false);
+}
+
+void TaskWindow::allowEdit()
+{
+    ui->scrollArea->setEnabled(true);
+}
+
+void TaskWindow::showEditButton(bool en)
+{
+    ui->editButton->setVisible(en);
+}
+
+void TaskWindow::on_editButton_clicked()
+{
+    emit editButtonClicked();
+}
+
+void TaskWindow::hideEditButton()
+{
+    showEditButton(false);
+}

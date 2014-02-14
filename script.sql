@@ -74,7 +74,7 @@ INSERT INTO `Methods` (name, type_id) VALUES ('Native', 1), ('Bisection', 1);
 INSERT INTO `Methods` (name, type_id) VALUES ('Reflection', 2);
 
 INSERT INTO `Tasks` (type_id) VALUES (1);
-INSERT INTO `Tasks` (type_id) VALUES (1);
+INSERT INTO `Tasks` (type_id) VALUES (2);
 INSERT INTO `Equations` (value, left_right, task_id) VALUES (10, 0, 1);
 INSERT INTO `Equations` (value, left_right, task_id) VALUES (15, 1, 1);
 INSERT INTO `Equations` (value, left_right, task_id) VALUES (3, 0, 2);

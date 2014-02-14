@@ -25,21 +25,22 @@ signals:
     void displayDrivers(QStringList &drivers);
     void attemptToConnect(QHash<QString, QString> &options, bool &result);
 
-    /* */
+    /* Load and show task types */
     void retrieveTaskTypes(QStringList &taskTypes);
     void displayTaskTypes(QStringList &taskTypes);
 
-    /* */
+    /* Load and show history of tasks */
     void retrieveTaskHistory(int taskTypeId, QStringList &taskHistory);
     void displayTaskHistory(QStringList &taskHistory);
 
-    /* */
+    /* Load and show task solution methods */
     void retrieveSolutionMethods(int taskTypeId, QStringList &solutionMethods);
     void displaySolutionMethods(QStringList &solutionMethods);
 
+    /* Register task with parameters as processing */
     void regTask(int taskId, int taskTypeId, bool isNewTask);
 
-    /* */
+    /* Load and show task chosen from history */
     void retrieveTaskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
     void displayTaskFromHistory(QStringList lValues, QStringList rValues);
 
@@ -49,11 +50,11 @@ public slots:
     void showConnectionWindow();
     void processConnectionOptions();
 
-    void showTaskWindow(int taskIndexInHistory);
-
     void showTaskTypes(bool connectionExists);
     void showTaskHistory(int taskTypeIndex);
+
     void showSolutionMethods(int taskTypeId);
+    void showTaskWindow(int taskIndexInHistory);
 
 private:
     MainWindow *mainWindow;

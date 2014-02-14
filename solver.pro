@@ -17,14 +17,14 @@ SOURCES += main.cpp\
     controller.cpp \
     connectionwindow.cpp \
     model.cpp \
-    matrix.cpp
+    matrix.cpp \
     taskwindow.cpp
 
 HEADERS  += mainwindow.h \
     controller.h \
     connectionwindow.h \
     model.h \
-    matrix.h
+    matrix.h \
     taskwindow.h
 
 FORMS    += mainwindow.ui \
