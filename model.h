@@ -10,6 +10,12 @@
 #define LE_TYPE_ID   1
 #define SLAE_TYPE_ID 2
 
+/* Methods ID in DB */
+#define NATIVE_METHOD_ID    1
+#define BISECTION_METHOD_ID 2
+#define REFLECTION_METHOD_ID    3
+#define SEIDEL_METHOD_ID 4
+
 /* SQL QUERIES */
 #define CONNECTION_NAME  "Solver"
 #define SELECT_TYPES "SELECT name FROM TYPES"

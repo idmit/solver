@@ -348,7 +348,15 @@ void Model::solveTask(QStringList lValues, QStringList rValues, int solutionMeth
 
     parseTask(lValues, rValues, matrix, column);
 
-    result = matrix.reflection(column);
+    switch (solutionMethodId)
+    {
+    case NATIVE_METHOD_ID:
+    case REFLECTION_METHOD_ID:
+        result = matrix.reflection(column);
+        break;
+    default:
+        break;
+    }
 
     if (processedTask->isNew)
         processedTask->id = saveTask(matrix, column);
