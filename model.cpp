@@ -393,7 +393,7 @@ bool Model::solveTask(QStringList lValues, QStringList rValues, int solutionMeth
 
     if (!taskIsValid(lValues, rValues))
     {
-        emit alert("Your input is incomplete.", 3000);
+        emit alert("Your input is incomplete.", 3);
         return false;
     }
 
