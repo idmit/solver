@@ -9,7 +9,7 @@ Model::Model(QObject *parent) :
 
 /* CONNECTION CREATION BEGIN */
 
-void Model::drivers(QStringList &drivers)
+void Model::retrieveDrivers(QStringList &drivers)
 {
     drivers = QSqlDatabase::drivers();
 }
@@ -34,7 +34,7 @@ void Model::attemptToAddConnection(QHash<QString, QString> &options, bool &resul
 
 /* CONNECTION CREATION END */
 
-void Model::taskTypes(QStringList &taskTypes)
+void Model::retrieveTaskTypes(QStringList &taskTypes)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
@@ -46,7 +46,7 @@ void Model::taskTypes(QStringList &taskTypes)
     }
 }
 
-void Model::taskHistory(int taskTypeId, QStringList &taskHistory)
+void Model::retrieveTaskHistory(int taskTypeId, QStringList &taskHistory)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
@@ -97,7 +97,7 @@ void Model::taskHistory(int taskTypeId, QStringList &taskHistory)
     }
 }
 
-void Model::solutionMethods(int taskTypeId, QStringList &solutionMethods)
+void Model::retrieveSolutionMethods(int taskTypeId, QStringList &solutionMethods)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
@@ -111,7 +111,7 @@ void Model::solutionMethods(int taskTypeId, QStringList &solutionMethods)
     }
 }
 
-void Model::taskFromHistory(int &expTaskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues)
+void Model::retrieveTaskFromHistory(int &expTaskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
@@ -191,7 +191,7 @@ void Model::makeTaskNew()
     processedTask->isNew = true;
 }
 
-void Model::solutionMethodFromList(int &solutionMethodId, int solutionMethodNumberInList)
+void Model::retrieveSolutionMethodFromList(int &solutionMethodId, int solutionMethodNumberInList)
 {
     int i = 0;
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
@@ -272,7 +272,7 @@ int Model::saveTask(Matrix matrix, Vector column)
     return newTaskId;
 }
 
-void Model::solution(QString &solution, int solutionMethodId)
+void Model::retrieveSolutionForProcessedTask(QString &solution, int solutionMethodId)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);

@@ -40,16 +40,16 @@ signals:
 
 public slots:
     /* Export db drivers */
-    void drivers(QStringList &drivers);
+    void retrieveDrivers(QStringList &drivers);
     /* Attempt to open a connection */
     void attemptToAddConnection(QHash<QString, QString> &options, bool &result);
 
-    void taskTypes(QStringList &taskTypes);
-    void taskHistory(int taskTypeId, QStringList &taskHistory);
-    void solutionMethods(int taskTypeId, QStringList &solutionMethods);
-    void taskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
-    void solutionMethodFromList(int &solutionMethodId, int solutionMethodNumberInList);
-    void solution(QString &solution, int solutionMethodId);
+    void retrieveTaskTypes(QStringList &taskTypes);
+    void retrieveTaskHistory(int taskTypeId, QStringList &taskHistory);
+    void retrieveSolutionMethods(int taskTypeId, QStringList &solutionMethods);
+    void retrieveTaskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
+    void retrieveSolutionMethodFromList(int &solutionMethodId, int solutionMethodNumberInList);
+    void retrieveSolutionForProcessedTask(QString &solution, int solutionMethodId);
 
     void regTask(int taskId, int taskTypeId, bool isNew);
     void makeTaskNew();

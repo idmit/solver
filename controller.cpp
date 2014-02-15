@@ -15,43 +15,20 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     taskWindow = _taskWindow;
     model = _model;
 
-    QObject::connect(this, SIGNAL(retrieveDrivers(QStringList&)), model, SLOT(drivers(QStringList&)));
-    QObject::connect(this, SIGNAL(displayDrivers(QStringList&)), connectionWindow, SLOT(refreshDrivers(QStringList&)));
-
     QObject::connect(connectionWindow, SIGNAL(optionsSpecified()), this, SLOT(processConnectionOptions()));
-    QObject::connect(this, SIGNAL(attemptToConnect(QHash<QString,QString>&,bool&)), model, SLOT(attemptToAddConnection(QHash<QString,QString>&,bool&)));
 
     QObject::connect(model, SIGNAL(statusChanged(QString,int)), this, SIGNAL(statusChanged(QString,int)));
     QObject::connect(this, SIGNAL(statusChanged(QString,int)), mainWindow, SLOT(refreshStatus(QString,int)));
 
-    QObject::connect(this, SIGNAL(retrieveTaskTypes(QStringList&)), model, SLOT(taskTypes(QStringList&)));
-    QObject::connect(this, SIGNAL(displayTaskTypes(QStringList&)), mainWindow, SLOT(refreshTaskTypesCombo(QStringList&)));
-
     QObject::connect(mainWindow, SIGNAL(currentTaskTypeIndexChanged(int)), this, SLOT(showTaskHistory(int)));
-    QObject::connect(this, SIGNAL(retrieveTaskHistory(int,QStringList&)), model, SLOT(taskHistory(int,QStringList&)));
-    QObject::connect(this, SIGNAL(displayTaskHistory(QStringList&)), mainWindow, SLOT(refreshTaskHistoryList(QStringList&)));
 
     QObject::connect(mainWindow, SIGNAL(processTask(int)), this, SLOT(showTaskWindow(int)));
 
-    QObject::connect(this, SIGNAL(retrieveSolutionMethods(int,QStringList&)), model, SLOT(solutionMethods(int,QStringList&)));
-    QObject::connect(this, SIGNAL(displaySolutionMethods(QStringList&)), taskWindow, SLOT(refreshSolutionMethods(QStringList&)));
-
-    QObject::connect(this, SIGNAL(retrieveTaskFromHistory(int&,int,int,QStringList&,QStringList&)), model, SLOT(taskFromHistory(int&,int,int,QStringList&,QStringList&)));
-    QObject::connect(this, SIGNAL(displayTaskFromHistory(QStringList,QStringList)), taskWindow, SLOT(refreshLines(QStringList,QStringList)));
-
-    QObject::connect(this, SIGNAL(regTask(int,int,bool)), model, SLOT(regTask(int,int,bool)));
     QObject::connect(taskWindow, SIGNAL(editButtonClicked()), taskWindow, SLOT(allowEdit()));
     QObject::connect(taskWindow, SIGNAL(editButtonClicked()), taskWindow, SLOT(hideEditButton()));
     QObject::connect(taskWindow, SIGNAL(editButtonClicked()), model, SLOT(makeTaskNew()));
 
     QObject::connect(taskWindow, SIGNAL(solveButtonClicked(QStringList,QStringList)), this, SLOT(processTask(QStringList,QStringList)));
-
-    QObject::connect(this, SIGNAL(retrieveSolutionMethodId(int&,int)), model, SLOT(solutionMethodFromList(int&,int)));
-
-    QObject::connect(this, SIGNAL(solveTask(QStringList,QStringList,int)), model, SLOT(solveTask(QStringList,QStringList,int)));
-
-    QObject::connect(this, SIGNAL(retrieveSolution(QString&,int)), model, SLOT(solution(QString&,int)));
-    QObject::connect(this, SIGNAL(displaySolution(QString)), taskWindow, SLOT(refreshSolution(QString)));
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -60,8 +37,8 @@ void Controller::showConnectionWindow()
 {
     QStringList drivers;
 
-    emit retrieveDrivers(drivers);
-    emit displayDrivers(drivers);
+    model->retrieveDrivers(drivers);
+    connectionWindow->refreshDrivers(drivers);
 
     connectionWindow->show();
     connectionWindow->setFocus();
@@ -74,7 +51,7 @@ void Controller::processConnectionOptions()
     bool result = false;
 
     connectionWindow->getOptions(options);
-    emit attemptToConnect(options, result);
+    model->attemptToAddConnection(options, result);
 
     if (result)
     {
@@ -99,8 +76,8 @@ void Controller::showTaskTypes(bool connectionExists)
     if (!connectionExists)
         return;
 
-    emit retrieveTaskTypes(taskTypes);
-    emit displayTaskTypes(taskTypes);
+    model->retrieveTaskTypes(taskTypes);
+    mainWindow->refreshTaskTypesCombo(taskTypes);
 }
 
 void Controller::showTaskHistory(int taskTypeIndex)
@@ -108,16 +85,16 @@ void Controller::showTaskHistory(int taskTypeIndex)
     QStringList taskHistory;
     int taskTypeId = taskTypeIndex + 1;
 
-    emit retrieveTaskHistory(taskTypeId, taskHistory);
-    emit displayTaskHistory(taskHistory);
+    model->retrieveTaskHistory(taskTypeId, taskHistory);
+    mainWindow->refreshTaskHistoryList(taskHistory);
 }
 
 void Controller::showSolutionMethods(int taskTypeId)
 {
     QStringList solutionMethods;
 
-    emit retrieveSolutionMethods(taskTypeId, solutionMethods);
-    emit displaySolutionMethods(solutionMethods);
+    model->retrieveSolutionMethods(taskTypeId, solutionMethods);
+    taskWindow->refreshSolutionMethods(solutionMethods);
 }
 
 void Controller::showTaskWindow(int taskIndexInHistory)
@@ -144,13 +121,13 @@ void Controller::showTaskWindow(int taskIndexInHistory)
     {
         taskWindow->clear();
         taskWindow->appendLine();
-        emit regTask(0, taskTypeId, true);
+        model->regTask(0, taskTypeId, true);
     }
     else
     {
-        emit retrieveTaskFromHistory(taskId, taskTypeId, taskNumberInHistory, lValues, rValues);
-        emit displayTaskFromHistory(lValues, rValues);
-        emit regTask(taskId, taskTypeId, false);
+        model->retrieveTaskFromHistory(taskId, taskTypeId, taskNumberInHistory, lValues, rValues);
+        taskWindow->refreshLines(lValues, rValues);
+        model->regTask(taskId, taskTypeId, false);
     }
 
     taskWindow->showEditButton(!taskIsNew);
@@ -163,11 +140,11 @@ void Controller::showTaskWindow(int taskIndexInHistory)
 void Controller::showSolution(int solutionMethodId)
 {
     QString solution;
-    emit retrieveSolution(solution, solutionMethodId);
-    emit displaySolution(solution);
+    model->retrieveSolutionForProcessedTask(solution, solutionMethodId);
+    taskWindow->refreshSolution(solution);
 }
 
-void Controller::processTask(QStringList lValues, QStringList rValues)
+void Controller::removeRedundantData(QStringList &lValues, QStringList &rValues)
 {
     for (int i = 0; i < lValues.size(); ++i)
     {
@@ -182,6 +159,12 @@ void Controller::processTask(QStringList lValues, QStringList rValues)
             i--;
         }
     }
+}
+
+void Controller::processTask(QStringList lValues, QStringList rValues)
+{
+    removeRedundantData(lValues, rValues);
+
     if (lValues.size() == 0)
     {
         QMessageBox msgBox(taskWindow);
@@ -197,9 +180,9 @@ void Controller::processTask(QStringList lValues, QStringList rValues)
 
     taskWindow->currentSolutionMethodIndex(solutionMethodIndex);
     solutionMethodNumberInList = solutionMethodIndex + 1;
-    emit retrieveSolutionMethodId(solutionMethodId, solutionMethodNumberInList);
+    model->retrieveSolutionMethodFromList(solutionMethodId, solutionMethodNumberInList);
 
-    emit solveTask(lValues, rValues, solutionMethodId);
+    model->solveTask(lValues, rValues, solutionMethodId);
 
     showSolution(solutionMethodId);
 

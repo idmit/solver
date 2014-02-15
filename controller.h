@@ -66,6 +66,7 @@ public slots:
 
     void processTask(QStringList lValues, QStringList rValues);
 
+    void removeRedundantData(QStringList &lValues, QStringList &rValues);
 private:
     MainWindow *mainWindow;
     ConnectionWindow *connectionWindow;
