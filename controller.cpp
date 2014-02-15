@@ -179,14 +179,10 @@ void Controller::processTask(QStringList lValues, QStringList rValues)
 
     if (lValues.size() == 0)
     {
-        QMessageBox msgBox(taskWindow);
-        msgBox.setWindowModality(Qt::WindowModal);
-        msgBox.setText("Your task is empty");
-        msgBox.exec();
+        alert("Your task is empty", 3);
         return;
     }
 
-    QHash<QString, double> meta;
     int solutionMethodNumberInList = 0,
             solutionMethodIndex = 0,
             solutionMethodId = 0;
