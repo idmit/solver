@@ -363,12 +363,18 @@ bool Model::metaIsValid(QHash<QString, QString> textMeta, QHash<QString, double>
 {
     for (int i = 0; i < textMeta.size(); ++i)
     {
-        if (textMeta.values()[i].split(" ", QString::SkipEmptyParts).size() != 1)
+        QStringList textValues = textMeta.values()[i].split(" ", QString::SkipEmptyParts);
+        if (textValues.size() != 1)
         {
             meta.clear();
             return false;
         }
-        meta[textMeta.keys()[i]] = textMeta.values()[i].split(" ", QString::SkipEmptyParts)[i].toDouble();
+
+        bool converts = false;
+        textValues[0].toDouble(&converts);
+        if (!converts) { meta.clear(); return false; }
+
+        meta[textMeta.keys()[i]] = textValues[0].toDouble();
     }
     return true;
 }
