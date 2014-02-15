@@ -277,8 +277,9 @@ int Model::saveTask(Matrix matrix, Vector column)
     return newTaskId;
 }
 
-void Model::retrieveSolutionForProcessedTask(QString &solution, int solutionMethodId)
+bool Model::retrieveSolutionForProcessedTask(int solutionMethodId, QString *solution)
 {
+    bool solutionExists = false;
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
 
@@ -287,7 +288,7 @@ void Model::retrieveSolutionForProcessedTask(QString &solution, int solutionMeth
     query.bindValue(":methodId", solutionMethodId);
     query.exec();
 
-    solution = "";
+    if (solution) solution->clear();
 
     while (query.next())
     {
@@ -312,9 +313,12 @@ void Model::retrieveSolutionForProcessedTask(QString &solution, int solutionMeth
 
         if (found)
         {
-            solution += query.value(1).toString() + "\n";
+            solutionExists = true;
+            if (!solution) return solutionExists;
+            solution->append(query.value(1).toString() + "\n");
         }
     }
+    return solutionExists;
 }
 
 void Model::saveSolution(Vector result, int solutionMethodId, QHash<QString, double> meta)
@@ -341,46 +345,6 @@ void Model::saveSolution(Vector result, int solutionMethodId, QHash<QString, dou
         query.bindValue(":value", meta.values()[i]);
         query.exec();
     }
-}
-
-bool Model::attemptToFindSolution(int solutionMethodId)
-{
-    QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
-    QSqlQuery query(db);
-
-    query.prepare("SELECT id FROM SOLUTIONS WHERE task_id = :taskId AND method_id = :methodId");
-    query.bindValue(":taskId", processedTask->id);
-    query.bindValue(":methodId", solutionMethodId);
-    query.exec();
-
-    while (query.next())
-    {
-        int solutionId = query.value(0).toInt();
-
-        QSqlQuery q(db);
-
-        q.prepare("SELECT name, value FROM Meta WHERE solution_id = :solutionId");
-        q.bindValue(":solutionId", solutionId);
-        q.exec();
-
-        int i = 0;
-        bool found = true;
-        while (q.next())
-        {
-            if (processedTask->meta.values()[i] != q.value(1).toDouble())
-            {
-                found = false;
-            }
-            i++;
-        }
-
-        if (found)
-        {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 bool Model::metaIsValid(QHash<QString, QString> textMeta, QHash<QString, double> &meta)
@@ -465,7 +429,7 @@ bool Model::solveTask(QStringList lValues, QStringList rValues, int solutionMeth
     }
 
     if (!processedTask->isNew)
-        if (attemptToFindSolution(solutionMethodId))
+        if (retrieveSolutionForProcessedTask(solutionMethodId))
             return true;
 
     if (processedTask->isNew)

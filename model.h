@@ -57,7 +57,7 @@ public slots:
     void retrieveSolutionMethods(int taskTypeId, QStringList &solutionMethods);
     void retrieveTaskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
     void retrieveSolutionMethodFromList(int &solutionMethodId, int solutionMethodNumberInList);
-    void retrieveSolutionForProcessedTask(QString &solution, int solutionMethodId);
+    bool retrieveSolutionForProcessedTask(int solutionMethodId, QString *solution = 0);
 
     void regTask(int taskId, int taskTypeId, bool isNew);
     void makeTaskNew();
@@ -71,7 +71,6 @@ private:
     void parseTask(QStringList lValues, QStringList rValues, Matrix &matrix, Vector &column);
     int saveTask(Matrix matrix, Vector column);
     void saveSolution(Vector result, int solutionMethodId, QHash<QString, double> meta);
-    bool attemptToFindSolution(int solutionMethodId);
     bool metaIsValid(QHash<QString, QString> textMeta, QHash<QString, double> &meta);
     double bisection(double a, double b, double precision);
 };

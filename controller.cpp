@@ -152,7 +152,7 @@ void Controller::showTaskWindow(int taskIndexInHistory)
 void Controller::showSolution(int solutionMethodId)
 {
     QString solution;
-    model->retrieveSolutionForProcessedTask(solution, solutionMethodId);
+    model->retrieveSolutionForProcessedTask(solutionMethodId, &solution);
     taskWindow->refreshSolution(solution);
 }
 
