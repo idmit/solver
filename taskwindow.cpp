@@ -1,7 +1,14 @@
 #include "taskwindow.h"
 #include <QLineEdit>
+#include <QLabel>
 #include <QMessageBox>
 #include "ui_taskwindow.h"
+
+#define LEFT_VALUES_INDEX 0
+#define RIGHT_VALUES_INDEX 2
+#define ADD_BUTTON_INDEX 3
+#define REMOVE_BUTTON_INDEX 4
+#define WIDGETS_IN_ROW 5
 
 TaskWindow::TaskWindow(QWidget *parent) :
     QDialog(parent),
@@ -30,6 +37,7 @@ void TaskWindow::addLineAtIndex(int index, QString lValue, QString rValue)
 {
     QLineEdit *leftSide = new QLineEdit(lValue), *rightSide = new QLineEdit(rValue);
     QPushButton *add = new QPushButton("+"), *remove = new QPushButton("-");
+    QLabel *eq = new QLabel("=");
 
     add->setObjectName(QString::number(index));
     remove->setObjectName(QString::number(index));
@@ -37,10 +45,11 @@ void TaskWindow::addLineAtIndex(int index, QString lValue, QString rValue)
     QObject::connect(add, SIGNAL(clicked()), this, SLOT(addLine()));
     QObject::connect(remove, SIGNAL(clicked()), this, SLOT(removeLine()));
 
-    ui->taskContentLayout->addWidget(leftSide, index, 0);
-    ui->taskContentLayout->addWidget(rightSide, index, 1);
-    ui->taskContentLayout->addWidget(add, index, 2);
-    ui->taskContentLayout->addWidget(remove, index, 3);
+    ui->taskContentLayout->addWidget(leftSide, index, LEFT_VALUES_INDEX);
+    ui->taskContentLayout->addWidget(eq, index, 1);
+    ui->taskContentLayout->addWidget(rightSide, index, RIGHT_VALUES_INDEX);
+    ui->taskContentLayout->addWidget(add, index, ADD_BUTTON_INDEX);
+    ui->taskContentLayout->addWidget(remove, index, REMOVE_BUTTON_INDEX);
 
     nextEmptyRow += 1;
 
@@ -51,12 +60,12 @@ void TaskWindow::addLineAtIndex(int index, QString lValue, QString rValue)
         add->setEnabled(!firstAddButtonDisabled);
     }
     if (index != 0)
-        ui->taskContentLayout->itemAtPosition(0, 3)->widget()->setEnabled(true);
+        ui->taskContentLayout->itemAtPosition(0, REMOVE_BUTTON_INDEX)->widget()->setEnabled(true);
 }
 
 void TaskWindow::removeLineAtIndex(int index)
 {
-    for (int j = 0; j < 4; ++j)
+    for (int j = 0; j < WIDGETS_IN_ROW; ++j)
     {
         ui->taskContentLayout->itemAtPosition(index, j)->widget()->deleteLater();
     }
@@ -73,13 +82,14 @@ void TaskWindow::addLine()
 
     for (int i = nextEmptyRow - 1; i > clickedPosition; --i)
     {
-        QWidget *addButtonWidget = ui->taskContentLayout->itemAtPosition(i, 2)->widget();
-        QWidget *removeButtonWidget = ui->taskContentLayout->itemAtPosition(i, 3)->widget();
+        QWidget *addButtonWidget = ui->taskContentLayout->itemAtPosition(i, ADD_BUTTON_INDEX)->widget();
+        QWidget *removeButtonWidget = ui->taskContentLayout->itemAtPosition(i, REMOVE_BUTTON_INDEX)->widget();
         int nameAsInt = addButtonWidget->objectName().toInt();
+
         addButtonWidget->setObjectName(QString::number(nameAsInt + 1));
         removeButtonWidget->setObjectName(QString::number(nameAsInt + 1));
 
-        for (int j = 0; j < 4; ++j)
+        for (int j = 0; j < WIDGETS_IN_ROW; ++j)
         {
             ui->taskContentLayout->addWidget(ui->taskContentLayout->itemAtPosition(i, j)->widget(), i + 1, j);
         }
@@ -91,19 +101,19 @@ void TaskWindow::addLine()
 void TaskWindow::removeLine()
 {
     int clickedPosition = QObject::sender()->objectName().toInt();
-    QWidget *toBeDisabled = ui->taskContentLayout->itemAtPosition(1, 3)->widget();
+    QWidget *toBeDisabled = ui->taskContentLayout->itemAtPosition(1, REMOVE_BUTTON_INDEX)->widget();
 
     removeLineAtIndex(clickedPosition);
 
     for (int i = clickedPosition + 1; i < nextEmptyRow; ++i)
     {
-        QWidget *addButtonWidget = ui->taskContentLayout->itemAtPosition(i, 2)->widget();
-        QWidget *removeButtonWidget = ui->taskContentLayout->itemAtPosition(i, 3)->widget();
+        QWidget *addButtonWidget = ui->taskContentLayout->itemAtPosition(i, ADD_BUTTON_INDEX)->widget();
+        QWidget *removeButtonWidget = ui->taskContentLayout->itemAtPosition(i, REMOVE_BUTTON_INDEX)->widget();
         int nameAsInt = addButtonWidget->objectName().toInt();
         addButtonWidget->setObjectName(QString::number(nameAsInt - 1));
         removeButtonWidget->setObjectName(QString::number(nameAsInt - 1));
 
-        for (int j = 0; j < 4; ++j)
+        for (int j = 0; j < WIDGETS_IN_ROW; ++j)
         {
             ui->taskContentLayout->addWidget(ui->taskContentLayout->itemAtPosition(i, j)->widget(), i - 1, j);
         }
@@ -115,7 +125,7 @@ void TaskWindow::removeLine()
     if (clickedPosition == 0)
         toBeDisabled->setEnabled(nextEmptyRow != 1);
     if (clickedPosition == 1)
-        ui->taskContentLayout->itemAtPosition(0, 3)->widget()->setEnabled(nextEmptyRow != 1);
+        ui->taskContentLayout->itemAtPosition(0, REMOVE_BUTTON_INDEX)->widget()->setEnabled(nextEmptyRow != 1);
 }
 
 void TaskWindow::clear()
@@ -150,9 +160,9 @@ void TaskWindow::on_solveButton_clicked()
 
     for (int i = 0; i < nextEmptyRow; ++i)
     {
-        lSide = dynamic_cast<QLineEdit *>(ui->taskContentLayout->itemAtPosition(i, 0)->widget());
+        lSide = dynamic_cast<QLineEdit *>(ui->taskContentLayout->itemAtPosition(i, LEFT_VALUES_INDEX)->widget());
         lValues << lSide->text();
-        rSide = dynamic_cast<QLineEdit *>(ui->taskContentLayout->itemAtPosition(i, 1)->widget());
+        rSide = dynamic_cast<QLineEdit *>(ui->taskContentLayout->itemAtPosition(i, RIGHT_VALUES_INDEX)->widget());
         rValues << rSide->text();
     }
 
