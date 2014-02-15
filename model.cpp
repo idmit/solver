@@ -208,8 +208,10 @@ bool Model::taskIsValid(QStringList lValues, QStringList rValues)
 {
     int expectedDim = lValues.size();
 
-    if (processedTask->typeId == SLAE_TYPE_ID)
+    switch (processedTask->typeId)
     {
+    case LE_TYPE_ID:
+    case SLAE_TYPE_ID:
         for (int i = 0; i < expectedDim; ++i)
         {
            if (lValues[i].split(" ", QString::SkipEmptyParts).size() != expectedDim || rValues[i].split(" ", QString::SkipEmptyParts).size() != 1)
@@ -217,6 +219,9 @@ bool Model::taskIsValid(QStringList lValues, QStringList rValues)
                return false;
            }
         }
+        break;
+    default:
+        break;
     }
 
     return true;
