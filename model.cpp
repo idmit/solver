@@ -214,10 +214,22 @@ bool Model::taskIsValid(QStringList lValues, QStringList rValues)
     case SLAE_TYPE_ID:
         for (int i = 0; i < expectedDim; ++i)
         {
-           if (lValues[i].split(" ", QString::SkipEmptyParts).size() != expectedDim || rValues[i].split(" ", QString::SkipEmptyParts).size() != 1)
-           {
-               return false;
-           }
+            QStringList row = lValues[i].split(" ", QString::SkipEmptyParts);
+            QStringList rightSide = rValues[i].split(" ", QString::SkipEmptyParts);
+            bool converts = true;
+
+            if (row.size() != expectedDim || rightSide.size() != 1)
+            {
+                return false;
+            }
+
+            for (int k = 0; k < row.size(); ++k)
+            {
+                row[k].toDouble(&converts);
+                if (!converts) return false;
+            }
+            rightSide[0].toDouble(&converts);
+            if (!converts) return false;
         }
         break;
     default:
