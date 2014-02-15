@@ -25,12 +25,11 @@
 
 struct Task
 {
-    Task(int dim): id(0), typeId(0), isNew(false), matrix(dim), vector(dim) {}
+    Task(): id(0), typeId(0), isNew(false), meta() {}
     int id;
     int typeId;
     bool isNew;
-    Matrix matrix;
-    Vector vector;
+    QHash<QString, double> meta;
 };
 
 class Model : public QObject
@@ -43,6 +42,9 @@ public:
 signals:
     void statusChanged(QString status, int timeout);
     void connectionAttemptFinished(bool result);
+    void askMeta(QStringList keys, QHash<QString, QString> *textMeta);
+    void preventDataLoss(QStringList lValues, QStringList rValues);
+    void alert (QString msg, int id);
 
 public slots:
     /* Export db drivers */
@@ -60,7 +62,7 @@ public slots:
     void regTask(int taskId, int taskTypeId, bool isNew);
     void makeTaskNew();
 
-    void solveTask(QStringList lValues, QStringList rValues, int solutionMethodId);
+    bool solveTask(QStringList lValues, QStringList rValues, int solutionMethodId);
 
 private:
     Task *processedTask;
@@ -68,8 +70,10 @@ private:
     bool taskIsValid(QStringList lValues, QStringList rValues);
     void parseTask(QStringList lValues, QStringList rValues, Matrix &matrix, Vector &column);
     int saveTask(Matrix matrix, Vector column);
-    void saveSolution(Vector result, int solutionMethodId);
-    void attemptToFindSolution(int solutionMethodId, bool &found);
+    void saveSolution(Vector result, int solutionMethodId, QHash<QString, double> meta);
+    bool attemptToFindSolution(int solutionMethodId);
+    bool metaIsValid(QHash<QString, QString> textMeta, QHash<QString, double> &meta);
+    double bisection(double a, double b, double precision);
 };
 
 #endif // MODEL_H

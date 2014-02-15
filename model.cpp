@@ -4,7 +4,7 @@
 Model::Model(QObject *parent) :
     QObject(parent)
 {
-    processedTask = new Task(1);
+    processedTask = new Task();
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -282,19 +282,42 @@ void Model::retrieveSolutionForProcessedTask(QString &solution, int solutionMeth
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
 
-    query.prepare("SELECT value FROM Solutions WHERE task_id = :taskId AND method_id = :methodId");
+    query.prepare("SELECT id, value FROM Solutions WHERE task_id = :taskId AND method_id = :methodId");
     query.bindValue(":taskId", processedTask->id);
     query.bindValue(":methodId", solutionMethodId);
     query.exec();
 
     solution = "";
+
     while (query.next())
     {
-        solution += query.value(0).toString() + "\n";
+        int solutionId = query.value(0).toInt();
+
+        QSqlQuery q(db);
+
+        q.prepare("SELECT name, value FROM Meta WHERE solution_id = :solutionId");
+        q.bindValue(":solutionId", solutionId);
+        q.exec();
+
+        int i = 0;
+        bool found = true;
+        while (q.next())
+        {
+            if (processedTask->meta.values()[i] != q.value(1).toDouble())
+            {
+                found = false;
+            }
+            i++;
+        }
+
+        if (found)
+        {
+            solution += query.value(1).toString() + "\n";
+        }
     }
 }
 
-void Model::saveSolution(Vector result, int solutionMethodId)
+void Model::saveSolution(Vector result, int solutionMethodId, QHash<QString, double> meta)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
@@ -307,9 +330,20 @@ void Model::saveSolution(Vector result, int solutionMethodId)
         query.bindValue(":methodId", solutionMethodId);
         query.exec();
     }
+
+    int solutionId = query.lastInsertId().toInt();
+
+    for (int i = 0; i < meta.values().size(); ++i)
+    {
+        query.prepare("INSERT INTO Meta (solution_id, name, value) VALUES (:solutionId, :name, :value)");
+        query.bindValue(":solutionId", solutionId);
+        query.bindValue(":name", meta.keys()[i]);
+        query.bindValue(":value", meta.values()[i]);
+        query.exec();
+    }
 }
 
-void Model::attemptToFindSolution(int solutionMethodId, bool &found)
+bool Model::attemptToFindSolution(int solutionMethodId)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
@@ -319,28 +353,84 @@ void Model::attemptToFindSolution(int solutionMethodId, bool &found)
     query.bindValue(":methodId", solutionMethodId);
     query.exec();
 
-    found = false;
+    while (query.next())
+    {
+        int solutionId = query.value(0).toInt();
 
-    while (query.next() && (found = true));
+        QSqlQuery q(db);
+
+        q.prepare("SELECT name, value FROM Meta WHERE solution_id = :solutionId");
+        q.bindValue(":solutionId", solutionId);
+        q.exec();
+
+        int i = 0;
+        bool found = true;
+        while (q.next())
+        {
+            if (processedTask->meta.values()[i] != q.value(1).toDouble())
+            {
+                found = false;
+            }
+            i++;
+        }
+
+        if (found)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
-void Model::solveTask(QStringList lValues, QStringList rValues, int solutionMethodId)
+bool Model::metaIsValid(QHash<QString, QString> textMeta, QHash<QString, double> &meta)
+{
+    for (int i = 0; i < textMeta.size(); ++i)
+    {
+        if (textMeta.values()[i].split(" ", QString::SkipEmptyParts).size() != 1)
+        {
+            meta.clear();
+            return false;
+        }
+        meta[textMeta.keys()[i]] = textMeta.values()[i].split(" ", QString::SkipEmptyParts)[i].toDouble();
+    }
+    return true;
+}
+
+double Model::bisection(double a, double b, double precision)
+{
+    double lb = -50,
+            rb = 50,
+            m = 0;
+
+    while ((a * lb - b) * (a * rb - b) > 0)
+    {
+        lb -= 10;
+        rb += 10;
+    }
+
+    while (rb - lb > precision)
+    {
+        m = (lb + rb) / 2;
+        if ((a * lb - b) * (a * m - b) < 0)
+            rb = m;
+        else
+            lb = m;
+    }
+
+    return (lb + rb) / 2;
+}
+
+bool Model::solveTask(QStringList lValues, QStringList rValues, int solutionMethodId)
 {
     int dim = lValues.size();
-    bool found = false;
-    processedTask->matrix = Matrix(dim);
-    processedTask->vector = Vector(dim);
-
-    if (!processedTask->isNew)
-        attemptToFindSolution(solutionMethodId, found);
-
-    if (found)
-        return;
+    QHash<QString, QString> textMeta;
+    QHash<QString, double> meta;
 
     if (!taskIsValid(lValues, rValues))
     {
-        emit statusChanged("Wrong!", 3000);
-        return;
+        emit alert("Your input is incomplete.", 3000);
+        return false;
     }
 
     Vector column(dim), result(dim);
@@ -354,12 +444,33 @@ void Model::solveTask(QStringList lValues, QStringList rValues, int solutionMeth
     case REFLECTION_METHOD_ID:
         result = matrix.reflection(column);
         break;
+    case BISECTION_METHOD_ID:
+    {
+        QStringList keys;
+        keys << "Precision of bisection";
+        emit askMeta(keys, &textMeta);
+        if (textMeta.isEmpty())
+            return false;
+        if (!metaIsValid(textMeta, meta))
+        {
+            emit alert("You must fill all the fields to use chosen method", 3);
+            return false;
+        }
+        processedTask->meta = meta;
+        result[0] = bisection(matrix[0][0], column[0], meta["Precision of bisection"]);
+        break;
+    }
     default:
         break;
     }
 
+    if (!processedTask->isNew)
+        if (attemptToFindSolution(solutionMethodId))
+            return true;
+
     if (processedTask->isNew)
         processedTask->id = saveTask(matrix, column);
 
-    saveSolution(result, solutionMethodId);
+    saveSolution(result, solutionMethodId, meta);
+    return true;
 }

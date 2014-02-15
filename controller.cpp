@@ -1,6 +1,10 @@
 #include "controller.h"
 #include <QMessageBox>
 #include <QPushButton>
+#include <QFormLayout>
+#include <QLabel>
+#include <QDialogButtonBox>
+#include <QLineEdit>
 
 Controller::Controller(QWidget *parent) :
     QWidget(parent)
@@ -29,6 +33,9 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     QObject::connect(taskWindow, SIGNAL(editButtonClicked()), model, SLOT(makeTaskNew()));
 
     QObject::connect(taskWindow, SIGNAL(solveButtonClicked(QStringList,QStringList)), this, SLOT(processTask(QStringList,QStringList)));
+
+    QObject::connect(model, SIGNAL(askMeta(QStringList,QHash<QString,QString>*)), this, SLOT(askMeta(QStringList,QHash<QString,QString>*)));
+    QObject::connect(model, SIGNAL(alert(QString,int)), this, SLOT(alert(QString,int)));
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -95,6 +102,11 @@ void Controller::showSolutionMethods(int taskTypeId)
 
     model->retrieveSolutionMethods(taskTypeId, solutionMethods);
     taskWindow->refreshSolutionMethods(solutionMethods);
+}
+
+void Controller::reshowTaskWindow(QStringList lValues, QStringList rValues)
+{
+    taskWindow->refreshLines(lValues, rValues);
 }
 
 void Controller::showTaskWindow(int taskIndexInHistory)
@@ -174,6 +186,7 @@ void Controller::processTask(QStringList lValues, QStringList rValues)
         return;
     }
 
+    QHash<QString, double> meta;
     int solutionMethodNumberInList = 0,
             solutionMethodIndex = 0,
             solutionMethodId = 0;
@@ -182,10 +195,65 @@ void Controller::processTask(QStringList lValues, QStringList rValues)
     solutionMethodNumberInList = solutionMethodIndex + 1;
     model->retrieveSolutionMethodFromList(solutionMethodId, solutionMethodNumberInList);
 
-    model->solveTask(lValues, rValues, solutionMethodId);
+    if (model->solveTask(lValues, rValues, solutionMethodId))
+    {
+        showSolution(solutionMethodId);
 
-    showSolution(solutionMethodId);
+        showTaskHistory(model->processedTaskTypeId() - 1);
+        taskWindow->hide();
+    }
+}
 
-    showTaskHistory(model->processedTaskTypeId() - 1);
-    taskWindow->hide();
+void Controller::askMeta(QStringList keys, QHash<QString, QString> *textMeta)
+{
+    QDialog dialog(taskWindow);
+    QFormLayout form(&dialog);
+
+    textMeta->clear();
+    dialog.setWindowModality(Qt::WindowModal);
+
+    form.addRow(new QLabel("Provide some additional information:"));
+
+    QList<QLineEdit *> fields;
+    for(int i = 0; i < keys.size(); ++i)
+    {
+        QLineEdit *lineEdit = new QLineEdit(&dialog);
+        QString label = keys[i];
+        form.addRow(label, lineEdit);
+
+        fields << lineEdit;
+    }
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, &dialog);
+    form.addRow(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        for(int i = 0; i < fields.size(); ++i)
+        {
+            textMeta->insert(keys[i], fields[i]->text());
+        }
+    }
+}
+
+void Controller::alert(QString msg, int id)
+{
+    QWidget *parent = 0;
+
+    switch (id)
+    {
+    case 3:
+        parent = taskWindow;
+        break;
+    default:
+        break;
+    }
+
+    QMessageBox msgBox(parent);
+    msgBox.setWindowModality(Qt::WindowModal);
+    msgBox.setText(msg);
+    msgBox.exec();
 }
