@@ -19,7 +19,7 @@
      <property name="title">
       <string>Coefficients</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
        <widget class="QScrollArea" name="scrollArea">
         <property name="widgetResizable">
@@ -31,7 +31,7 @@
            <x>0</x>
            <y>0</y>
            <width>435</width>
-           <height>218</height>
+           <height>184</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout">
@@ -59,14 +59,25 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="editButton">
-     <property name="text">
-      <string>Edit</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QComboBox" name="solutionMethodsCombo"/>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QPushButton" name="editButton">
+       <property name="text">
+        <string>Edit</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Choose solution method</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="solutionMethodsCombo"/>
+     </item>
+    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">

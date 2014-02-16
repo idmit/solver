@@ -57,7 +57,7 @@
       <item>
        <widget class="QPushButton" name="newTaskButton">
         <property name="text">
-         <string>New task</string>
+         <string>Create task</string>
         </property>
        </widget>
       </item>
