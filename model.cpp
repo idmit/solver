@@ -1,6 +1,8 @@
 #include "model.h"
 #include <QtSql>
 
+#define ABS(x) (x > 0 ? x : -1 * x)
+
 Model::Model(QObject *parent) :
     QObject(parent)
 {
@@ -289,7 +291,7 @@ int Model::saveTask(Matrix matrix, Vector column)
     return newTaskId;
 }
 
-bool Model::retrieveSolutionForProcessedTask(int solutionMethodId, QString *solution)
+bool Model::retrieveSolutionForProcessedTask(int solutionMethodId, QStringList *solution)
 {
     bool solutionExists = false;
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
@@ -327,7 +329,7 @@ bool Model::retrieveSolutionForProcessedTask(int solutionMethodId, QString *solu
         {
             solutionExists = true;
             if (!solution) return solutionExists;
-            solution->append(query.value(1).toString() + "\n");
+            solution->append(query.value(1).toString());
         }
     }
     return solutionExists;
@@ -455,4 +457,51 @@ bool Model::solveTask(QStringList lValues, QStringList rValues, int solutionMeth
 
     saveSolution(result, solutionMethodId, meta);
     return true;
+}
+
+static void addPointAt(QGraphicsScene *scene, double x, double y, double rad, double height, QPen pen)
+{
+    scene->addEllipse(x - rad / 2, height / 2 - y - rad / 2, rad, rad, pen);
+}
+
+void Model::setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene)
+{
+    QVector<double> column(solution.size());
+
+    for (int i = 0; i < solution.size(); ++i)
+        column[i] = solution[i].toDouble();
+
+    double max = column[0], min = column[0];
+
+    for (int i = 1; i < solution.size(); ++i)
+    {
+        if (max < column[i])
+            max = column[i];
+        if (column[i] < min)
+            min = column[i];
+    }
+
+    QPainterPath *path = new QPainterPath;
+    QPen red(Qt::red);
+
+    double unitX = 0, unitY = 0, rad = height / 50.0;
+    double sceneWidth = width - 2, sceneHeight = height - 2;
+
+    scene->setSceneRect(0, 0, sceneWidth, sceneHeight);
+
+    unitY = (sceneHeight / 2 - rad / 2) / ABS(max);
+    unitX = (sceneWidth - rad / 2) / solution.size();
+
+    scene->addLine(0, height / 2, width, height / 2);
+    scene->addLine(0, 0, 0, height);
+
+    addPointAt(scene, unitX,  unitY * column[0], rad, sceneHeight, red);
+
+    for (int i = 1; i < solution.size(); ++i)
+    {
+        addPointAt(scene, (i + 1) * unitX,  unitY * column[i], rad, sceneHeight, red);
+        scene->addLine(i * unitX, sceneHeight / 2 - unitY * column[i - 1], (i + 1) * unitX, sceneHeight / 2 - unitY * column[i]);
+    }
+
+    scene->addPath(*path, red);
 }

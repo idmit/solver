@@ -1,7 +1,7 @@
 #include "taskwindow.h"
 #include <QLineEdit>
 #include <QLabel>
-#include <QMessageBox>
+
 #include "ui_taskwindow.h"
 
 #define LEFT_VALUES_INDEX 0
@@ -202,13 +202,4 @@ void TaskWindow::on_closeButton_clicked()
 void TaskWindow::currentSolutionMethodIndex(int &solutionMethodIndex)
 {
     solutionMethodIndex = ui->solutionMethodsCombo->currentIndex();
-}
-
-void TaskWindow::refreshSolution(QString solution)
-{
-    QMessageBox msgBox(this);
-
-    msgBox.setWindowModality(Qt::WindowModal);
-    msgBox.setText(solution);
-    msgBox.exec();
 }

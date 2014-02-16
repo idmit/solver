@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QHash>
+#include <QGraphicsScene>
 #include <QStringList>
 #include "matrix.h"
 
@@ -57,13 +58,14 @@ public slots:
     void retrieveSolutionMethods(int taskTypeId, QStringList &solutionMethods);
     void retrieveTaskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
     void retrieveSolutionMethodFromList(int &solutionMethodId, int solutionMethodNumberInList);
-    bool retrieveSolutionForProcessedTask(int solutionMethodId, QString *solution = 0);
+    bool retrieveSolutionForProcessedTask(int solutionMethodId, QStringList *solution = 0);
 
     void regTask(int taskId, int taskTypeId, bool isNew);
     void makeTaskNew();
 
     bool solveTask(QStringList lValues, QStringList rValues, int solutionMethodId);
 
+    void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
 private:
     Task *processedTask;
 

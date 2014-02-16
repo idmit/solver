@@ -2,6 +2,10 @@
 #define TASKWINDOW_H
 
 #include <QDialog>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QShowEvent>
+#include <QResizeEvent>
 
 #define TASK_WINDOW_TITLE "Edit your task"
 
@@ -23,7 +27,6 @@ signals:
 
 public slots:
     void refreshSolutionMethods(QStringList &solutionMethods);
-    void refreshSolution(QString solution);
     void addLineAtIndex(int index, QString lValue = "", QString rValue = "");
     void removeLineAtIndex(int index);
     void appendLine();
@@ -50,6 +53,31 @@ private:
     Ui::TaskWindow *ui;
     int nextEmptyRow;
     bool firstAddButtonDisabled;
+};
+
+class DialogWithGraphicsView : public QDialog
+{
+    Q_OBJECT
+public:
+    DialogWithGraphicsView(QWidget *parent) : QDialog(parent) {}
+    virtual ~DialogWithGraphicsView() {}
+    void showEvent(QShowEvent * event)
+    {
+        QGraphicsScene *scene = new QGraphicsScene(graphicsView);
+        graphicsView->setScene(scene);
+        emit draw(graphicsView->width(), graphicsView->height(), solution, scene);
+        if (event) event->accept();
+    }
+    void resizeEvent(QResizeEvent * event)
+    {
+        showEvent(0);
+        event->accept();
+    }
+
+    QGraphicsView *graphicsView;
+    QStringList solution;
+signals:
+    void draw(int width, int height, QStringList solution, QGraphicsScene *scene);
 };
 
 #endif // TASKWINDOW_H

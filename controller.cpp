@@ -2,9 +2,11 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QFormLayout>
+#include <QMessageBox>
 #include <QLabel>
-#include <QDialogButtonBox>
 #include <QLineEdit>
+#include <QDialogButtonBox>
+#include <QGroupBox>
 
 Controller::Controller(QWidget *parent) :
     QWidget(parent)
@@ -153,9 +155,33 @@ void Controller::showTaskWindow(int taskIndexInHistory)
 
 void Controller::showSolution(int solutionMethodId)
 {
-    QString solution;
+    QStringList solution;
     model->retrieveSolutionForProcessedTask(solutionMethodId, &solution);
-    taskWindow->refreshSolution(solution);
+
+    DialogWithGraphicsView dialog(taskWindow);
+    QVBoxLayout *vert = new QVBoxLayout(&dialog), *solutionLayout = new QVBoxLayout(&dialog);
+    QGraphicsView *view = new QGraphicsView(&dialog);
+    QLabel *result = new QLabel(solution.join(' '), &dialog);
+    QPushButton *okButton = new QPushButton("OK", &dialog);
+    QGroupBox *outputData = new QGroupBox("Solution", &dialog);
+
+    dialog.graphicsView = view;
+    dialog.solution = solution;
+
+    dialog.setWindowModality(Qt::WindowModal);
+    dialog.resize(800, 400);
+    dialog.setLayout(vert);
+
+    solutionLayout->addWidget(view);
+    solutionLayout->addWidget(result);
+    outputData->setLayout(solutionLayout);
+    vert->addWidget(outputData);
+    vert->addWidget(okButton);
+
+    QObject::connect(&dialog, SIGNAL(draw(int,int,QStringList,QGraphicsScene*)), this, SLOT(draw(int,int,QStringList,QGraphicsScene*)));
+    QObject::connect(okButton, SIGNAL(clicked()), &dialog, SLOT(reject()));
+
+    dialog.exec();
 }
 
 void Controller::removeRedundantData(QStringList &lValues, QStringList &rValues)
@@ -254,4 +280,9 @@ void Controller::alert(QString msg, int id)
     msgBox.setWindowModality(Qt::WindowModal);
     msgBox.setText(msg);
     msgBox.exec();
+}
+
+void Controller::draw(int width, int height, QStringList solution, QGraphicsScene *scene)
+{
+    model->setUpScene(width, height, solution, scene);
 }
