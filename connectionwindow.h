@@ -3,7 +3,6 @@
 
 #include <QDialog>
 #include <QHash>
-#include <QCloseEvent>
 
 #define CONNECTION_WINDOW_TITLE "Create a connection"
 
@@ -18,7 +17,6 @@ class ConnectionWindow : public QDialog
 public:
     explicit ConnectionWindow(QWidget *parent = 0);
     ~ConnectionWindow();
-    void closeEvent(QCloseEvent *event);
 
 signals:
     void optionsSpecified();
@@ -31,7 +29,6 @@ public slots:
 
 private slots:
     void on_okButton_clicked();
-
     void on_quitButton_clicked();
 
 private:
