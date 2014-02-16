@@ -27,6 +27,7 @@ public slots:
     void refreshTaskTypesCombo(QStringList &taskTypes);
     void refreshTaskHistoryList(QStringList &taskHistory);
     void currentTypeIndex(int &currentIndex);
+    void selectedHistoryItemIndex(QVector<int> &selectedIndexes);
 
 private slots:
     void on_taskTypesCombo_currentIndexChanged(int index);

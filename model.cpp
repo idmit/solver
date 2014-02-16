@@ -505,3 +505,8 @@ void Model::setUpScene(int width, int height, QStringList solution, QGraphicsSce
 
     scene->addPath(*path, red);
 }
+
+void Model::removeSelectedTasks(QVector<int> selectedIndexes)
+{
+    return;
+}

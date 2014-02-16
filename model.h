@@ -66,6 +66,8 @@ public slots:
     bool solveTask(QStringList lValues, QStringList rValues, int solutionMethodId);
 
     void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
+
+    void removeSelectedTasks(QVector<int> selectedIndexes);
 private:
     Task *processedTask;
 

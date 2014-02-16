@@ -74,6 +74,8 @@ public slots:
     void alert(QString msg, int id);
     void draw(int width, int height, QStringList solution, QGraphicsScene *scene);
 
+    void deleteHistoryItem();
+
 private:
     MainWindow *mainWindow;
     ConnectionWindow *connectionWindow;

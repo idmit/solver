@@ -295,3 +295,34 @@ void Controller::draw(int width, int height, QStringList solution, QGraphicsScen
 {
     model->setUpScene(width, height, solution, scene);
 }
+
+void Controller::deleteHistoryItem()
+{
+    QVector<int> selectedIndexes(0);
+    mainWindow->selectedHistoryItemIndex(selectedIndexes);
+    if (!selectedIndexes.isEmpty())
+    {
+        QDialog dialog(mainWindow);
+        QVBoxLayout *vert = new QVBoxLayout(&dialog);
+        QHBoxLayout *horz = new QHBoxLayout(&dialog);
+        QLabel *question = new QLabel("You are going to permanently delete some tasks. Are you sure?", &dialog);
+        QPushButton *yesButton = new QPushButton("Yes", &dialog), *cancelButton = new QPushButton("Cancel", &dialog);
+
+
+        dialog.setWindowModality(Qt::WindowModal);
+        dialog.setLayout(vert);
+
+        vert->addWidget(question);
+
+        horz->addWidget(yesButton);
+        horz->addWidget(cancelButton);
+
+        vert->addLayout(horz);
+
+        QObject::connect(yesButton, SIGNAL(clicked()), &dialog, SLOT(accept()));
+        QObject::connect(cancelButton, SIGNAL(clicked()), &dialog, SLOT(reject()));
+
+        if (dialog.exec() == QDialog::Accepted)
+            model->removeSelectedTasks(selectedIndexes);
+    }
+}

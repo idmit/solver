@@ -9,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QMenu *mainMenu = this->menuBar()->addMenu(QObject::tr("File"));
     mainMenu->addAction(QObject::tr("Connect to server"), parent, SLOT(showConnectionWindow()), QKeySequence(Qt::CTRL + Qt::Key_D));
+    QMenu *historyMenu = this->menuBar()->addMenu(QObject::tr("History"));
+    historyMenu->addAction(QObject::tr("Delete selected history item"), parent, SLOT(deleteHistoryItem()), QKeySequence(Qt::CTRL + Qt::Key_Backspace));
 
     setWindowTitle(MAIN_WINDOW_TITLE);
 }
@@ -53,4 +55,10 @@ void MainWindow::on_newTaskButton_clicked()
 void MainWindow::on_taskHistoryList_doubleClicked(const QModelIndex &index)
 {
     emit processTask(index.row());
+}
+
+void MainWindow::selectedHistoryItemIndex(QVector<int> &selectedIndexes)
+{
+    foreach(const QModelIndex &index, ui->taskHistoryList->selectionModel()->selectedIndexes())
+        selectedIndexes.append(index.row());
 }
