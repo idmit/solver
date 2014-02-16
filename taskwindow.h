@@ -6,6 +6,7 @@
 #include <QGraphicsView>
 #include <QShowEvent>
 #include <QResizeEvent>
+#include <QFileDialog>
 
 #define TASK_WINDOW_TITLE "Edit your task"
 
@@ -24,7 +25,6 @@ public:
 signals:
     void editButtonClicked();
     void solveButtonClicked(QStringList lValues, QStringList rValues);
-
 public slots:
     void refreshSolutionMethods(QStringList &solutionMethods);
     void addLineAtIndex(int index, QString lValue = "", QString rValue = "");
@@ -76,6 +76,26 @@ public:
 
     QGraphicsView *graphicsView;
     QStringList solution;
+
+public slots:
+    void saveSceneAsImage()
+    {
+        QPixmap pixMap = graphicsView->grab();
+        QString filename = QFileDialog::getSaveFileName(this);
+        if (!filename.isEmpty())
+        {
+            while(filename.endsWith('.'))
+                filename.chop(1);
+            QStringList parsed = filename.split(".");
+            if (parsed.size() == 1 || parsed[parsed.size() - 1] != "png")
+            {
+                parsed << "png";
+            }
+            pixMap.save(parsed.join('.'));
+            accept();
+        }
+    }
+
 signals:
     void draw(int width, int height, QStringList solution, QGraphicsScene *scene);
 };

@@ -160,9 +160,10 @@ void Controller::showSolution(int solutionMethodId)
 
     DialogWithGraphicsView dialog(taskWindow);
     QVBoxLayout *vert = new QVBoxLayout(&dialog), *solutionLayout = new QVBoxLayout(&dialog);
+    QHBoxLayout *horz = new QHBoxLayout(&dialog);
     QGraphicsView *view = new QGraphicsView(&dialog);
     QLabel *result = new QLabel(solution.join(' '), &dialog);
-    QPushButton *okButton = new QPushButton("OK", &dialog);
+    QPushButton *okButton = new QPushButton("OK", &dialog), *saveButton = new QPushButton("Save as Image", &dialog);
     QGroupBox *outputData = new QGroupBox("Solution", &dialog);
 
     dialog.graphicsView = view;
@@ -175,11 +176,17 @@ void Controller::showSolution(int solutionMethodId)
     solutionLayout->addWidget(view);
     solutionLayout->addWidget(result);
     outputData->setLayout(solutionLayout);
+
     vert->addWidget(outputData);
-    vert->addWidget(okButton);
+
+    horz->addWidget(okButton);
+    horz->addWidget(saveButton);
+
+    vert->addLayout(horz);
 
     QObject::connect(&dialog, SIGNAL(draw(int,int,QStringList,QGraphicsScene*)), this, SLOT(draw(int,int,QStringList,QGraphicsScene*)));
     QObject::connect(okButton, SIGNAL(clicked()), &dialog, SLOT(reject()));
+    QObject::connect(saveButton, SIGNAL(clicked()), &dialog, SLOT(saveSceneAsImage()));
 
     dialog.exec();
 }
@@ -272,6 +279,8 @@ void Controller::alert(QString msg, int id)
     case 3:
         parent = taskWindow;
         break;
+    case 0:
+        parent = dynamic_cast<QWidget *>(QObject::sender());
     default:
         break;
     }
