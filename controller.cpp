@@ -145,6 +145,8 @@ void Controller::showTaskWindow(int taskIndexInHistory)
     taskWindow->showEditButton(!taskIsNew);
     if (!taskIsNew)
         taskWindow->forbidEdit();
+    else
+        taskWindow->allowEdit();
 
     taskWindow->show();
 }
