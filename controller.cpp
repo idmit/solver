@@ -21,7 +21,7 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     taskWindow = _taskWindow;
     model = _model;
 
-    QObject::connect(connectionWindow, SIGNAL(optionsSpecified()), this, SLOT(processConnectionOptions()));
+    QObject::connect(connectionWindow, SIGNAL(connectionOptionsSpecified()), this, SLOT(processConnectionOptions()));
 
     QObject::connect(model, SIGNAL(statusChanged(QString,int)), this, SIGNAL(statusChanged(QString,int)));
     QObject::connect(this, SIGNAL(statusChanged(QString,int)), mainWindow, SLOT(refreshStatus(QString,int)));
@@ -47,7 +47,7 @@ void Controller::showConnectionWindow()
     QStringList drivers;
 
     model->retrieveDrivers(drivers);
-    connectionWindow->refreshDrivers(drivers);
+    connectionWindow->refreshDriversCombo(drivers);
 
     connectionWindow->show();
     connectionWindow->setFocus();
@@ -59,7 +59,7 @@ void Controller::processConnectionOptions()
     QMessageBox msgBox(connectionWindow);
     bool result = false;
 
-    connectionWindow->getOptions(options);
+    connectionWindow->getConnectionOptions(options);
     model->attemptToAddConnection(options, result);
 
     if (result)

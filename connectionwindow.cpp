@@ -17,13 +17,13 @@ ConnectionWindow::~ConnectionWindow()
     delete ui;
 }
 
-void ConnectionWindow::refreshDrivers(QStringList &drivers)
+void ConnectionWindow::refreshDriversCombo(QStringList const &drivers)
 {
     ui->availableDriversCombo->clear();
     ui->availableDriversCombo->addItems(drivers);
 }
 
-void ConnectionWindow::getOptions(QHash<QString, QString> &options)
+void ConnectionWindow::getConnectionOptions(QHash<QString, QString> &options) const
 {
     options["driver"] = ui->availableDriversCombo->currentText();
     options["dbname"] = ui->dbnameLine->text();
@@ -34,7 +34,7 @@ void ConnectionWindow::getOptions(QHash<QString, QString> &options)
 
 void ConnectionWindow::on_okButton_clicked()
 {
-    emit optionsSpecified();
+    emit connectionOptionsSpecified();
 }
 
 void ConnectionWindow::on_quitButton_clicked()

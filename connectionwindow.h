@@ -19,13 +19,18 @@ public:
     ~ConnectionWindow();
 
 signals:
-    void optionsSpecified();
+    void connectionOptionsSpecified();
 
 public slots:
-    /* Refresh db drivers list */
-    void refreshDrivers(QStringList &drivers);
-    /* Export specified connection's options */
-    void getOptions(QHash<QString, QString> &options);
+    /*
+    (IN) drivers -- list of strings to be placed in driversComboBox
+     */
+    void refreshDriversCombo(QStringList const &drivers);
+    /*
+    (IN) options -- hash to be filled with named connection options:
+    **** driver, dbname, username, password, hostname
+     */
+    void getConnectionOptions(QHash<QString, QString> &options) const;
 
 private slots:
     void on_okButton_clicked();
