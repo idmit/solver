@@ -24,9 +24,9 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     QObject::connect(connectionWindow, SIGNAL(connectionOptionsSpecified()), this, SLOT(processConnectionOptions()));
 
     QObject::connect(model, SIGNAL(statusChanged(QString,int)), this, SIGNAL(statusChanged(QString,int)));
-    QObject::connect(this, SIGNAL(statusChanged(QString,int)), mainWindow, SLOT(refreshStatus(QString,int)));
+    QObject::connect(this, SIGNAL(statusChanged(QString,int)), mainWindow, SLOT(refreshStatusBar(QString,int)));
 
-    QObject::connect(mainWindow, SIGNAL(currentTaskTypeIndexChanged(int)), this, SLOT(showTaskHistory(int)));
+    QObject::connect(mainWindow, SIGNAL(differentTaskTypeChosen(int)), this, SLOT(showTaskHistory(int)));
 
     QObject::connect(mainWindow, SIGNAL(processTask(int)), this, SLOT(showTaskWindow(int)));
 
@@ -114,7 +114,7 @@ void Controller::showTaskWindow(int taskIndexInHistory)
     bool taskIsNew = false;
     QStringList lValues, rValues;
 
-    mainWindow->currentTypeIndex(taskTypeIndex);
+    mainWindow->selectedTypesComboIndex(taskTypeIndex);
     taskTypeId = taskTypeIndex + 1;
 
     showSolutionMethods(taskTypeId);
@@ -294,7 +294,7 @@ void Controller::draw(int width, int height, QStringList solution, QGraphicsScen
 void Controller::deleteHistoryItem()
 {
     QVector<int> selectedIndexes(0), selectedNumbers(0);
-    mainWindow->selectedHistoryItemIndex(selectedIndexes);
+    mainWindow->selectedHistoryListIndexes(selectedIndexes);
     for (int i = 0; i < selectedIndexes.size(); ++i)
     {
         selectedNumbers << selectedIndexes[i] + 1;
@@ -325,7 +325,7 @@ void Controller::deleteHistoryItem()
         if (dialog.exec() == QDialog::Accepted)
         {
             int currentTypeIndex = 0, currentTypeId = 0;
-            mainWindow->currentTypeIndex(currentTypeIndex);
+            mainWindow->selectedTypesComboIndex(currentTypeIndex);
             currentTypeId = currentTypeIndex + 1;
             model->removeSelectedTasks(selectedNumbers, currentTypeId);
             showTaskHistory(currentTypeIndex);

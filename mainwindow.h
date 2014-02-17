@@ -5,6 +5,10 @@
 #include <QShortcut>
 
 #define MAIN_WINDOW_TITLE "Solver"
+#define FIRST_MENU_ITEM "File"
+#define CONNECT_MENU_ACTION "Connect to server"
+#define SECOND_MENU_ITEM "History"
+#define DELETE_MENU_ITEM "Delete selected history item"
 
 namespace Ui {
 class MainWindow;
@@ -19,15 +23,32 @@ public:
     ~MainWindow();
 
 signals:
-    void currentTaskTypeIndexChanged(int newIndex);
+    void differentTaskTypeChosen(int newIndex);
     void processTask(int taskNumberInHistory);
 
 public slots:
-    void refreshStatus(QString status, int timeout);
-    void refreshTaskTypesCombo(QStringList &taskTypes);
-    void refreshTaskHistoryList(QStringList &taskHistory);
-    void currentTypeIndex(int &currentIndex);
-    void selectedHistoryItemIndex(QVector<int> &selectedIndexes);
+    /*
+    (IN) status -- string to be placed in status bar
+    (IN) timeout -- duration of string displaying in status bar
+     */
+    void refreshStatusBar(QString const &status, int timeout);
+    /*
+    (IN) taskTypes -- list of strings to be placed in taskTypesComboBox
+     */
+    void refreshTaskTypesCombo(QStringList const &taskTypes);
+    /*
+    (IN) taskHistory -- list of strings to be placed in taskHistoryList
+     */
+    void refreshTaskHistoryList(QStringList const &taskHistory);
+
+    /*
+    (OUT) selectedIndex -- index of currently selected type in taskTypesComboBox
+     */
+    void selectedTypesComboIndex(int &selectedIndex) const;
+    /*
+    (OUT) selectedIndexes -- vector of indexes of currently selected items in taskHistoryList
+     */
+    void selectedHistoryListIndexes(QVector<int> &selectedIndexes) const;
 
 private slots:
     void on_taskTypesCombo_currentIndexChanged(int index);
