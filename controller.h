@@ -67,8 +67,6 @@ public slots:
     void processTask(QStringList lValues, QStringList rValues);
 
     void removeRedundantData(QStringList &lValues, QStringList &rValues);
-
-    void reshowTaskWindow(QStringList lValues, QStringList rValues);
     void askMeta(QStringList keys, QHash<QString, QString> *textMeta);
 
     void alert(QString msg, int id);

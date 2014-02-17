@@ -106,17 +106,11 @@ void Controller::showSolutionMethods(int taskTypeId)
     taskWindow->refreshSolutionMethods(solutionMethods);
 }
 
-void Controller::reshowTaskWindow(QStringList lValues, QStringList rValues)
-{
-    taskWindow->refreshLines(lValues, rValues);
-}
-
 void Controller::showTaskWindow(int taskIndexInHistory)
 {
     int taskTypeIndex = 0,
         taskTypeId    = 0,
-        taskNumberInHistory = taskIndexInHistory + 1,
-        taskId        = 0;
+        taskNumberInHistory = taskIndexInHistory + 1;
     bool taskIsNew = false;
     QStringList lValues, rValues;
 
@@ -139,6 +133,7 @@ void Controller::showTaskWindow(int taskIndexInHistory)
     }
     else
     {
+        int taskId = 0;
         model->retrieveTaskFromHistory(taskId, taskTypeId, taskNumberInHistory, lValues, rValues);
         taskWindow->refreshLines(lValues, rValues);
         model->regTask(taskId, taskTypeId, false);

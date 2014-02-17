@@ -57,15 +57,15 @@ void Model::retrieveTaskHistory(int taskTypeId, QStringList &taskHistory)
     query.bindValue(":typeId", taskTypeId);
     query.exec();
 
-    int prevTaskId = 0, taskId = 1;
-    double value = 0;
-    bool leftOrRight = false, prevLeftOrRight = false;
+    int taskId = 1;
+    bool leftOrRight = false;
     QString task;
 
     while (query.next())
     {
-        prevTaskId = taskId;
-        prevLeftOrRight = leftOrRight;
+        int prevTaskId = taskId;
+        double value = 0;
+        bool prevLeftOrRight = leftOrRight;
 
         value = query.value(0).toDouble();
         leftOrRight = query.value(1).toBool();
@@ -404,8 +404,7 @@ bool Model::metaIsValid(QHash<QString, QString> textMeta, QHash<QString, double>
 double Model::bisection(double a, double b, double precision)
 {
     double lb = -50,
-            rb = 50,
-            m = 0;
+            rb = 50;
 
     while ((a * lb - b) * (a * rb - b) > 0)
     {
@@ -415,7 +414,7 @@ double Model::bisection(double a, double b, double precision)
 
     while (rb - lb > precision)
     {
-        m = (lb + rb) / 2;
+        double m = (lb + rb) / 2;
         if ((a * lb - b) * (a * m - b) < 0)
             rb = m;
         else

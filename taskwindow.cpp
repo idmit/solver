@@ -155,11 +155,11 @@ void TaskWindow::refreshLines(QStringList lValues, QStringList rValues)
 
 void TaskWindow::on_solveButton_clicked()
 {
-    QLineEdit *lSide = 0, *rSide = 0;
     QStringList lValues, rValues;
 
     for (int i = 0; i < nextEmptyRow; ++i)
     {
+        QLineEdit *lSide = 0, *rSide = 0;
         lSide = dynamic_cast<QLineEdit *>(ui->taskContentLayout->itemAtPosition(i, LEFT_VALUES_INDEX)->widget());
         lValues << lSide->text();
         rSide = dynamic_cast<QLineEdit *>(ui->taskContentLayout->itemAtPosition(i, RIGHT_VALUES_INDEX)->widget());

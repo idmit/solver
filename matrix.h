@@ -46,7 +46,7 @@ public:
     Matrix operator*(double b);
     Matrix operator*(Matrix b);
 
-    Matrix operator=(Matrix b) { values = b.values; return *this; }
+    Matrix operator=(Matrix b) { values = b.values; n = b.n; return *this; }
 
     /* Methods */
     int dim() { return n; }
