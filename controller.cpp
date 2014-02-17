@@ -30,7 +30,7 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
 
     QObject::connect(mainWindow, SIGNAL(processTask(int)), this, SLOT(showTaskWindow(int)));
 
-    QObject::connect(taskWindow, SIGNAL(editButtonClicked()), taskWindow, SLOT(allowEdit()));
+    QObject::connect(taskWindow, SIGNAL(editButtonClicked()), taskWindow, SLOT(makeCoefficientsGroupBoxEditable()));
     QObject::connect(taskWindow, SIGNAL(editButtonClicked()), taskWindow, SLOT(hideEditButton()));
     QObject::connect(taskWindow, SIGNAL(editButtonClicked()), model, SLOT(makeTaskNew()));
 
@@ -103,7 +103,7 @@ void Controller::showSolutionMethods(int taskTypeId)
     QStringList solutionMethods;
 
     model->retrieveSolutionMethods(taskTypeId, solutionMethods);
-    taskWindow->refreshSolutionMethods(solutionMethods);
+    taskWindow->refreshSolutionMethodsCombo(solutionMethods);
 }
 
 void Controller::showTaskWindow(int taskIndexInHistory)
@@ -120,14 +120,14 @@ void Controller::showTaskWindow(int taskIndexInHistory)
     showSolutionMethods(taskTypeId);
 
     if (taskTypeId == LE_TYPE_ID)
-        taskWindow->enableFirstAddButton(false);
+        taskWindow->enableAddButtonAtFirstLine(false);
     else if (SLAE_TYPE_ID)
-        taskWindow->enableFirstAddButton(true);
+        taskWindow->enableAddButtonAtFirstLine(true);
 
     taskIsNew = taskNumberInHistory ? false : true;
     if (taskIsNew)
     {
-        taskWindow->clear();
+        taskWindow->clearCoefficientsGroupBox();
         taskWindow->appendLine();
         model->regTask(0, taskTypeId, true);
     }
@@ -135,15 +135,15 @@ void Controller::showTaskWindow(int taskIndexInHistory)
     {
         int taskId = 0;
         model->retrieveTaskFromHistory(taskId, taskTypeId, taskNumberInHistory, lValues, rValues);
-        taskWindow->refreshLines(lValues, rValues);
+        taskWindow->generateLines(lValues, rValues);
         model->regTask(taskId, taskTypeId, false);
     }
 
     taskWindow->showEditButton(!taskIsNew);
     if (!taskIsNew)
-        taskWindow->forbidEdit();
+        taskWindow->forbidEditOfCoefficientsGroupBox();
     else
-        taskWindow->allowEdit();
+        taskWindow->makeCoefficientsGroupBoxEditable();
 
     taskWindow->show();
 }
@@ -179,7 +179,7 @@ void Controller::showSolution(int solutionMethodId)
 
     vert->addLayout(horz);
 
-    QObject::connect(&dialog, SIGNAL(draw(int,int,QStringList,QGraphicsScene*)), this, SLOT(draw(int,int,QStringList,QGraphicsScene*)));
+    QObject::connect(&dialog, SIGNAL(setUpScene(int,int,QStringList,QGraphicsScene*)), this, SLOT(setUpScene(int,int,QStringList,QGraphicsScene*)));
     QObject::connect(okButton, SIGNAL(clicked()), &dialog, SLOT(reject()));
     QObject::connect(saveButton, SIGNAL(clicked()), &dialog, SLOT(saveSceneAsImage()));
 
@@ -217,7 +217,7 @@ void Controller::processTask(QStringList lValues, QStringList rValues)
             solutionMethodIndex = 0,
             solutionMethodId = 0;
 
-    taskWindow->currentSolutionMethodIndex(solutionMethodIndex);
+    taskWindow->selectedSolutionMethodsComboIndex(solutionMethodIndex);
     solutionMethodNumberInList = solutionMethodIndex + 1;
     model->retrieveSolutionMethodFromList(solutionMethodId, solutionMethodNumberInList);
 
@@ -286,7 +286,7 @@ void Controller::alert(QString msg, int id)
     msgBox.exec();
 }
 
-void Controller::draw(int width, int height, QStringList solution, QGraphicsScene *scene)
+void Controller::setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene)
 {
     model->setUpScene(width, height, solution, scene);
 }

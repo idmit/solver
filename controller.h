@@ -70,7 +70,7 @@ public slots:
     void askMeta(QStringList keys, QHash<QString, QString> *textMeta);
 
     void alert(QString msg, int id);
-    void draw(int width, int height, QStringList solution, QGraphicsScene *scene);
+    void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
 
     void deleteHistoryItem();
 

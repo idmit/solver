@@ -25,24 +25,55 @@ public:
 signals:
     void editButtonClicked();
     void solveButtonClicked(QStringList lValues, QStringList rValues);
+
 public slots:
-    void refreshSolutionMethods(QStringList &solutionMethods);
-    void addLineAtIndex(int index, QString lValue = "", QString rValue = "");
+    /*
+    (IN) solutionMethods -- list of strings to be placed in solutionMethodsComboBox
+     */
+    void refreshSolutionMethodsCombo(QStringList const &solutionMethods);
+
+    /* Line is a row of five widgets: two text fields, equal sign and plus/minus buttons */
+
+    /*
+    (IN) index -- index of row of coefficientsGroupBox to be filled with new line
+    (IN) lValue -- value of first text field
+    (IN) rValue -- value if second text field
+     */
+    void addLineAtIndex(int index, QString const &lValue = "", QString const &rValue = "");
+    void addLineBelowClicked();
+
+    /*
+    (IN) index -- index of row of coefficientsGroupBox to be removed
+     */
     void removeLineAtIndex(int index);
+    void removeClickedLine();
+    
     void appendLine();
-    void addLine();
-    void removeLine();
-    void clear();
+    /*
+    (IN) lValues -- list of strings to be placed in left fields of generated set of lines
+    (IN) lValues -- list of strings to be placed in right fields of generated set of lines
+     */
+    void generateLines(QStringList const &lValues, QStringList const &rValues);
+    void clearCoefficientsGroupBox();
 
-    void enableFirstAddButton(bool en);
-    void refreshLines(QStringList lValues, QStringList rValues);
+    /*
+    (IN) enabled -- sets plus button of the line indexed zero enabled (true) or disabled (false)
+     */
+    void enableAddButtonAtFirstLine(bool enabled);
+    
+    void makeCoefficientsGroupBoxEditable();
+    void forbidEditOfCoefficientsGroupBox();
 
-    void allowEdit();
-    void forbidEdit();
-    void showEditButton(bool en);
+    /*
+    (IN) visible -- sets editButton visible (true) or hidden (false)
+     */
+    void showEditButton(bool visible);
     void hideEditButton();
 
-    void currentSolutionMethodIndex(int &solutionMethodIndex);
+    /*
+    (OUT) -- index of currently selected solution method in solutionMethodsComboBox
+     */
+    void selectedSolutionMethodsComboIndex(int &solutionMethodIndex) const;
 
 private slots:
     void on_solveButton_clicked();
@@ -51,6 +82,9 @@ private slots:
 
 private:
     Ui::TaskWindow *ui;
+    /*
+    Index of next empty row in coefficientsGroupBox
+     */
     int nextEmptyRow;
     bool firstAddButtonDisabled;
 };
@@ -61,11 +95,12 @@ class DialogWithGraphicsView : public QDialog
 public:
     DialogWithGraphicsView(QWidget *parent) : QDialog(parent) {}
     virtual ~DialogWithGraphicsView() {}
-    void showEvent(QShowEvent * event)
+
+    void showEvent(QShowEvent *event)
     {
         QGraphicsScene *scene = new QGraphicsScene(graphicsView);
         graphicsView->setScene(scene);
-        emit draw(graphicsView->width(), graphicsView->height(), solution, scene);
+        emit setUpScene(graphicsView->width(), graphicsView->height(), solution, scene);
         if (event) event->accept();
     }
     void resizeEvent(QResizeEvent * event)
@@ -75,6 +110,9 @@ public:
     }
 
     QGraphicsView *graphicsView;
+    /*
+    List of strings to be displayed one by one as a result. It is processed to get an image
+     */
     QStringList solution;
 
 public slots:
@@ -97,7 +135,7 @@ public slots:
     }
 
 signals:
-    void draw(int width, int height, QStringList solution, QGraphicsScene *scene);
+    void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
 };
 
 #endif // TASKWINDOW_H

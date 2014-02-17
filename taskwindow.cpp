@@ -5,6 +5,7 @@
 #include "ui_taskwindow.h"
 
 #define LEFT_VALUES_INDEX 0
+#define EQ_SIGN_INDEX 1
 #define RIGHT_VALUES_INDEX 2
 #define ADD_BUTTON_INDEX 3
 #define REMOVE_BUTTON_INDEX 4
@@ -27,13 +28,13 @@ TaskWindow::~TaskWindow()
     delete ui;
 }
 
-void TaskWindow::refreshSolutionMethods(QStringList &solutionMethods)
+void TaskWindow::refreshSolutionMethodsCombo(QStringList const &solutionMethods)
 {
     ui->solutionMethodsCombo->clear();
     ui->solutionMethodsCombo->addItems(solutionMethods);
 }
 
-void TaskWindow::addLineAtIndex(int index, QString lValue, QString rValue)
+void TaskWindow::addLineAtIndex(int index, QString const &lValue, QString const &rValue)
 {
     QLineEdit *leftSide = new QLineEdit(lValue), *rightSide = new QLineEdit(rValue);
     QPushButton *add = new QPushButton("+"), *remove = new QPushButton("-");
@@ -42,11 +43,11 @@ void TaskWindow::addLineAtIndex(int index, QString lValue, QString rValue)
     add->setObjectName(QString::number(index));
     remove->setObjectName(QString::number(index));
 
-    QObject::connect(add, SIGNAL(clicked()), this, SLOT(addLine()));
-    QObject::connect(remove, SIGNAL(clicked()), this, SLOT(removeLine()));
+    QObject::connect(add, SIGNAL(clicked()), this, SLOT(addLineBelowClicked()));
+    QObject::connect(remove, SIGNAL(clicked()), this, SLOT(removeClickedLine()));
 
     ui->taskContentLayout->addWidget(leftSide, index, LEFT_VALUES_INDEX);
-    ui->taskContentLayout->addWidget(eq, index, 1);
+    ui->taskContentLayout->addWidget(eq, index, EQ_SIGN_INDEX);
     ui->taskContentLayout->addWidget(rightSide, index, RIGHT_VALUES_INDEX);
     ui->taskContentLayout->addWidget(add, index, ADD_BUTTON_INDEX);
     ui->taskContentLayout->addWidget(remove, index, REMOVE_BUTTON_INDEX);
@@ -76,7 +77,7 @@ void TaskWindow::appendLine()
     addLineAtIndex(nextEmptyRow);
 }
 
-void TaskWindow::addLine()
+void TaskWindow::addLineBelowClicked()
 {
     int clickedPosition = QObject::sender()->objectName().toInt();
 
@@ -98,7 +99,7 @@ void TaskWindow::addLine()
     addLineAtIndex(clickedPosition + 1);
 }
 
-void TaskWindow::removeLine()
+void TaskWindow::removeClickedLine()
 {
     int clickedPosition = QObject::sender()->objectName().toInt();
     QWidget *toBeDisabled = ui->taskContentLayout->itemAtPosition(1, REMOVE_BUTTON_INDEX)->widget();
@@ -128,7 +129,7 @@ void TaskWindow::removeLine()
         ui->taskContentLayout->itemAtPosition(0, REMOVE_BUTTON_INDEX)->widget()->setEnabled(nextEmptyRow != 1);
 }
 
-void TaskWindow::clear()
+void TaskWindow::clearCoefficientsGroupBox()
 {
     for (int i = 0; i < nextEmptyRow; ++i)
     {
@@ -138,14 +139,14 @@ void TaskWindow::clear()
     nextEmptyRow = 0;
 }
 
-void TaskWindow::enableFirstAddButton(bool en)
+void TaskWindow::enableAddButtonAtFirstLine(bool enabled)
 {
-    firstAddButtonDisabled = !en;
+    firstAddButtonDisabled = !enabled;
 }
 
-void TaskWindow::refreshLines(QStringList lValues, QStringList rValues)
+void TaskWindow::generateLines(QStringList const &lValues, QStringList const &rValues)
 {
-    clear();
+    clearCoefficientsGroupBox();
 
     for (int i = 0; i < lValues.size(); ++i)
     {
@@ -169,19 +170,19 @@ void TaskWindow::on_solveButton_clicked()
     emit solveButtonClicked(lValues, rValues);
 }
 
-void TaskWindow::forbidEdit()
+void TaskWindow::forbidEditOfCoefficientsGroupBox()
 {
     ui->scrollArea->setEnabled(false);
 }
 
-void TaskWindow::allowEdit()
+void TaskWindow::makeCoefficientsGroupBoxEditable()
 {
     ui->scrollArea->setEnabled(true);
 }
 
-void TaskWindow::showEditButton(bool en)
+void TaskWindow::showEditButton(bool visible)
 {
-    ui->editButton->setVisible(en);
+    ui->editButton->setVisible(visible);
 }
 
 void TaskWindow::on_editButton_clicked()
@@ -199,7 +200,7 @@ void TaskWindow::on_closeButton_clicked()
     this->hide();
 }
 
-void TaskWindow::currentSolutionMethodIndex(int &solutionMethodIndex)
+void TaskWindow::selectedSolutionMethodsComboIndex(int &solutionMethodIndex) const
 {
     solutionMethodIndex = ui->solutionMethodsCombo->currentIndex();
 }
