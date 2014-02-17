@@ -57,7 +57,7 @@ public slots:
     void processConnectionOptions();
 
     void showTaskTypes(bool connectionExists);
-    void showTaskHistory(int taskTypeId);
+    void showTaskHistory(int taskTypeIndex);
 
     void showSolutionMethods(int taskTypeId);
     void showTaskWindow(int taskIndexInHistory);

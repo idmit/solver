@@ -57,6 +57,7 @@ public slots:
     void retrieveTaskHistory(int taskTypeId, QStringList &taskHistory);
     void retrieveSolutionMethods(int taskTypeId, QStringList &solutionMethods);
     void retrieveTaskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
+    void retrieveTaskIdFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory);
     void retrieveSolutionMethodFromList(int &solutionMethodId, int solutionMethodNumberInList);
     bool retrieveSolutionForProcessedTask(int solutionMethodId, QStringList *solution = 0);
 
@@ -67,7 +68,7 @@ public slots:
 
     void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
 
-    void removeSelectedTasks(QVector<int> selectedIndexes);
+    void removeSelectedTasks(QVector<int> selectedNumbers, int currentTypeId);
 private:
     Task *processedTask;
 

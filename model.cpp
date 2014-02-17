@@ -113,6 +113,26 @@ void Model::retrieveSolutionMethods(int taskTypeId, QStringList &solutionMethods
     }
 }
 
+void Model::retrieveTaskIdFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory)
+{
+    QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
+    QSqlQuery query(db);
+    int i = 0;
+
+    query.prepare("SELECT id FROM TASKS WHERE type_id = :typeId");
+    query.bindValue(":typeId", taskTypeId);
+    query.exec();
+
+    while (query.next())
+    {
+        i += 1;
+        if (i == taskNumberInHistory)
+            break;
+    }
+
+    taskId = query.value(0).toInt();
+}
+
 void Model::retrieveTaskFromHistory(int &expTaskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
@@ -506,7 +526,19 @@ void Model::setUpScene(int width, int height, QStringList solution, QGraphicsSce
     scene->addPath(*path, red);
 }
 
-void Model::removeSelectedTasks(QVector<int> selectedIndexes)
+void Model::removeSelectedTasks(QVector<int> selectedNumbers, int currentTypeId)
 {
+    for (int i = 0; i < selectedNumbers.size(); ++i)
+    {
+        int taskId = 0;
+        retrieveTaskIdFromHistory(taskId, currentTypeId, selectedNumbers[i]);
+
+        QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
+        QSqlQuery query(db);
+
+        query.prepare("DELETE FROM Tasks WHERE id = :taskId");
+        query.bindValue(":taskId", taskId);
+        query.exec();
+    }
     return;
 }

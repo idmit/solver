@@ -298,8 +298,13 @@ void Controller::draw(int width, int height, QStringList solution, QGraphicsScen
 
 void Controller::deleteHistoryItem()
 {
-    QVector<int> selectedIndexes(0);
+    QVector<int> selectedIndexes(0), selectedNumbers(0);
     mainWindow->selectedHistoryItemIndex(selectedIndexes);
+    for (int i = 0; i < selectedIndexes.size(); ++i)
+    {
+        selectedNumbers << selectedIndexes[i] + 1;
+    }
+
     if (!selectedIndexes.isEmpty())
     {
         QDialog dialog(mainWindow);
@@ -323,6 +328,12 @@ void Controller::deleteHistoryItem()
         QObject::connect(cancelButton, SIGNAL(clicked()), &dialog, SLOT(reject()));
 
         if (dialog.exec() == QDialog::Accepted)
-            model->removeSelectedTasks(selectedIndexes);
+        {
+            int currentTypeIndex = 0, currentTypeId = 0;
+            mainWindow->currentTypeIndex(currentTypeIndex);
+            currentTypeId = currentTypeIndex + 1;
+            model->removeSelectedTasks(selectedNumbers, currentTypeId);
+            showTaskHistory(currentTypeIndex);
+        }
     }
 }
