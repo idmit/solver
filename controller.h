@@ -9,6 +9,15 @@
 
 #define CONNECTION_SUCC "Connection successful"
 #define CONNECTION_ERR  "Error occured"
+#define OK_TEXT "OK"
+#define CANCEL_TEXT "Cancel"
+#define ASK_META_MSG "Provide some additional information:"
+#define INVALID_META_MSG "You must fill all the fields to use chosen method"
+#define EMPTY_TASK_MSG "Your task is empty"
+#define INCOMPLETE_TASK_MSG "Your input is incomplete."
+#define DELETE_WARNING "You are going to permanently delete some tasks. Are you sure?"
+#define IMAGE_BUTTON_TEXT "Save as Image"
+#define SOLUTION_GROUP_TEXT "Solution"
 
 class Controller : public QWidget
 {
@@ -20,38 +29,10 @@ signals:
     /* Inform the user about some changes */
     void statusChanged(QString status, int timeout);
 
-    /* Connection related */
-    void retrieveDrivers(QStringList &drivers);
-    void displayDrivers(QStringList &drivers);
-    void attemptToConnect(QHash<QString, QString> &options, bool &result);
-
-    /* Load and show task types */
-    void retrieveTaskTypes(QStringList &taskTypes);
-    void displayTaskTypes(QStringList &taskTypes);
-
-    /* Load and show history of tasks */
-    void retrieveTaskHistory(int taskTypeId, QStringList &taskHistory);
-    void displayTaskHistory(QStringList &taskHistory);
-
-    /* Load and show task solution methods */
-    void retrieveSolutionMethods(int taskTypeId, QStringList &solutionMethods);
-    void displaySolutionMethods(QStringList &solutionMethods);
-
-    /* Register task with parameters as processing */
-    void setTaskInProcess(int taskId, int taskTypeId, bool isNewTask);
-
-    /* Load and show task chosen from history */
-    void retrieveTaskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
-    void displayTaskFromHistory(QStringList lValues, QStringList rValues);
-
-    void retrieveSolutionMethodId(int &solutionMethodId, int solutionMethodNumberInList);
-    void solveTask(QStringList lValues, QStringList rValues, int solutionMethodId);
-
-    void retrieveSolution(QString &solution, int solutionMethodId);
-    void displaySolution(QString solution);
-
 public slots:
     void initialize(MainWindow *_mainWindow, ConnectionWindow *_connectionWindow, TaskWindow *_taskWindow, Model *_model);
+
+    void alert(QString msg, int id);
 
     void showConnectionWindow();
     void processConnectionOptions();
@@ -62,18 +43,14 @@ public slots:
     void showSolutionMethods(int taskTypeId);
     void showTaskWindow(int taskIndexInHistory);
 
-    void showSolution(int solutionMethodId);
-
     void processTask(QStringList lValues, QStringList rValues);
-
     void removeRedundantData(QStringList &lValues, QStringList &rValues);
     void askMeta(QStringList keys, QHash<QString, QString> *textMeta);
+    void showSolution(int solutionMethodId);
 
-    void alert(QString msg, int id);
     void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
 
     void deleteHistoryItem();
-
 private:
     MainWindow *mainWindow;
     ConnectionWindow *connectionWindow;

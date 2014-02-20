@@ -156,8 +156,8 @@ void Controller::showSolution(int solutionMethodId)
     QHBoxLayout *horz = new QHBoxLayout(&dialog);
     QGraphicsView *view = new QGraphicsView(&dialog);
     QLabel *result = new QLabel(solution.join(' '), &dialog);
-    QPushButton *okButton = new QPushButton("OK", &dialog), *saveButton = new QPushButton("Save as Image", &dialog);
-    QGroupBox *outputData = new QGroupBox("Solution", &dialog);
+    QPushButton *okButton = new QPushButton(OK_TEXT, &dialog), *saveButton = new QPushButton(IMAGE_BUTTON_TEXT, &dialog);
+    QGroupBox *outputData = new QGroupBox(SOLUTION_GROUP_TEXT, &dialog);
 
     dialog.graphicsView = view;
     dialog.solution = solution;
@@ -207,7 +207,7 @@ void Controller::processTask(QStringList lValues, QStringList rValues)
 
     if (lValues.size() == 0)
     {
-        alert("Your task is empty", 3);
+        alert(EMPTY_TASK_MSG, 3);
         return;
     }
 
@@ -230,10 +230,10 @@ void Controller::processTask(QStringList lValues, QStringList rValues)
         taskWindow->hide();
         break;
     case INPUT_INVALID_META:
-        alert("You must fill all the fields to use chosen method", 3);
+        alert(INVALID_META_MSG, 3);
         break;
     case INPUT_INCOMPLETE_TASK:
-        alert("Your input is incomplete.", 3);
+        alert(INCOMPLETE_TASK_MSG, 3);
         break;
     }
 }
@@ -246,7 +246,7 @@ void Controller::askMeta(QStringList keys, QHash<QString, QString> *textMeta)
     textMeta->clear();
     dialog.setWindowModality(Qt::WindowModal);
 
-    form.addRow(new QLabel("Provide some additional information:"));
+    form.addRow(new QLabel(ASK_META_MSG));
 
     QList<QLineEdit *> fields;
     for(int i = 0; i < keys.size(); ++i)
@@ -313,8 +313,8 @@ void Controller::deleteHistoryItem()
         QDialog dialog(mainWindow);
         QVBoxLayout *vert = new QVBoxLayout(&dialog);
         QHBoxLayout *horz = new QHBoxLayout(&dialog);
-        QLabel *question = new QLabel("You are going to permanently delete some tasks. Are you sure?", &dialog);
-        QPushButton *yesButton = new QPushButton("Yes", &dialog), *cancelButton = new QPushButton("Cancel", &dialog);
+        QLabel *question = new QLabel(DELETE_WARNING, &dialog);
+        QPushButton *yesButton = new QPushButton("Yes", &dialog), *cancelButton = new QPushButton(CANCEL_TEXT, &dialog);
 
 
         dialog.setWindowModality(Qt::WindowModal);
