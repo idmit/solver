@@ -58,7 +58,7 @@ public:
 
 signals:
     void connectionAttemptFinished(bool result);
-    void askMeta(QStringList keys, QHash<QString, QString> *textMeta);
+    void getMeta(QStringList keys, QHash<QString, QString> *textMeta);
 
 public slots:
     /*

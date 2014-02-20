@@ -35,7 +35,7 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
 
     QObject::connect(taskWindow, SIGNAL(solveButtonClicked(QStringList,QStringList)), this, SLOT(processTask(QStringList,QStringList)));
 
-    QObject::connect(model, SIGNAL(askMeta(QStringList,QHash<QString,QString>*)), this, SLOT(askMeta(QStringList,QHash<QString,QString>*)));
+    QObject::connect(model, SIGNAL(getMeta(QStringList,QHash<QString,QString>*)), this, SLOT(askMeta(QStringList,QHash<QString,QString>*)));
 }
 
 /* CONNECTION CREATION BEGIN */

@@ -9,8 +9,6 @@ Model::Model(QObject *parent) :
     taskInProcess = new Task();
 }
 
-/* CONNECTION CREATION BEGIN */
-
 void Model::retrieveDrivers(QStringList &drivers)
 {
     drivers = QSqlDatabase::drivers();
@@ -34,8 +32,6 @@ void Model::attemptToAddConnection(QHash<QString, QString> &options, bool &resul
     result = db.open(options["username"], options["password"]);
 }
 
-/* CONNECTION CREATION END */
-
 void Model::retrieveTaskTypes(QStringList &taskTypes)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
@@ -57,11 +53,14 @@ void Model::retrieveTaskHistory(int taskTypeId, QStringList &taskHistory)
     query.bindValue(":typeId", taskTypeId);
     query.exec();
 
-    int taskId = 1;
+    if (!query.next())
+        return;
+
+    int taskId = query.value(2).toInt();
     bool leftOrRight = false;
     QString task;
 
-    while (query.next())
+    do
     {
         int prevTaskId = taskId;
         double value = 0;
@@ -87,16 +86,9 @@ void Model::retrieveTaskHistory(int taskTypeId, QStringList &taskHistory)
             task += " ";
         }
         task += QString::number(value);
-    }
+    } while (query.next());
 
     taskHistory << task;
-
-    if (taskHistory[0].isEmpty())
-    {
-        for (int i = 1; i < taskHistory.size(); ++i)
-            taskHistory[i - 1] = taskHistory[i];
-        taskHistory.removeAt(taskHistory.size() - 1);
-    }
 }
 
 void Model::retrieveSolutionMethods(int taskTypeId, QStringList &solutionMethods)
@@ -382,14 +374,22 @@ InputCompleteness Model::solveTask(QStringList lValues, QStringList rValues, int
     switch (solutionMethodId)
     {
     case NATIVE_METHOD_ID:
+        if (matrix[0][0] == 0)
+        {
+            return INPUT_INCOMPLETE_TASK;
+        }
     case REFLECTION_METHOD_ID:
         result = matrix.reflection(column);
         break;
     case BISECTION_METHOD_ID:
     {
+        if (matrix[0][0] == 0)
+        {
+            return INPUT_INCOMPLETE_TASK;
+        }
         QStringList keys;
         keys << "Precision of bisection";
-        emit askMeta(keys, &textMeta);
+        emit getMeta(keys, &textMeta);
         if (!metaIsValid(textMeta, meta))
         {
             return INPUT_INVALID_META;
