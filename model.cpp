@@ -6,7 +6,7 @@
 Model::Model(QObject *parent) :
     QObject(parent)
 {
-    processedTask = new Task();
+    taskInProcess = new Task();
 }
 
 /* CONNECTION CREATION BEGIN */
@@ -41,7 +41,7 @@ void Model::retrieveTaskTypes(QStringList &taskTypes)
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
 
-    query.exec(SELECT_TYPES);
+    query.exec(SELECT_TYPES_NAMES);
     while (query.next())
     {
         taskTypes << query.value(0).toString();
@@ -53,7 +53,7 @@ void Model::retrieveTaskHistory(int taskTypeId, QStringList &taskHistory)
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
 
-    query.prepare(SELECT_HISTORY);
+    query.prepare(SELECT_EQS_ALL);
     query.bindValue(":typeId", taskTypeId);
     query.exec();
 
@@ -104,7 +104,7 @@ void Model::retrieveSolutionMethods(int taskTypeId, QStringList &solutionMethods
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
 
-    query.prepare(SELECT_METHODS);
+    query.prepare(SELECT_METHODS_NAMES);
     query.bindValue(":typeId", taskTypeId);
     query.exec();
     while (query.next())
@@ -113,13 +113,17 @@ void Model::retrieveSolutionMethods(int taskTypeId, QStringList &solutionMethods
     }
 }
 
-void Model::retrieveTaskIdFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory)
+void Model::retrieveTaskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList *lValues, QStringList *rValues)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
-    int i = 0;
 
-    query.prepare("SELECT id FROM TASKS WHERE type_id = :typeId");
+    int i = 0;
+    QString value = "", row = "";
+    bool leftOrRight = false, prevLeftOrRight = false;
+    QStringList *values = lValues;
+
+    query.prepare(SELECT_TASKS_IDS);
     query.bindValue(":typeId", taskTypeId);
     query.exec();
 
@@ -131,86 +135,44 @@ void Model::retrieveTaskIdFromHistory(int &taskId, int taskTypeId, int taskNumbe
     }
 
     taskId = query.value(0).toInt();
-}
 
-void Model::retrieveTaskFromHistory(int &expTaskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues)
-{
-    QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
-    QSqlQuery query(db);
+    if (!lValues)
+        return;
 
-    query.prepare(SELECT_HISTORY);
-    query.bindValue(":typeId", taskTypeId);
+    query.prepare(SELECT_EQS);
+    query.bindValue(":taskId", taskId);
     query.exec();
 
-    int prevTaskId = 0, taskId = 1, i = 0;
-    QString value = "", row = "";
-    bool leftOrRight = false, prevLeftOrRight = false;
-    QStringList *values = &lValues;
-
-    if (taskNumberInHistory == 1)
-        query.next();
-    else
-        while (query.next())
-        {
-            prevTaskId = taskId;
-            prevLeftOrRight = leftOrRight;
-            taskId = query.value(2).toInt();
-
-            if (i == 0)
-            {
-                prevTaskId = taskId; i = 1;
-            }
-
-            if (taskId != prevTaskId)
-            {
-                i++;
-                if (i == taskNumberInHistory)
-                {
-                    break;
-                }
-            }
-        }
-
-    taskId = query.value(2).toInt();
-    expTaskId = taskId;
-
-    do
+    while (query.next())
     {
-        prevTaskId = taskId;
         prevLeftOrRight = leftOrRight;
 
         value = query.value(0).toString();
         leftOrRight = query.value(1).toBool();
-        taskId = query.value(2).toInt();
-
-        if (taskId != prevTaskId)
-        {
-            break;
-        }
 
         if (leftOrRight != prevLeftOrRight)
         {
             values->append(row);
             row = "";
-            values = leftOrRight ? &rValues : &lValues;
+            values = leftOrRight ? rValues : lValues;
         }
 
         row += value + " ";
-    } while (query.next());
-    rValues.append(row);
+    }
+    values->append(row);
 }
 
-void Model::regTask(int taskId, int taskTypeId, bool isNew)
+void Model::setTaskInProcess(int taskId, int taskTypeId, bool isNew)
 {
-    processedTask->id = taskId;
-    processedTask->typeId = taskTypeId;
-    processedTask->isNew = isNew;
+    taskInProcess->id = taskId;
+    taskInProcess->typeId = taskTypeId;
+    taskInProcess->isNew = isNew;
 }
 
-void Model::makeTaskNew()
+void Model::setTaskInProcessAsNew()
 {
-    processedTask->id = 0;
-    processedTask->isNew = true;
+    taskInProcess->id = 0;
+    taskInProcess->isNew = true;
 }
 
 void Model::retrieveSolutionMethodFromList(int &solutionMethodId, int solutionMethodNumberInList)
@@ -219,8 +181,8 @@ void Model::retrieveSolutionMethodFromList(int &solutionMethodId, int solutionMe
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
 
-    query.prepare("SELECT id FROM Methods WHERE type_id = :typeId");
-    query.bindValue(":typeId", processedTask->typeId);
+    query.prepare(SELECT_METHODS_IDS);
+    query.bindValue(":typeId", taskInProcess->typeId);
     query.exec();
     while (query.next() && (++i) != solutionMethodNumberInList);
     solutionMethodId = query.value(0).toInt();
@@ -230,7 +192,7 @@ bool Model::taskIsValid(QStringList lValues, QStringList rValues)
 {
     int expectedDim = lValues.size();
 
-    switch (processedTask->typeId)
+    switch (taskInProcess->typeId)
     {
     case LE_TYPE_ID:
     case SLAE_TYPE_ID:
@@ -285,8 +247,8 @@ int Model::saveTask(Matrix matrix, Vector column)
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
 
-    query.prepare("INSERT INTO Tasks (type_id) VALUES (:typeId)");
-    query.bindValue(":typeId", processedTask->typeId);
+    query.prepare(INSERT_TASK);
+    query.bindValue(":typeId", taskInProcess->typeId);
     query.exec();
 
     newTaskId = query.lastInsertId().toInt();
@@ -295,13 +257,13 @@ int Model::saveTask(Matrix matrix, Vector column)
     {
         for (int j = 0; j < matrix.dim(); ++j)
         {
-            query.prepare("INSERT INTO Equations (value, left_right, task_id) VALUES (:value, :leftRight, :taskId)");
+            query.prepare(INSERT_EQ);
             query.bindValue(":taskId", newTaskId);
             query.bindValue(":value", matrix[i][j]);
             query.bindValue(":leftRight", 0);
             query.exec();
         }
-        query.prepare("INSERT INTO Equations (value, left_right, task_id) VALUES (:value, :leftRight, :taskId)");
+        query.prepare(INSERT_EQ);
         query.bindValue(":taskId", newTaskId);
         query.bindValue(":value", column[i]);
         query.bindValue(":leftRight", 1);
@@ -311,14 +273,14 @@ int Model::saveTask(Matrix matrix, Vector column)
     return newTaskId;
 }
 
-bool Model::retrieveSolutionForProcessedTask(int solutionMethodId, QStringList *solution)
+bool Model::retrieveSolutionForTaskInProcess(int solutionMethodId, QStringList *solution)
 {
     bool solutionExists = false;
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
 
-    query.prepare("SELECT id, value FROM Solutions WHERE task_id = :taskId AND method_id = :methodId");
-    query.bindValue(":taskId", processedTask->id);
+    query.prepare(SELECT_SOLUTIONS);
+    query.bindValue(":taskId", taskInProcess->id);
     query.bindValue(":methodId", solutionMethodId);
     query.exec();
 
@@ -330,7 +292,7 @@ bool Model::retrieveSolutionForProcessedTask(int solutionMethodId, QStringList *
 
         QSqlQuery q(db);
 
-        q.prepare("SELECT name, value FROM Meta WHERE solution_id = :solutionId");
+        q.prepare(SELECT_META);
         q.bindValue(":solutionId", solutionId);
         q.exec();
 
@@ -338,7 +300,7 @@ bool Model::retrieveSolutionForProcessedTask(int solutionMethodId, QStringList *
         bool found = true;
         while (q.next())
         {
-            if (processedTask->meta.values()[i] != q.value(1).toDouble())
+            if (taskInProcess->meta.values()[i] != q.value(1).toDouble())
             {
                 found = false;
             }
@@ -362,8 +324,8 @@ void Model::saveSolution(Vector result, int solutionMethodId, QHash<QString, dou
 
     for (int i = 0; i < result.dim(); ++i)
     {
-        query.prepare("INSERT INTO Solutions (task_id, method_id, value) VALUES (:taskId, :methodId, :value)");
-        query.bindValue(":taskId", processedTask->id);
+        query.prepare(INSERT_SOLUTION);
+        query.bindValue(":taskId", taskInProcess->id);
         query.bindValue(":value", result[i]);
         query.bindValue(":methodId", solutionMethodId);
         query.exec();
@@ -373,7 +335,7 @@ void Model::saveSolution(Vector result, int solutionMethodId, QHash<QString, dou
 
     for (int i = 0; i < meta.values().size(); ++i)
     {
-        query.prepare("INSERT INTO Meta (solution_id, name, value) VALUES (:solutionId, :name, :value)");
+        query.prepare(INSERT_META);
         query.bindValue(":solutionId", solutionId);
         query.bindValue(":name", meta.keys()[i]);
         query.bindValue(":value", meta.values()[i]);
@@ -401,30 +363,7 @@ bool Model::metaIsValid(QHash<QString, QString> textMeta, QHash<QString, double>
     return true;
 }
 
-double Model::bisection(double a, double b, double precision)
-{
-    double lb = -50,
-            rb = 50;
-
-    while ((a * lb - b) * (a * rb - b) > 0)
-    {
-        lb -= 10;
-        rb += 10;
-    }
-
-    while (rb - lb > precision)
-    {
-        double m = (lb + rb) / 2;
-        if ((a * lb - b) * (a * m - b) < 0)
-            rb = m;
-        else
-            lb = m;
-    }
-
-    return (lb + rb) / 2;
-}
-
-bool Model::solveTask(QStringList lValues, QStringList rValues, int solutionMethodId)
+InputCompleteness Model::solveTask(QStringList lValues, QStringList rValues, int solutionMethodId)
 {
     int dim = lValues.size();
     QHash<QString, QString> textMeta;
@@ -432,8 +371,7 @@ bool Model::solveTask(QStringList lValues, QStringList rValues, int solutionMeth
 
     if (!taskIsValid(lValues, rValues))
     {
-        emit alert("Your input is incomplete.", 3);
-        return false;
+        return INPUT_INCOMPLETE_TASK;
     }
 
     Vector column(dim), result(dim);
@@ -452,14 +390,11 @@ bool Model::solveTask(QStringList lValues, QStringList rValues, int solutionMeth
         QStringList keys;
         keys << "Precision of bisection";
         emit askMeta(keys, &textMeta);
-        if (textMeta.isEmpty())
-            return false;
         if (!metaIsValid(textMeta, meta))
         {
-            emit alert("You must fill all the fields to use chosen method", 3);
-            return false;
+            return INPUT_INVALID_META;
         }
-        processedTask->meta = meta;
+        taskInProcess->meta = meta;
         result[0] = bisection(matrix[0][0], column[0], meta["Precision of bisection"]);
         break;
     }
@@ -467,15 +402,15 @@ bool Model::solveTask(QStringList lValues, QStringList rValues, int solutionMeth
         break;
     }
 
-    if (!processedTask->isNew)
-        if (retrieveSolutionForProcessedTask(solutionMethodId))
-            return true;
+    if (!taskInProcess->isNew)
+        if (retrieveSolutionForTaskInProcess(solutionMethodId))
+            return INPUT_COMPLETE;
 
-    if (processedTask->isNew)
-        processedTask->id = saveTask(matrix, column);
+    if (taskInProcess->isNew)
+        taskInProcess->id = saveTask(matrix, column);
 
     saveSolution(result, solutionMethodId, meta);
-    return true;
+    return INPUT_COMPLETE;
 }
 
 static void addPointAt(QGraphicsScene *scene, double x, double y, double rad, double height, QPen pen)
@@ -525,19 +460,42 @@ void Model::setUpScene(int width, int height, QStringList solution, QGraphicsSce
     scene->addPath(*path, red);
 }
 
-void Model::removeSelectedTasks(QVector<int> selectedNumbers, int currentTypeId)
+void Model::eraseSelectedTasks(QVector<int> numbersInHistory, int typeId)
 {
-    for (int i = 0; i < selectedNumbers.size(); ++i)
+    for (int i = 0; i < numbersInHistory.size(); ++i)
     {
         int taskId = 0;
-        retrieveTaskIdFromHistory(taskId, currentTypeId, selectedNumbers[i]);
+        retrieveTaskFromHistory(taskId, typeId, numbersInHistory[i]);
 
         QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
         QSqlQuery query(db);
 
-        query.prepare("DELETE FROM Tasks WHERE id = :taskId");
+        query.prepare(DELETE_TASK);
         query.bindValue(":taskId", taskId);
         query.exec();
     }
     return;
+}
+
+double Model::bisection(double a, double b, double precision)
+{
+    double lb = -50,
+            rb = 50;
+
+    while ((a * lb - b) * (a * rb - b) > 0)
+    {
+        lb -= 10;
+        rb += 10;
+    }
+
+    while (rb - lb > precision)
+    {
+        double m = (lb + rb) / 2;
+        if ((a * lb - b) * (a * m - b) < 0)
+            rb = m;
+        else
+            lb = m;
+    }
+
+    return (lb + rb) / 2;
 }

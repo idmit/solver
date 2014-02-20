@@ -38,7 +38,7 @@ signals:
     void displaySolutionMethods(QStringList &solutionMethods);
 
     /* Register task with parameters as processing */
-    void regTask(int taskId, int taskTypeId, bool isNewTask);
+    void setTaskInProcess(int taskId, int taskTypeId, bool isNewTask);
 
     /* Load and show task chosen from history */
     void retrieveTaskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList &lValues, QStringList &rValues);
