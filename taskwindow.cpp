@@ -53,6 +53,7 @@ void TaskWindow::addLineAtIndex(int index, QString const &lValue, QString const 
     ui->taskContentLayout->addWidget(remove, index, REMOVE_BUTTON_INDEX);
 
     nextEmptyRow += 1;
+    leftSide->setFocus();
 
     /* Doesn't work another way */
     if (index == 0)
