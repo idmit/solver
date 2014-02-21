@@ -16,12 +16,9 @@ void Model::retrieveDrivers(QStringList &drivers)
 
 void Model::attemptToAddConnection(QHash<QString, QString> &options, bool &result)
 {
+    QSqlDatabase::removeDatabase(CONNECTION_NAME);
+
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
-    if (db.isValid())
-    {
-        db.close();
-        QSqlDatabase::removeDatabase(CONNECTION_NAME);
-    }
 
     db = QSqlDatabase::addDatabase(options["driver"], QObject::tr(CONNECTION_NAME));
 
