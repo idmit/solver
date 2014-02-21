@@ -93,7 +93,7 @@ class DialogWithGraphicsView : public QDialog
 {
     Q_OBJECT
 public:
-    DialogWithGraphicsView(QWidget *parent) : QDialog(parent) {}
+    DialogWithGraphicsView(QWidget *parent) : QDialog(parent), graphicsView(0) {}
     virtual ~DialogWithGraphicsView() {}
 
     void showEvent(QShowEvent *event)

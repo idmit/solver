@@ -9,7 +9,7 @@
 #include <QGroupBox>
 
 Controller::Controller(QWidget *parent) :
-    QWidget(parent)
+    QWidget(parent), mainWindow(0), taskWindow(0), connectionWindow(0), model(0)
 {
 
 }

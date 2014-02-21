@@ -112,7 +112,7 @@ void Model::retrieveTaskFromHistory(int &taskId, int taskTypeId, int taskNumberI
 
     int i = 0;
     QString value = "", row = "";
-    bool leftOrRight = false, prevLeftOrRight = false;
+    bool leftOrRight = false;
     QStringList *values = lValues;
 
     query.prepare(SELECT_TASKS_IDS);
@@ -137,7 +137,7 @@ void Model::retrieveTaskFromHistory(int &taskId, int taskTypeId, int taskNumberI
 
     while (query.next())
     {
-        prevLeftOrRight = leftOrRight;
+        bool prevLeftOrRight = leftOrRight;
 
         value = query.value(0).toString();
         leftOrRight = query.value(1).toBool();
