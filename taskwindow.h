@@ -118,7 +118,12 @@ public:
 public slots:
     void saveSceneAsImage()
     {
+        QPixmap pixMap =  QPixmap::grabWidget(graphicsView);
+        /*
+         * QPixmap::grabWidget is deprecated, use QWidget::grab() instead.
+         * It is chosen to support older versions of Qt.
         QPixmap pixMap = graphicsView->grab();
+        */
         QString filename = QFileDialog::getSaveFileName(this);
         if (!filename.isEmpty())
         {
@@ -129,7 +134,7 @@ public slots:
             {
                 parsed << "png";
             }
-            pixMap.save(parsed.join('.'));
+            pixMap.save(parsed.join("."));
             accept();
         }
     }

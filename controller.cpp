@@ -160,7 +160,7 @@ void Controller::showSolution(int solutionMethodId)
     QVBoxLayout *vert = new QVBoxLayout(&dialog), *solutionLayout = new QVBoxLayout(&dialog);
     QHBoxLayout *horz = new QHBoxLayout(&dialog);
     QGraphicsView *view = new QGraphicsView(&dialog);
-    QLabel *result = new QLabel(solution.join(' '), &dialog);
+    QLabel *result = new QLabel(solution.join(" "), &dialog);
     QPushButton *okButton = new QPushButton(OK_TEXT, &dialog), *saveButton = new QPushButton(IMAGE_BUTTON_TEXT, &dialog);
     QGroupBox *outputData = new QGroupBox(SOLUTION_GROUP_TEXT, &dialog);
 
