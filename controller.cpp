@@ -9,7 +9,7 @@
 #include <QGroupBox>
 
 Controller::Controller(QWidget *parent) :
-    QWidget(parent), mainWindow(0), taskWindow(0), connectionWindow(0), model(0)
+    QWidget(parent), mainWindow(0), connectionWindow(0), taskWindow(0), model(0)
 {
 
 }
@@ -38,6 +38,14 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     QObject::connect(model, SIGNAL(getMeta(QStringList,QHash<QString,QString>*)), this, SLOT(askMeta(QStringList,QHash<QString,QString>*)));
 }
 
+void Controller::alert(QString msg, QWidget *parent)
+{
+    QMessageBox msgBox(parent);
+    msgBox.setWindowModality(Qt::WindowModal);
+    msgBox.setText(msg);
+    msgBox.exec();
+}
+
 /* CONNECTION CREATION BEGIN */
 
 void Controller::showConnectionWindow()
@@ -54,7 +62,6 @@ void Controller::showConnectionWindow()
 void Controller::processConnectionOptions()
 {
     QHash<QString, QString> options;
-    QMessageBox msgBox(connectionWindow);
     bool result = false;
 
     connectionWindow->getConnectionOptions(options);
@@ -62,16 +69,14 @@ void Controller::processConnectionOptions()
 
     if (result)
     {
-        statusChanged(CONNECTION_SUCC, 2000);
+        statusChanged(CONNECTION_SUCC, STATUS_DURATION);
+        showTaskTypes(result);
     }
     else
     {
-        msgBox.setWindowModality(Qt::WindowModal);
-        msgBox.setText(CONNECTION_ERR);
-        msgBox.exec();
+        alert(CONNECTION_ERR, connectionWindow);
     }
     connectionWindow->setHidden(result);
-    showTaskTypes(result);
 }
 
 /* CONNECTION CREATION END */
@@ -207,7 +212,7 @@ void Controller::processTask(QStringList lValues, QStringList rValues)
 
     if (lValues.size() == 0)
     {
-        alert(EMPTY_TASK_MSG, 3);
+        alert(EMPTY_TASK_MSG, taskWindow);
         return;
     }
 
@@ -230,10 +235,10 @@ void Controller::processTask(QStringList lValues, QStringList rValues)
         taskWindow->hide();
         break;
     case INPUT_INVALID_META:
-        alert(INVALID_META_MSG, 3);
+        alert(INVALID_META_MSG, taskWindow);
         break;
     case INPUT_INCOMPLETE_TASK:
-        alert(INCOMPLETE_TASK_MSG, 3);
+        alert(INCOMPLETE_TASK_MSG, taskWindow);
         break;
     }
 }
@@ -258,9 +263,9 @@ void Controller::askMeta(QStringList keys, QHash<QString, QString> *textMeta)
         fields << lineEdit;
     }
 
-    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                               Qt::Horizontal, &dialog);
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &dialog);
     form.addRow(&buttonBox);
+
     QObject::connect(&buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
     QObject::connect(&buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
 
@@ -271,27 +276,6 @@ void Controller::askMeta(QStringList keys, QHash<QString, QString> *textMeta)
             textMeta->insert(keys[i], fields[i]->text());
         }
     }
-}
-
-void Controller::alert(QString msg, int id)
-{
-    QWidget *parent = 0;
-
-    switch (id)
-    {
-    case 3:
-        parent = taskWindow;
-        break;
-    case 0:
-        parent = dynamic_cast<QWidget *>(QObject::sender());
-    default:
-        break;
-    }
-
-    QMessageBox msgBox(parent);
-    msgBox.setWindowModality(Qt::WindowModal);
-    msgBox.setText(msg);
-    msgBox.exec();
 }
 
 void Controller::setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene)
