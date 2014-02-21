@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QShortcut>
+#include <QListView>
 
 #define MAIN_WINDOW_TITLE "Solver"
 #define FIRST_MENU_ITEM "File"
