@@ -5,6 +5,7 @@
 #include <QHash>
 #include <QGraphicsScene>
 #include <QStringList>
+#include <QStack>
 #include "matrix.h"
 
 /* Type IDS in DB */
@@ -40,12 +41,25 @@ enum InputCompleteness
     INPUT_INVALID_META
 };
 
+struct Solution
+{
+//    Solution(int id, int methodId, QVector<double> vals, QHash<QString, double> meta):
+//        id(id), methodId(methodId), values(vals), meta(meta) {}
+    int id;
+    int methodId;
+    bool isSaved;
+    QVector<double> values;
+    QHash<QString, double> meta;
+};
+
 struct Task
 {
-    Task(): id(0), typeId(0), isNew(false), meta() {}
-    int id;
+    Task(int idInDB = 0, int typeId = 0): idInDB(idInDB), typeId(typeId), meta() {}
+    int idInDB;
     int typeId;
-    bool isNew;
+    Matrix matrix;
+    Vector vector;
+    QVector<Solution> solutions;
     QHash<QString, double> meta;
 };
 
@@ -54,7 +68,6 @@ class Model : public QObject
     Q_OBJECT
 public:
     explicit Model(QObject *parent = 0);
-    int taskInProcessTypeId() { return taskInProcess->typeId; }
 
 signals:
     void connectionAttemptFinished(bool result);
@@ -104,23 +117,13 @@ public slots:
     (OUT) solution -- list of strings (one for each coordinate)
     (OUT) true if solution exists
      */
-    bool retrieveSolutionForTaskInProcess(int solutionMethodId, QStringList *solution = 0);
+    bool retrieveSolution(int taskIdInDB, int solutionMethodId, QHash<QString, double> meta, QStringList *solution = 0);
 
     /*
-    (IN) taskId -- id to be set as in process
-    (IN) taskTypeId -- id of type to be set as in process
-    (IN) isNew -- true sets task in process as new
-     */
-    void setTaskInProcess(int taskId, int taskTypeId, bool isNew);
-    void setTaskInProcessAsNew();
-
-    /*
-    (IN) lValues -- list of left sides of task equations
-    (IN) rValues --list of right sides of task equations
     (IN) solutionMethodId -- id of solution method to solve given task
     (OUT) INPUT_COMPLETE if task formulation is correct
      */
-    InputCompleteness solveTask(QStringList lValues, QStringList rValues, int solutionMethodId);
+    InputCompleteness solveTask(int solutionMethodId);
 
     /*
     (IN) width -- width of graphics view
@@ -136,15 +139,22 @@ public slots:
     (IN) numbersInHistory -- numbers of task in history of that type
      */
     void eraseSelectedTasks(QVector<int> numbersInHistory, int typeId);
+
+    void retrieveTaskSession(int taskTypeId, QStringList &taskSession);
+    InputCompleteness createTask(QStringList lValues, QStringList rValues, int taskTypeId, int taskIdInDB = 0);
+    void retrieveTaskFromSession(int taskTypeId, int taskNumberInHistory, QStringList *lValues, QStringList *rValues);
+    void retrieveSessionSolutionValues(QStringList &solutionValues);
 private:
-    Task *taskInProcess;
+    QVector<Task> sessionTasks;
+    int focusIndex;
 
     /*
     (IN) lValues -- list of left sides of task equations
     (IN) rValues -- list of right sides of task equations
+    (IN) taskTypeId -- id of task type
     (OUT) true if task formulation is valid
      */
-    bool taskIsValid(QStringList lValues, QStringList rValues);
+    bool taskIsValid(QStringList lValues, QStringList rValues, int taskTypeId);
     /*
     (IN) lValues -- list of left sides of task equations
     (IN) rValues -- list of right sides of task equations

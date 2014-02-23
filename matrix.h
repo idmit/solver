@@ -9,7 +9,7 @@ class Vector
 {
 public:
     /* Constructor */
-    Vector(int n):n(n), values(n) {}
+    Vector(int n = 0):n(n), values(n) {}
 
     /* Operators */
     double &operator[](int index) { return values[index]; }
@@ -36,7 +36,7 @@ class Matrix
 {
 public:
     /* Constructor */
-    Matrix(int n):n(n), values(n, QVector<double>(n)) {}
+    Matrix(int n = 0):n(n), values(n, QVector<double>(n)) {}
 
     /* Operators */
     QVector<double> &operator[](int index) { return values[index]; }

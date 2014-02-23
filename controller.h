@@ -65,11 +65,7 @@ public slots:
      */
     void showTaskWindow(int taskIndexInHistory);
 
-    /*
-    (IN) lValues -- list of strings to be processed as left sides of equations
-    (IN) lValues -- list of strings to be processed as right sides of equations
-     */
-    void processTask(QStringList lValues, QStringList rValues);
+    void solveTask();
     /*
     (IN) lValues -- list of strings to be cleaned up from empty entries
     (IN) lValues -- list of strings to be cleaned up from empty entries
@@ -94,6 +90,8 @@ public slots:
     void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
 
     void deleteHistoryItem();
+
+    void createTask(QStringList lValues, QStringList rValues);
 private:
     MainWindow *mainWindow;
     ConnectionWindow *connectionWindow;

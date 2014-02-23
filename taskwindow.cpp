@@ -171,29 +171,9 @@ void TaskWindow::on_solveButton_clicked()
     emit solveButtonClicked(lValues, rValues);
 }
 
-void TaskWindow::forbidEditOfCoefficientsGroupBox()
-{
-    ui->scrollArea->setEnabled(false);
-}
-
-void TaskWindow::makeCoefficientsGroupBoxEditable()
-{
-    ui->scrollArea->setEnabled(true);
-}
-
-void TaskWindow::showEditButton(bool visible)
-{
-    ui->editButton->setVisible(visible);
-}
-
 void TaskWindow::on_editButton_clicked()
 {
-    emit editButtonClicked();
-}
-
-void TaskWindow::hideEditButton()
-{
-    showEditButton(false);
+    enableCreationMode();
 }
 
 void TaskWindow::on_closeButton_clicked()
@@ -204,4 +184,40 @@ void TaskWindow::on_closeButton_clicked()
 void TaskWindow::selectedSolutionMethodsComboIndex(int &solutionMethodIndex) const
 {
     solutionMethodIndex = ui->solutionMethodsCombo->currentIndex();
+}
+
+void TaskWindow::on_createButton_clicked()
+{
+    QStringList lValues, rValues;
+
+    for (int i = 0; i < nextEmptyRow; ++i)
+    {
+        QLineEdit *lSide = 0, *rSide = 0;
+        lSide = dynamic_cast<QLineEdit *>(ui->taskContentLayout->itemAtPosition(i, LEFT_VALUES_INDEX)->widget());
+        lValues << lSide->text();
+        rSide = dynamic_cast<QLineEdit *>(ui->taskContentLayout->itemAtPosition(i, RIGHT_VALUES_INDEX)->widget());
+        rValues << rSide->text();
+    }
+
+    emit createButtonClicked(lValues, rValues);
+}
+
+void TaskWindow::enableSolutionMode()
+{
+    ui->scrollArea->setEnabled(false);
+    ui->editButton->setVisible(true);
+    ui->solutionMethodsCombo->setVisible(true);
+    ui->solutionMethodsLabel->setVisible(true);
+    ui->solveButton->setVisible(true);
+    ui->createButton->setVisible(false);
+}
+
+void TaskWindow::enableCreationMode()
+{
+    ui->scrollArea->setEnabled(true);
+    ui->editButton->setVisible(false);
+    ui->solutionMethodsCombo->setVisible(false);
+    ui->solutionMethodsLabel->setVisible(false);
+    ui->solveButton->setVisible(false);
+    ui->createButton->setVisible(true);
 }

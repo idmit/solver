@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="coefficientsGroupBox">
      <property name="title">
-      <string>Coefficients</string>
+      <string>Coefficients delimited by spaces</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
@@ -59,7 +59,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="editButtonLayout">
      <item>
       <widget class="QPushButton" name="editButton">
        <property name="text">
@@ -68,7 +68,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="solutionMethodsLabel">
        <property name="text">
         <string>Choose solution method</string>
        </property>
@@ -85,6 +85,13 @@
       <widget class="QPushButton" name="solveButton">
        <property name="text">
         <string>Solve</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="createButton">
+       <property name="text">
+        <string>Create</string>
        </property>
       </widget>
      </item>

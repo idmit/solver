@@ -63,3 +63,13 @@ void MainWindow::selectedHistoryListIndexes(QVector<int> &selectedIndexes) const
     foreach(const QModelIndex &index, ui->taskHistoryList->selectionModel()->selectedIndexes())
         selectedIndexes.append(index.row());
 }
+
+bool MainWindow::showAllCheckBoxChecked()
+{
+    return ui->showAllCheckBox->isChecked();
+}
+
+void MainWindow::on_showAllCheckBox_stateChanged(int arg1)
+{
+    emit showAllCheckBoxChanged(ui->taskTypesCombo->currentIndex());
+}

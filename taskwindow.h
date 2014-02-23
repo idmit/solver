@@ -25,6 +25,7 @@ public:
 signals:
     void editButtonClicked();
     void solveButtonClicked(QStringList lValues, QStringList rValues);
+    void createButtonClicked(QStringList lValues, QStringList rValues);
 
 public slots:
     /*
@@ -60,25 +61,20 @@ public slots:
     (IN) enabled -- sets plus button of the line indexed zero enabled (true) or disabled (false)
      */
     void enableAddButtonAtFirstLine(bool enabled);
-    
-    void makeCoefficientsGroupBoxEditable();
-    void forbidEditOfCoefficientsGroupBox();
-
-    /*
-    (IN) visible -- sets editButton visible (true) or hidden (false)
-     */
-    void showEditButton(bool visible);
-    void hideEditButton();
 
     /*
     (OUT) -- index of currently selected solution method in solutionMethodsComboBox
      */
     void selectedSolutionMethodsComboIndex(int &solutionMethodIndex) const;
 
+    void enableSolutionMode();
+    void enableCreationMode();
 private slots:
     void on_solveButton_clicked();
     void on_editButton_clicked();
     void on_closeButton_clicked();
+
+    void on_createButton_clicked();
 
 private:
     Ui::TaskWindow *ui;

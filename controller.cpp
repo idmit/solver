@@ -27,13 +27,12 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
 
     QObject::connect(mainWindow, SIGNAL(differentTaskTypeChosen(int)), this, SLOT(showTaskHistory(int)));
 
+    QObject::connect(mainWindow, SIGNAL(showAllCheckBoxChanged(int)), this, SLOT(showTaskHistory(int)));
+
     QObject::connect(mainWindow, SIGNAL(processTask(int)), this, SLOT(showTaskWindow(int)));
 
-    QObject::connect(taskWindow, SIGNAL(editButtonClicked()), taskWindow, SLOT(makeCoefficientsGroupBoxEditable()));
-    QObject::connect(taskWindow, SIGNAL(editButtonClicked()), taskWindow, SLOT(hideEditButton()));
-    QObject::connect(taskWindow, SIGNAL(editButtonClicked()), model, SLOT(setTaskInProcessAsNew()));
-
-    QObject::connect(taskWindow, SIGNAL(solveButtonClicked(QStringList,QStringList)), this, SLOT(processTask(QStringList,QStringList)));
+    QObject::connect(taskWindow, SIGNAL(createButtonClicked(QStringList,QStringList)), this, SLOT(createTask(QStringList,QStringList)));
+    QObject::connect(taskWindow, SIGNAL(solveButtonClicked(QStringList,QStringList)), this, SLOT(solveTask()));
 
     QObject::connect(model, SIGNAL(getMeta(QStringList,QHash<QString,QString>*)), this, SLOT(askMeta(QStringList,QHash<QString,QString>*)));
 }
@@ -97,7 +96,11 @@ void Controller::showTaskHistory(int taskTypeIndex)
     QStringList taskHistory;
     int taskTypeId = taskTypeIndex + 1;
 
-    model->retrieveTaskHistory(taskTypeId, taskHistory);
+    if (mainWindow->showAllCheckBoxChecked())
+        model->retrieveTaskHistory(taskTypeId, taskHistory);
+    else
+        model->retrieveTaskSession(taskTypeId, taskHistory);
+
     mainWindow->refreshTaskHistoryList(taskHistory);
 }
 
@@ -132,21 +135,21 @@ void Controller::showTaskWindow(int taskIndexInHistory)
     {
         taskWindow->clearCoefficientsGroupBox();
         taskWindow->appendLine();
-        model->setTaskInProcess(0, taskTypeId, true);
+        taskWindow->enableCreationMode();
     }
     else
     {
-        int taskId = 0;
-        model->retrieveTaskFromHistory(taskId, taskTypeId, taskNumberInHistory, &lValues, &rValues);
+        int taskIdInDB = 0;
+        if (mainWindow->showAllCheckBoxChecked())
+        {
+            model->retrieveTaskFromHistory(taskIdInDB, taskTypeId, taskNumberInHistory, &lValues, &rValues);
+            model->createTask(lValues, rValues, taskTypeId, taskIdInDB);
+        }
+        else
+            model->retrieveTaskFromSession(taskTypeId, taskNumberInHistory, &lValues, &rValues);
         taskWindow->generateLines(lValues, rValues);
-        model->setTaskInProcess(taskId, taskTypeId, false);
+        taskWindow->enableSolutionMode();
     }
-
-    taskWindow->showEditButton(!taskIsNew);
-    if (!taskIsNew)
-        taskWindow->forbidEditOfCoefficientsGroupBox();
-    else
-        taskWindow->makeCoefficientsGroupBoxEditable();
 
     taskWindow->show();
 }
@@ -154,7 +157,7 @@ void Controller::showTaskWindow(int taskIndexInHistory)
 void Controller::showSolution(int solutionMethodId)
 {
     QStringList solution;
-    model->retrieveSolutionForTaskInProcess(solutionMethodId, &solution);
+    model->retrieveSessionSolutionValues(solution);
 
     DialogWithGraphicsView dialog(taskWindow);
     QVBoxLayout *vert = new QVBoxLayout(&dialog), *solutionLayout = new QVBoxLayout(&dialog);
@@ -206,16 +209,8 @@ void Controller::removeRedundantData(QStringList &lValues, QStringList &rValues)
     }
 }
 
-void Controller::processTask(QStringList lValues, QStringList rValues)
+void Controller::solveTask()
 {
-    removeRedundantData(lValues, rValues);
-
-    if (lValues.size() == 0)
-    {
-        alert(EMPTY_TASK_MSG, taskWindow);
-        return;
-    }
-
     int solutionMethodNumberInList = 0,
             solutionMethodIndex = 0,
             solutionMethodId = 0;
@@ -224,14 +219,15 @@ void Controller::processTask(QStringList lValues, QStringList rValues)
     solutionMethodNumberInList = solutionMethodIndex + 1;
     model->retrieveSolutionMethodFromList(solutionMethodId, solutionMethodNumberInList);
 
-    InputCompleteness inputCompleteness = model->solveTask(lValues, rValues, solutionMethodId);
+    InputCompleteness inputCompleteness = model->solveTask(solutionMethodId);
 
     switch (inputCompleteness)
     {
     case INPUT_COMPLETE:
         showSolution(solutionMethodId);
-
-        showTaskHistory(model->taskInProcessTypeId() - 1);
+        int index;
+        mainWindow->selectedTypesComboIndex(index);
+        showTaskHistory(index);
         taskWindow->hide();
         break;
     case INPUT_INVALID_META:
@@ -322,5 +318,39 @@ void Controller::deleteHistoryItem()
             model->eraseSelectedTasks(selectedNumbers, currentTypeId);
             showTaskHistory(currentTypeIndex);
         }
+    }
+}
+
+void Controller::createTask(QStringList lValues, QStringList rValues)
+{
+    removeRedundantData(lValues, rValues);
+    if (lValues.size() == 0)
+    {
+        alert(EMPTY_TASK_MSG, taskWindow);
+        return;
+    }
+
+    int index = 0;
+    mainWindow->selectedTypesComboIndex(index);
+    int typeId = index + 1;
+
+    InputCompleteness inputCompleteness = model->createTask(lValues, rValues, typeId);
+
+    switch (inputCompleteness)
+    {
+    case INPUT_COMPLETE:
+    {
+        int index = 0;
+        mainWindow->selectedTypesComboIndex(index);
+        showTaskHistory(index);
+        taskWindow->hide();
+    }
+        break;
+    case INPUT_INVALID_META:
+        alert(INVALID_META_MSG, taskWindow);
+        break;
+    case INPUT_INCOMPLETE_TASK:
+        alert(INCOMPLETE_TASK_MSG, taskWindow);
+        break;
     }
 }
