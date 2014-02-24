@@ -16,9 +16,10 @@
 #define EMPTY_TASK_MSG "Your task is empty"
 #define INCOMPLETE_TASK_MSG "Your input is incomplete"
 #define DELETE_WARNING "You are going to permanently delete some tasks. Are you sure?"
+#define SAVE_SUCCESS_MSG "Selected tasks were successfully saved"
 #define IMAGE_BUTTON_TEXT "Save as Image"
 #define SOLUTION_GROUP_TEXT "Solution"
-#define STATUS_DURATION 2000
+#define STATUS_DURATION 4000
 
 class Controller : public QWidget
 {
@@ -89,10 +90,15 @@ public slots:
      */
     void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
 
-    void deleteHistoryItem();
+    void deleteHistoryItems();
+    void saveSessionItems();
+    void quitApp();
+    void proposeToSaveSession();
 
     void createTask(QStringList lValues, QStringList rValues);
 private:
+    QDialog *createDialog(QString msg, QWidget *parent);
+
     MainWindow *mainWindow;
     ConnectionWindow *connectionWindow;
     TaskWindow *taskWindow;

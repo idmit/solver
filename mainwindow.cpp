@@ -10,8 +10,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QMenu *mainMenu = this->menuBar()->addMenu(QObject::tr(FIRST_MENU_ITEM));
     mainMenu->addAction(QObject::tr(CONNECT_MENU_ACTION), parent, SLOT(showConnectionWindow()), QKeySequence(Qt::CTRL + Qt::Key_D));
 
-    QMenu *historyMenu = this->menuBar()->addMenu(QObject::tr(SECOND_MENU_ITEM));
-    historyMenu->addAction(QObject::tr(DELETE_MENU_ITEM), parent, SLOT(deleteHistoryItem()), QKeySequence(Qt::CTRL + Qt::Key_Backspace));
+    QMenu *taskMenu = this->menuBar()->addMenu(QObject::tr(SECOND_MENU_ITEM));
+    taskMenu->addAction(QObject::tr(SAVE_MENU_ITEM), parent, SLOT(saveSessionItems()), QKeySequence(Qt::CTRL + Qt::Key_S));
+    taskMenu->addAction(QObject::tr(DELETE_MENU_ITEM), parent, SLOT(deleteHistoryItems()), QKeySequence(Qt::CTRL + Qt::Key_Backspace));
 
     setWindowTitle(MAIN_WINDOW_TITLE);
 }
@@ -72,4 +73,9 @@ bool MainWindow::showAllCheckBoxChecked()
 void MainWindow::on_showAllCheckBox_stateChanged(int arg1)
 {
     emit showAllCheckBoxChanged(ui->taskTypesCombo->currentIndex());
+}
+
+int MainWindow::count()
+{
+    return ui->taskHistoryList->count();
 }

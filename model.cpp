@@ -311,6 +311,38 @@ int Model::saveTask(Matrix matrix, Vector column)
     return newTaskId;
 }
 
+int Model::saveTaskFromSession(int k)
+{
+    int newTaskId = 0;
+    QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
+    QSqlQuery query(db);
+
+    query.prepare(INSERT_TASK);
+    query.bindValue(":typeId", sessionTasks[k].typeId);
+    query.exec();
+
+    newTaskId = query.lastInsertId().toInt();
+
+    for (int i = 0; i < sessionTasks[k].matrix.dim(); ++i)
+    {
+        for (int j = 0; j <  sessionTasks[k].matrix.dim(); ++j)
+        {
+            query.prepare(INSERT_EQ);
+            query.bindValue(":taskId", newTaskId);
+            query.bindValue(":value", sessionTasks[k].matrix[i][j]);
+            query.bindValue(":leftRight", 0);
+            query.exec();
+        }
+        query.prepare(INSERT_EQ);
+        query.bindValue(":taskId", newTaskId);
+        query.bindValue(":value", sessionTasks[k].vector[i]);
+        query.bindValue(":leftRight", 1);
+        query.exec();
+    }
+
+    return newTaskId;
+}
+
 bool Model::retrieveSolution(int taskIdInDB, int solutionMethodId, QHash<QString, double> meta, QStringList *solution)
 {
     bool solutionExists = false;
@@ -608,4 +640,28 @@ InputCompleteness Model::createTask(QStringList lValues, QStringList rValues, in
     sessionTasks << task;
 
     return INPUT_COMPLETE;
+}
+
+bool Model::saveSelectedTasks(QVector<int> numbersInSession, bool all)
+{
+    bool savedAny = false;
+
+    if (all)
+    {
+       numbersInSession.clear();
+       for (int i = 0; i < sessionTasks.size(); ++i)
+       {
+           numbersInSession << i;
+       }
+    }
+    foreach (int i, numbersInSession)
+    {
+        if (sessionTasks[i].idInDB == 0)
+        {
+            sessionTasks[i].idInDB = saveTaskFromSession(i);
+            savedAny = true;
+        }
+    }
+
+    return savedAny;
 }

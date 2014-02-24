@@ -2,14 +2,16 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QCloseEvent>
 #include <QShortcut>
 #include <QListView>
 
 #define MAIN_WINDOW_TITLE "Solver"
 #define FIRST_MENU_ITEM "File"
 #define CONNECT_MENU_ACTION "Connect to server"
-#define SECOND_MENU_ITEM "History"
-#define DELETE_MENU_ITEM "Delete selected history item"
+#define SECOND_MENU_ITEM "Tasks"
+#define SAVE_MENU_ITEM "Save selected task"
+#define DELETE_MENU_ITEM "Delete selected task"
 
 namespace Ui {
 class MainWindow;
@@ -21,12 +23,15 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+    void closeEvent(QCloseEvent *event) { event->ignore(); emit quitButtonClicked(); }
+    bool showAllCheckBoxChecked();
     ~MainWindow();
 
 signals:
     void differentTaskTypeChosen(int newIndex);
     void processTask(int taskNumberInHistory);
     void showAllCheckBoxChanged(int taskTypeIndex);
+    void quitButtonClicked();
 
 public slots:
     /*
@@ -52,8 +57,7 @@ public slots:
      */
     void selectedHistoryListIndexes(QVector<int> &selectedIndexes) const;
 
-    bool showAllCheckBoxChecked();
-
+    int count();
 private slots:
     void on_taskTypesCombo_currentIndexChanged(int index);
     void on_newTaskButton_clicked();

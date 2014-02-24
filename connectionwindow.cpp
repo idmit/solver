@@ -39,5 +39,5 @@ void ConnectionWindow::on_okButton_clicked()
 
 void ConnectionWindow::on_quitButton_clicked()
 {
-    exit(0);
+    emit quitButtonClicked();
 }

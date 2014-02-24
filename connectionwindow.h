@@ -20,6 +20,7 @@ public:
 
 signals:
     void connectionOptionsSpecified();
+    void quitButtonClicked();
 
 public slots:
     /*

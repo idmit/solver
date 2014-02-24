@@ -134,11 +134,16 @@ public slots:
     void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
 
     /*
-    
     (IN) taskId -- id of type from which history task deletion is requested
-    (IN) numbersInHistory -- numbers of task in history of that type
+    (IN) numbersInHistory -- numbers of tasks in history of that type
      */
     void eraseSelectedTasks(QVector<int> numbersInHistory, int typeId);
+
+    /*
+    (IN) taskId -- id of type from which history save operation is requested
+    (IN) numbersInHistory -- numbers of tasks in history of that type
+     */
+    bool saveSelectedTasks(QVector<int> numbersInSession, bool all = false);
 
     void retrieveTaskSession(int taskTypeId, QStringList &taskSession);
     InputCompleteness createTask(QStringList lValues, QStringList rValues, int taskTypeId, int taskIdInDB = 0);
@@ -168,6 +173,9 @@ private:
     (OUT) id of saved task
      */
     int saveTask(Matrix matrix, Vector column);
+
+    int saveTaskFromSession(int i);
+
     /*
     (IN) result -- value associated with task in process
     (IN) solutionMethodId -- id of solution method with which that value was received

@@ -22,6 +22,8 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
     model = _model;
 
     QObject::connect(connectionWindow, SIGNAL(connectionOptionsSpecified()), this, SLOT(processConnectionOptions()));
+    QObject::connect(connectionWindow, SIGNAL(quitButtonClicked()), this, SLOT(quitApp()));
+    QObject::connect(mainWindow, SIGNAL(quitButtonClicked()), this, SLOT(quitApp()));
 
     QObject::connect(this, SIGNAL(statusChanged(QString,int)), mainWindow, SLOT(refreshStatusBar(QString,int)));
 
@@ -279,7 +281,32 @@ void Controller::setUpScene(int width, int height, QStringList solution, QGraphi
     model->setUpScene(width, height, solution, scene);
 }
 
-void Controller::deleteHistoryItem()
+QDialog *Controller::createDialog(QString msg, QWidget *parent)
+{
+    QDialog *dialog = new QDialog(parent);
+    QVBoxLayout *vert = new QVBoxLayout(dialog);
+    QHBoxLayout *horz = new QHBoxLayout(dialog);
+    QLabel *question = new QLabel(msg, dialog);
+    QPushButton *yesButton = new QPushButton("Yes", dialog), *cancelButton = new QPushButton(CANCEL_TEXT, dialog);
+
+
+    dialog->setWindowModality(Qt::WindowModal);
+    dialog->setLayout(vert);
+
+    vert->addWidget(question);
+
+    horz->addWidget(yesButton);
+    horz->addWidget(cancelButton);
+
+    vert->addLayout(horz);
+
+    QObject::connect(yesButton, SIGNAL(clicked()), dialog, SLOT(accept()));
+    QObject::connect(cancelButton, SIGNAL(clicked()), dialog, SLOT(reject()));
+
+    return dialog;
+}
+
+void Controller::deleteHistoryItems()
 {
     QVector<int> selectedIndexes(0), selectedNumbers(0);
     mainWindow->selectedHistoryListIndexes(selectedIndexes);
@@ -290,27 +317,9 @@ void Controller::deleteHistoryItem()
 
     if (!selectedIndexes.isEmpty())
     {
-        QDialog dialog(mainWindow);
-        QVBoxLayout *vert = new QVBoxLayout(&dialog);
-        QHBoxLayout *horz = new QHBoxLayout(&dialog);
-        QLabel *question = new QLabel(DELETE_WARNING, &dialog);
-        QPushButton *yesButton = new QPushButton("Yes", &dialog), *cancelButton = new QPushButton(CANCEL_TEXT, &dialog);
+        QDialog *dialog = createDialog(DELETE_WARNING, mainWindow);
 
-
-        dialog.setWindowModality(Qt::WindowModal);
-        dialog.setLayout(vert);
-
-        vert->addWidget(question);
-
-        horz->addWidget(yesButton);
-        horz->addWidget(cancelButton);
-
-        vert->addLayout(horz);
-
-        QObject::connect(yesButton, SIGNAL(clicked()), &dialog, SLOT(accept()));
-        QObject::connect(cancelButton, SIGNAL(clicked()), &dialog, SLOT(reject()));
-
-        if (dialog.exec() == QDialog::Accepted)
+        if (dialog->exec() == QDialog::Accepted)
         {
             int currentTypeIndex = 0, currentTypeId = 0;
             mainWindow->selectedTypesComboIndex(currentTypeIndex);
@@ -320,6 +329,26 @@ void Controller::deleteHistoryItem()
         }
     }
 }
+
+void Controller::saveSessionItems()
+{
+    QVector<int> selectedIndexes(0);
+
+    if (mainWindow->showAllCheckBoxChecked())
+        return;
+
+    mainWindow->selectedHistoryListIndexes(selectedIndexes);
+
+    if (!selectedIndexes.isEmpty())
+    {
+        int currentTypeIndex = 0;
+        mainWindow->selectedTypesComboIndex(currentTypeIndex);
+        bool savedAny = model->saveSelectedTasks(selectedIndexes);
+        showTaskHistory(currentTypeIndex);
+        if (savedAny) statusChanged(SAVE_SUCCESS_MSG, STATUS_DURATION);
+    }
+}
+
 
 void Controller::createTask(QStringList lValues, QStringList rValues)
 {
@@ -353,4 +382,30 @@ void Controller::createTask(QStringList lValues, QStringList rValues)
         alert(INCOMPLETE_TASK_MSG, taskWindow);
         break;
     }
+}
+
+void Controller::proposeToSaveSession()
+{
+    QDialog *dialog = createDialog("Do you want to save all tasks from this session?", mainWindow);
+
+    QVector<int> selectedIndexes(mainWindow->count());
+    if (selectedIndexes.size() == 0) return;
+    for (int i = 0; i < selectedIndexes.size(); ++i)
+        selectedIndexes[i] = i;
+
+    if (dialog->exec() == QDialog::Accepted)
+    {
+        int currentTypeIndex = 0, currentTypeId = 0;
+        mainWindow->selectedTypesComboIndex(currentTypeIndex);
+        currentTypeId = currentTypeIndex + 1;
+        model->saveSelectedTasks(selectedIndexes, true);
+        showTaskHistory(currentTypeIndex);
+    }
+}
+
+void Controller::quitApp()
+{
+
+    proposeToSaveSession();
+    exit(0);
 }
