@@ -393,6 +393,8 @@ void Model::saveSolution(Vector result, int solutionMethodId, QHash<QString, dou
 
 bool Model::metaIsValid(QHash<QString, QString> textMeta, QHash<QString, double> &meta)
 {
+    if (textMeta.size() == 0) return false;
+
     for (int i = 0; i < textMeta.size(); ++i)
     {
         QStringList textValues = textMeta.values()[i].split(" ", QString::SkipEmptyParts);
