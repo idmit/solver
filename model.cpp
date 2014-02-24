@@ -279,38 +279,6 @@ void Model::parseTask(QStringList lValues, QStringList rValues, Matrix &matrix, 
     }
 }
 
-int Model::saveTask(Matrix matrix, Vector column)
-{
-    int newTaskId = 0;
-    QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
-    QSqlQuery query(db);
-
-    query.prepare(INSERT_TASK);
-    query.bindValue(":typeId", 0);
-    query.exec();
-
-    newTaskId = query.lastInsertId().toInt();
-
-    for (int i = 0; i < matrix.dim(); ++i)
-    {
-        for (int j = 0; j < matrix.dim(); ++j)
-        {
-            query.prepare(INSERT_EQ);
-            query.bindValue(":taskId", newTaskId);
-            query.bindValue(":value", matrix[i][j]);
-            query.bindValue(":leftRight", 0);
-            query.exec();
-        }
-        query.prepare(INSERT_EQ);
-        query.bindValue(":taskId", newTaskId);
-        query.bindValue(":value", column[i]);
-        query.bindValue(":leftRight", 1);
-        query.exec();
-    }
-
-    return newTaskId;
-}
-
 int Model::saveTaskFromSession(int k)
 {
     int newTaskId = 0;
@@ -664,4 +632,17 @@ bool Model::saveSelectedTasks(QVector<int> numbersInSession, bool all)
     }
 
     return savedAny;
+}
+
+QVector<int> Model::unsavedSessionIndexes()
+{
+    QVector<int> unsavedIndexes;
+
+    for (int i = 0; i < tasksInSession.size(); ++i)
+    {
+        if (tasksInSession[i].idInDB == 0)
+            unsavedIndexes << i;
+    }
+
+    return unsavedIndexes;
 }

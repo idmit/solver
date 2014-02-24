@@ -56,8 +56,6 @@ public slots:
     (OUT) selectedIndexes -- vector of indexes of currently selected items in taskHistoryList
      */
     void selectedHistoryListIndexes(QVector<int> &selectedIndexes) const;
-
-    int count();
 private slots:
     void on_taskTypesCombo_currentIndexChanged(int index);
     void on_newTaskButton_clicked();

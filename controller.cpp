@@ -386,19 +386,19 @@ void Controller::createTask(QStringList lValues, QStringList rValues)
 
 void Controller::proposeToSaveSession()
 {
-    QDialog *dialog = createDialog("Do you want to save all tasks from this session?", mainWindow);
+    auto unsavedSessionIndexes = model->unsavedSessionIndexes();
 
-    QVector<int> selectedIndexes(mainWindow->count());
-    if (selectedIndexes.size() == 0) return;
-    for (int i = 0; i < selectedIndexes.size(); ++i)
-        selectedIndexes[i] = i;
+    if (unsavedSessionIndexes.size() == 0)
+        return;
+
+    QDialog *dialog = createDialog("Do you want to save all tasks from this session?", mainWindow);
 
     if (dialog->exec() == QDialog::Accepted)
     {
         int currentTypeIndex = 0, currentTypeId = 0;
         mainWindow->selectedTypesComboIndex(currentTypeIndex);
         currentTypeId = currentTypeIndex + 1;
-        model->saveSelectedTasks(selectedIndexes, true);
+        model->saveSelectedTasks(unsavedSessionIndexes);
         showTaskHistory(currentTypeIndex);
     }
 }

@@ -108,6 +108,11 @@ public slots:
      */
     void retrieveTaskFromHistory(int &taskId, int taskTypeId, int taskNumberInHistory, QStringList *lValues = 0, QStringList *rValues = 0);
     /*
+    (IN) solutionMethodId -- id of solution method to solve given task
+    (OUT) INPUT_COMPLETE if task formulation is correct
+     */
+    InputCompleteness solveTask(int solutionMethodId);
+    /*
     (IN) solutionMethodNumberInList -- number of solution method in list for task in process
     (OUT) solutionMethodId -- id of solution method
      */
@@ -149,6 +154,7 @@ public slots:
     InputCompleteness createTask(QStringList lValues, QStringList rValues, int taskTypeId, int taskIdInDB = 0);
     void retrieveTaskFromSession(int taskTypeId, int taskNumberInHistory, QStringList *lValues, QStringList *rValues);
     void retrieveSessionSolutionValues(QStringList &solutionValues);
+    QVector<int> unsavedSessionIndexes();
 private:
     QVector<Task> tasksInSession;
     int sessionIndexOfTaskInFocus;
@@ -167,12 +173,6 @@ private:
     (OUT) vector -- vector containing that task's right sides
      */
     void parseTask(QStringList lValues, QStringList rValues, Matrix &matrix, Vector &column);
-    /*
-    (IN) matrix -- matrix containing that task's left sides
-    (IN) vector -- vector containing that task's right sides
-    (OUT) id of saved task
-     */
-    int saveTask(Matrix matrix, Vector column);
 
     int saveTaskFromSession(int i);
 

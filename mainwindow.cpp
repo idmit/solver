@@ -74,8 +74,3 @@ void MainWindow::on_showAllCheckBox_stateChanged(int arg1)
 {
     emit showAllCheckBoxChanged(ui->taskTypesCombo->currentIndex());
 }
-
-int MainWindow::count()
-{
-    return ui->taskHistoryList->count();
-}
