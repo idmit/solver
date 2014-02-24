@@ -54,7 +54,7 @@ void Model::retrieveTaskHistory(int taskTypeId, QStringList &taskHistory)
 
     int taskId = query.value(2).toInt();
     bool leftOrRight = false;
-    QString task;
+    QString blackCircle = QString::fromUtf8("\u25CF "), taskStringWithCircle, task;
 
     do
     {
@@ -68,7 +68,8 @@ void Model::retrieveTaskHistory(int taskTypeId, QStringList &taskHistory)
 
         if (taskId != prevTaskId)
         {
-            taskHistory << task;
+            taskStringWithCircle = blackCircle + task;
+            taskHistory << taskStringWithCircle;
             task = "";
         }
 
@@ -84,7 +85,8 @@ void Model::retrieveTaskHistory(int taskTypeId, QStringList &taskHistory)
         task += QString::number(value);
     } while (query.next());
 
-    taskHistory << task;
+    taskStringWithCircle = blackCircle + task;
+    taskHistory << taskStringWithCircle;
 }
 
 void Model::retrieveTaskSession(int taskTypeId, QStringList &taskSession)
@@ -92,6 +94,7 @@ void Model::retrieveTaskSession(int taskTypeId, QStringList &taskSession)
     Task task;
     Matrix matrix;
     Vector vector;
+    QString emptyCircle = QString::fromUtf8("\u25CB "), blackCircle = QString::fromUtf8("\u25CF ");
 
     for (int i = 0; i < sessionTasks.size(); ++i)
     {
@@ -100,7 +103,7 @@ void Model::retrieveTaskSession(int taskTypeId, QStringList &taskSession)
             continue;
         matrix = task.matrix;
         vector = task.vector;
-        QString taskString = "";
+        QString taskString = (task.idInDB == 0) ? emptyCircle : blackCircle;
         for (int k = 0; k < vector.dim(); ++k)
         {
             for (int m = 0; m < vector.dim(); ++m)
