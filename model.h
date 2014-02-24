@@ -122,7 +122,9 @@ public slots:
     (OUT) solution -- list of strings (one for each coordinate)
     (OUT) true if solution exists
      */
-    bool retrieveSolution(int taskIdInDB, int solutionMethodId, QHash<QString, double> meta, QStringList *solution = 0);
+    bool retrieveSolutionFromDB(int taskIdInDB, int solutionMethodId, QHash<QString, double> meta, QStringList *solution = 0);
+
+    int retrieveSolutionFromSession(Task task, int solutionMethodId, QHash<QString, double> meta, QVector<double> *values);
 
     /*
     (IN) width -- width of graphics view
@@ -158,6 +160,7 @@ public slots:
 private:
     QVector<Task> tasksInSession;
     int sessionIndexOfTaskInFocus;
+    int lastSolutionIndex;
 
     /*
     (IN) lValues -- list of left sides of task equations

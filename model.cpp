@@ -311,9 +311,37 @@ int Model::saveTaskFromSession(int k)
     return newTaskId;
 }
 
-bool Model::retrieveSolution(int taskIdInDB, int solutionMethodId, QHash<QString, double> meta, QStringList *solution)
+int Model::retrieveSolutionFromSession(Task task, int solutionMethodId, QHash<QString, double> meta, QVector<double> *values)
+{
+    QVector<Solution> solutions;
+    QVector<int> indexes;
+
+    for (int i = 0; i < task.solutions.size(); ++i)
+    {
+        if (task.solutions[i].methodId == solutionMethodId)
+        {
+            solutions << task.solutions[i];
+            indexes << i;
+        }
+    }
+
+    for (int i = 0; i < solutions.size(); ++i)
+    {
+        if (solutions[i].meta.values() == meta.values())
+        {
+            if (values)
+                *values = solutions[i].values;
+            return indexes[i];
+        }
+    }
+
+    return -1;
+}
+
+bool Model::retrieveSolutionFromDB(int taskIdInDB, int solutionMethodId, QHash<QString, double> meta, QStringList *solution)
 {
     bool solutionExists = false;
+
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
 
@@ -358,7 +386,7 @@ bool Model::retrieveSolution(int taskIdInDB, int solutionMethodId, QHash<QString
 void Model::retrieveSessionSolutionValues(QStringList &solutionValues)
 {
     QVector<Solution> solutions = tasksInSession[sessionIndexOfTaskInFocus].solutions;
-    Solution solution = solutions.last();
+    Solution solution = solutions[lastSolutionIndex];
     foreach (double value, solution.values)
     {
         solutionValues << QString::number(value);
@@ -417,7 +445,8 @@ InputCompleteness Model::solveTask(int solutionMethodId)
 {
     QHash<QString, QString> textMeta;
     QHash<QString, double> meta;
-    QStringList solutionAsList;
+    QStringList valuesAsList;
+    QVector<double> values;
 
     Vector column(0), result(tasksInSession[sessionIndexOfTaskInFocus].vector.dim());
     Matrix matrix(0);
@@ -455,17 +484,28 @@ InputCompleteness Model::solveTask(int solutionMethodId)
     }
 
     if (tasksInSession[sessionIndexOfTaskInFocus].idInDB != 0)
-        if (retrieveSolution(tasksInSession[sessionIndexOfTaskInFocus].idInDB, solutionMethodId, meta, &solutionAsList))
+        if (retrieveSolutionFromDB(tasksInSession[sessionIndexOfTaskInFocus].idInDB, solutionMethodId, meta, &valuesAsList))
         {
-            for (int k = 0; k < solutionAsList.size(); ++k)
+            for (int k = 0; k < valuesAsList.size(); ++k)
             {
-                result[k] = solutionAsList[k].toDouble();
+                result[k] = valuesAsList[k].toDouble();
             }
             solution.values = result;
             solution.isSaved = true;
+            lastSolutionIndex = tasksInSession[sessionIndexOfTaskInFocus].solutions.size();
             tasksInSession[sessionIndexOfTaskInFocus].solutions << solution;
             return INPUT_COMPLETE;
+        } else {}
+    else
+    {
+        int index = retrieveSolutionFromSession(tasksInSession[sessionIndexOfTaskInFocus], solutionMethodId, meta, &values);
+
+        if (index != -1)
+        {
+            lastSolutionIndex = index;
+            return INPUT_COMPLETE;
         }
+    }
 
     switch (solutionMethodId)
     {
@@ -487,6 +527,7 @@ InputCompleteness Model::solveTask(int solutionMethodId)
     }
 
     solution.values = result;
+    lastSolutionIndex = tasksInSession[sessionIndexOfTaskInFocus].solutions.size();
     tasksInSession[sessionIndexOfTaskInFocus].solutions << solution;
     return INPUT_COMPLETE;
 }
