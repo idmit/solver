@@ -99,9 +99,9 @@ void Controller::showTaskHistory(int taskTypeIndex)
     int taskTypeId = taskTypeIndex + 1;
 
     if (mainWindow->showAllCheckBoxChecked())
-        model->retrieveTaskHistory(taskTypeId, taskHistory);
+        model->retrieveHistoryByType(taskTypeId, taskHistory);
     else
-        model->retrieveTaskSession(taskTypeId, taskHistory);
+        model->retrieveSessionByType(taskTypeId, taskHistory);
 
     mainWindow->refreshTaskHistoryList(taskHistory);
 }

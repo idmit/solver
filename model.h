@@ -93,7 +93,7 @@ public slots:
     (IN) taskTypeId -- id of type for which history is requested 
     (OUT) taskHistory -- list of strings (one for each task with comma separated equations in it)
      */
-    void retrieveTaskHistory(int taskTypeId, QStringList &taskHistory);
+    void retrieveHistoryByType(int taskTypeId, QStringList &taskHistory);
     /*
     (IN) taskTypeId -- id of type for which available solution methods are requested
     (OUT) solutionMethods -- list of available solution methods
@@ -120,12 +120,6 @@ public slots:
     bool retrieveSolution(int taskIdInDB, int solutionMethodId, QHash<QString, double> meta, QStringList *solution = 0);
 
     /*
-    (IN) solutionMethodId -- id of solution method to solve given task
-    (OUT) INPUT_COMPLETE if task formulation is correct
-     */
-    InputCompleteness solveTask(int solutionMethodId);
-
-    /*
     (IN) width -- width of graphics view
     (IN) height -- height of graphics view
     (IN) solution -- list of strings (one for each coordinate)
@@ -134,7 +128,7 @@ public slots:
     void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
 
     /*
-    (IN) taskId -- id of type from which history task deletion is requested
+    (IN) typeId -- id of type from which history task deletion is requested
     (IN) numbersInHistory -- numbers of tasks in history of that type
      */
     void eraseSelectedTasks(QVector<int> numbersInHistory, int typeId);
@@ -145,13 +139,19 @@ public slots:
      */
     bool saveSelectedTasks(QVector<int> numbersInSession, bool all = false);
 
-    void retrieveTaskSession(int taskTypeId, QStringList &taskSession);
+    /*
+    (IN) taskTypeId -- type id of requested tasks f
+     */
+    void retrieveSessionByType(int taskTypeId, QStringList &taskSession);
+    /*
+    (OUT) INPUT_COMPLETE if task formulation is correct
+     */
     InputCompleteness createTask(QStringList lValues, QStringList rValues, int taskTypeId, int taskIdInDB = 0);
     void retrieveTaskFromSession(int taskTypeId, int taskNumberInHistory, QStringList *lValues, QStringList *rValues);
     void retrieveSessionSolutionValues(QStringList &solutionValues);
 private:
-    QVector<Task> sessionTasks;
-    int focusIndex;
+    QVector<Task> tasksInSession;
+    int sessionIndexOfTaskInFocus;
 
     /*
     (IN) lValues -- list of left sides of task equations

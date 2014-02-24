@@ -40,7 +40,7 @@ void Model::retrieveTaskTypes(QStringList &taskTypes)
     }
 }
 
-void Model::retrieveTaskHistory(int taskTypeId, QStringList &taskHistory)
+void Model::retrieveHistoryByType(int taskTypeId, QStringList &taskHistory)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
@@ -89,16 +89,16 @@ void Model::retrieveTaskHistory(int taskTypeId, QStringList &taskHistory)
     taskHistory << taskStringWithCircle;
 }
 
-void Model::retrieveTaskSession(int taskTypeId, QStringList &taskSession)
+void Model::retrieveSessionByType(int taskTypeId, QStringList &taskSession)
 {
     Task task;
     Matrix matrix;
     Vector vector;
     QString emptyCircle = QString::fromUtf8("\u25CB "), blackCircle = QString::fromUtf8("\u25CF ");
 
-    for (int i = 0; i < sessionTasks.size(); ++i)
+    for (int i = 0; i < tasksInSession.size(); ++i)
     {
-        task = sessionTasks[i];
+        task = tasksInSession[i];
         if (task.typeId != taskTypeId)
             continue;
         matrix = task.matrix;
@@ -188,15 +188,15 @@ void Model::retrieveTaskFromSession(int taskTypeId, int taskNumberInHistory, QSt
     Matrix matrix;
     Vector vector;
 
-    for (int i = 0; i < sessionTasks.size(); ++i)
+    for (int i = 0; i < tasksInSession.size(); ++i)
     {
-        if (sessionTasks[i].typeId == taskTypeId)
+        if (tasksInSession[i].typeId == taskTypeId)
         {
-            tasks << sessionTasks[i];
+            tasks << tasksInSession[i];
             indexes << i;
         }
     }
-    focusIndex = indexes[taskNumberInHistory - 1];
+    sessionIndexOfTaskInFocus = indexes[taskNumberInHistory - 1];
     task = tasks[taskNumberInHistory - 1];
     matrix = task.matrix;
     vector = task.vector;
@@ -220,7 +220,7 @@ void Model::retrieveSolutionMethodFromList(int &solutionMethodId, int solutionMe
     QSqlQuery query(db);
 
     query.prepare(SELECT_METHODS_IDS);
-    query.bindValue(":typeId", sessionTasks[focusIndex].typeId);
+    query.bindValue(":typeId", tasksInSession[sessionIndexOfTaskInFocus].typeId);
     query.exec();
     while (query.next() && (++i) != solutionMethodNumberInList);
     solutionMethodId = query.value(0).toInt();
@@ -318,24 +318,24 @@ int Model::saveTaskFromSession(int k)
     QSqlQuery query(db);
 
     query.prepare(INSERT_TASK);
-    query.bindValue(":typeId", sessionTasks[k].typeId);
+    query.bindValue(":typeId", tasksInSession[k].typeId);
     query.exec();
 
     newTaskId = query.lastInsertId().toInt();
 
-    for (int i = 0; i < sessionTasks[k].matrix.dim(); ++i)
+    for (int i = 0; i < tasksInSession[k].matrix.dim(); ++i)
     {
-        for (int j = 0; j <  sessionTasks[k].matrix.dim(); ++j)
+        for (int j = 0; j <  tasksInSession[k].matrix.dim(); ++j)
         {
             query.prepare(INSERT_EQ);
             query.bindValue(":taskId", newTaskId);
-            query.bindValue(":value", sessionTasks[k].matrix[i][j]);
+            query.bindValue(":value", tasksInSession[k].matrix[i][j]);
             query.bindValue(":leftRight", 0);
             query.exec();
         }
         query.prepare(INSERT_EQ);
         query.bindValue(":taskId", newTaskId);
-        query.bindValue(":value", sessionTasks[k].vector[i]);
+        query.bindValue(":value", tasksInSession[k].vector[i]);
         query.bindValue(":leftRight", 1);
         query.exec();
     }
@@ -389,7 +389,7 @@ bool Model::retrieveSolution(int taskIdInDB, int solutionMethodId, QHash<QString
 
 void Model::retrieveSessionSolutionValues(QStringList &solutionValues)
 {
-    QVector<Solution> solutions = sessionTasks[focusIndex].solutions;
+    QVector<Solution> solutions = tasksInSession[sessionIndexOfTaskInFocus].solutions;
     Solution solution = solutions.last();
     foreach (double value, solution.values)
     {
@@ -449,12 +449,12 @@ InputCompleteness Model::solveTask(int solutionMethodId)
     QHash<QString, double> meta;
     QStringList solutionAsList;
 
-    Vector column(0), result(sessionTasks[focusIndex].vector.dim());
+    Vector column(0), result(tasksInSession[sessionIndexOfTaskInFocus].vector.dim());
     Matrix matrix(0);
     Solution solution;
 
-    matrix = sessionTasks[focusIndex].matrix;
-    column = sessionTasks[focusIndex].vector;
+    matrix = tasksInSession[sessionIndexOfTaskInFocus].matrix;
+    column = tasksInSession[sessionIndexOfTaskInFocus].vector;
 
     solution.id = 0; solution.methodId = solutionMethodId; solution.isSaved = false;
 
@@ -484,8 +484,8 @@ InputCompleteness Model::solveTask(int solutionMethodId)
         break;
     }
 
-    if (sessionTasks[focusIndex].idInDB != 0)
-        if (retrieveSolution(sessionTasks[focusIndex].idInDB, solutionMethodId, meta, &solutionAsList))
+    if (tasksInSession[sessionIndexOfTaskInFocus].idInDB != 0)
+        if (retrieveSolution(tasksInSession[sessionIndexOfTaskInFocus].idInDB, solutionMethodId, meta, &solutionAsList))
         {
             for (int k = 0; k < solutionAsList.size(); ++k)
             {
@@ -493,7 +493,7 @@ InputCompleteness Model::solveTask(int solutionMethodId)
             }
             solution.values = result;
             solution.isSaved = true;
-            sessionTasks[focusIndex].solutions << solution;
+            tasksInSession[sessionIndexOfTaskInFocus].solutions << solution;
             return INPUT_COMPLETE;
         }
 
@@ -517,7 +517,7 @@ InputCompleteness Model::solveTask(int solutionMethodId)
     }
 
     solution.values = result;
-    sessionTasks[focusIndex].solutions << solution;
+    tasksInSession[sessionIndexOfTaskInFocus].solutions << solution;
     return INPUT_COMPLETE;
 }
 
@@ -613,11 +613,11 @@ InputCompleteness Model::createTask(QStringList lValues, QStringList rValues, in
     int dim = lValues.size();
 
     if (taskIdInDB)
-        for (int k = 0; k < sessionTasks.size(); ++k)
+        for (int k = 0; k < tasksInSession.size(); ++k)
         {
-            if (sessionTasks[k].idInDB == taskIdInDB)
+            if (tasksInSession[k].idInDB == taskIdInDB)
             {
-                focusIndex = k;
+                sessionIndexOfTaskInFocus = k;
                 return INPUT_COMPLETE;
             }
         }
@@ -636,8 +636,8 @@ InputCompleteness Model::createTask(QStringList lValues, QStringList rValues, in
     task.matrix = matrix;
     task.vector = column;
 
-    focusIndex = sessionTasks.size();
-    sessionTasks << task;
+    sessionIndexOfTaskInFocus = tasksInSession.size();
+    tasksInSession << task;
 
     return INPUT_COMPLETE;
 }
@@ -649,16 +649,16 @@ bool Model::saveSelectedTasks(QVector<int> numbersInSession, bool all)
     if (all)
     {
        numbersInSession.clear();
-       for (int i = 0; i < sessionTasks.size(); ++i)
+       for (int i = 0; i < tasksInSession.size(); ++i)
        {
            numbersInSession << i;
        }
     }
     foreach (int i, numbersInSession)
     {
-        if (sessionTasks[i].idInDB == 0)
+        if (tasksInSession[i].idInDB == 0)
         {
-            sessionTasks[i].idInDB = saveTaskFromSession(i);
+            tasksInSession[i].idInDB = saveTaskFromSession(i);
             savedAny = true;
         }
     }
