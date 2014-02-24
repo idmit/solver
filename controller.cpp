@@ -154,7 +154,7 @@ void Controller::showTaskWindow(int taskIndexInHistory)
     taskWindow->show();
 }
 
-void Controller::showSolution(int solutionMethodId)
+void Controller::showLastSolution()
 {
     QStringList solution;
     model->retrieveSessionSolutionValues(solution);
@@ -224,7 +224,7 @@ void Controller::solveTask()
     switch (inputCompleteness)
     {
     case INPUT_COMPLETE:
-        showSolution(solutionMethodId);
+        showLastSolution();
         int index;
         mainWindow->selectedTypesComboIndex(index);
         showTaskHistory(index);
