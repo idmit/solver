@@ -536,6 +536,8 @@ InputCompleteness Model::solveTask(int solutionMethodId)
 
     solution.values = result;
     lastSolutionIndex = tasksInSession[sessionIndexOfTaskInFocus].solutions.size();
+    if (tasksInSession[sessionIndexOfTaskInFocus].idInDB != 0)
+        saveSolution(solution, tasksInSession[sessionIndexOfTaskInFocus].idInDB);
     tasksInSession[sessionIndexOfTaskInFocus].solutions << solution;
     return INPUT_COMPLETE;
 }
