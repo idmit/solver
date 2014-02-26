@@ -586,6 +586,19 @@ void Model::eraseSelectedTasks(QVector<int> numbersInHistory, int typeId)
         int taskId = 0;
         retrieveTaskFromHistory(taskId, typeId, numbersInHistory[i]);
 
+        for (int k = 0; k < tasksInSession.size(); ++k)
+        {
+              if (tasksInSession[k].idInDB == taskId)
+              {
+                  tasksInSession[k].idInDB = 0;
+                  for (int j = 0; j < tasksInSession[k].solutions.size(); ++j)
+                  {
+                      tasksInSession[k].solutions[j].id = 0;
+                      tasksInSession[k].solutions[j].isSaved = false;
+                  }
+              }
+        }
+
         QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
         QSqlQuery query(db);
 

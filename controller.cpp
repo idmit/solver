@@ -309,6 +309,10 @@ QDialog *Controller::createDialog(QString msg, QWidget *parent)
 void Controller::deleteHistoryItems()
 {
     QVector<int> selectedIndexes(0), selectedNumbers(0);
+
+    if (!mainWindow->showAllCheckBoxChecked())
+        return;
+
     mainWindow->selectedHistoryListIndexes(selectedIndexes);
     for (int i = 0; i < selectedIndexes.size(); ++i)
     {
