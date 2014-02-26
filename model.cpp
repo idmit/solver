@@ -308,6 +308,11 @@ int Model::saveTaskFromSession(int k)
         query.exec();
     }
 
+    for (int i = 0; i < tasksInSession[k].solutions.size(); ++i)
+    {
+        saveSolution(tasksInSession[k].solutions[i], newTaskId);
+    }
+
     return newTaskId;
 }
 
@@ -393,30 +398,33 @@ void Model::retrieveSessionSolutionValues(QStringList &solutionValues)
     }
 }
 
-void Model::saveSolution(Vector result, int solutionMethodId, QHash<QString, double> meta)
+void Model::saveSolution(Solution &solution, int taskIdInDB)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
 
-    for (int i = 0; i < result.dim(); ++i)
+    for (int i = 0; i < solution.values.size(); ++i)
     {
         query.prepare(INSERT_SOLUTION);
-        query.bindValue(":taskId", 0);
-        query.bindValue(":value", result[i]);
-        query.bindValue(":methodId", solutionMethodId);
+        query.bindValue(":taskId", taskIdInDB);
+        query.bindValue(":value", solution.values[i]);
+        query.bindValue(":methodId", solution.methodId);
         query.exec();
     }
 
     int solutionId = query.lastInsertId().toInt();
 
-    for (int i = 0; i < meta.values().size(); ++i)
+    for (int i = 0; i < solution.meta.values().size(); ++i)
     {
         query.prepare(INSERT_META);
         query.bindValue(":solutionId", solutionId);
-        query.bindValue(":name", meta.keys()[i]);
-        query.bindValue(":value", meta.values()[i]);
+        query.bindValue(":name", solution.meta.keys()[i]);
+        query.bindValue(":value", solution.meta.values()[i]);
         query.exec();
     }
+
+    solution.id = solutionId;
+    solution.isSaved = true;
 }
 
 bool Model::metaIsValid(QHash<QString, QString> textMeta, QHash<QString, double> &meta)

@@ -184,7 +184,7 @@ private:
     (IN) solutionMethodId -- id of solution method with which that value was received
     (IN) meta -- hash with additional values
      */
-    void saveSolution(Vector result, int solutionMethodId, QHash<QString, double> meta);
+    void saveSolution(Solution &solution, int taskIdInDB);
     /*
     (IN) textMeta -- hash of strings
     (OUT) meta -- hash of values parsed out from textMeta
