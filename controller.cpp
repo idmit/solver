@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QDialogButtonBox>
+#include "dialogwithgraphicsview.h"
 #include <QGroupBox>
 
 Controller::Controller(QWidget *parent) :
@@ -163,35 +164,11 @@ void Controller::showLastSolution()
     model->setLastSolutionToBeShowed();
 
     DialogWithGraphicsView dialog(taskWindow);
-    QVBoxLayout *vert = new QVBoxLayout(&dialog), *solutionLayout = new QVBoxLayout(&dialog);
-    QHBoxLayout *horz = new QHBoxLayout(&dialog);
-    QGraphicsView *view = new QGraphicsView(&dialog);
-    QLabel *result = new QLabel(solution.split(" ", QString::SkipEmptyParts).join('\n'), &dialog);
-    QPushButton *okButton = new QPushButton(OK_TEXT, &dialog), *saveButton = new QPushButton(IMAGE_BUTTON_TEXT, &dialog);
-    QGroupBox *outputData = new QGroupBox(SOLUTION_GROUP_TEXT, &dialog);
+    dialog.refreshSolution(solution);
 
-    dialog.graphicsView = view;
     dialog.solutionsNumber = 1;
 
-    dialog.setWindowModality(Qt::WindowModal);
-    dialog.resize(800, 400);
-    dialog.setLayout(vert);
-
-    solutionLayout->addWidget(view);
-    solutionLayout->addWidget(result);
-    outputData->setLayout(solutionLayout);
-
-    vert->addWidget(outputData);
-
-    horz->addWidget(okButton);
-    horz->addWidget(saveButton);
-
-    vert->addLayout(horz);
-
     QObject::connect(&dialog, SIGNAL(setUpScene(int,int,QGraphicsScene*)), this, SLOT(setUpScene(int,int,QGraphicsScene*)));
-    QObject::connect(okButton, SIGNAL(clicked()), &dialog, SLOT(reject()));
-    QObject::connect(saveButton, SIGNAL(clicked()), &dialog, SLOT(saveSceneAsImage()));
-
     dialog.exec();
 }
 
@@ -426,45 +403,13 @@ void Controller::showTaskSolutions()
     }
     model->retrieveTaskSolutionsBySessionIndex(selectedIndexes[0], solutions);
     model->setSolutionsOfTaskToBeShowed(selectedIndexes[0]);
-
     DialogWithGraphicsView dialog(taskWindow);
-    QVBoxLayout *vert = new QVBoxLayout(&dialog), *solutionLayout = new QVBoxLayout(&dialog);
-    QHBoxLayout *horz = new QHBoxLayout(&dialog);
-    QGraphicsView *view = new QGraphicsView(&dialog);
-    QVector<QLabel *> results;
-    QPushButton *okButton = new QPushButton(OK_TEXT, &dialog), *saveButton = new QPushButton(IMAGE_BUTTON_TEXT, &dialog);
-    QGroupBox *outputData = new QGroupBox(SOLUTION_GROUP_TEXT, &dialog);
 
-    foreach (QString value, solutions)
-    {
-        results << new QLabel(value, &dialog);
-    }
-
-    dialog.graphicsView = view;
     dialog.solutionsNumber = solutions.size();
 
-    dialog.setWindowModality(Qt::WindowModal);
-    dialog.resize(800, 400);
-    dialog.setLayout(vert);
-
-    solutionLayout->addWidget(view);
-//    foreach (QLabel *widget, results)
-//    {
-//        solutionLayout->addWidget(widget);
-//    }
-
-    outputData->setLayout(solutionLayout);
-
-    vert->addWidget(outputData);
-
-    horz->addWidget(okButton);
-    horz->addWidget(saveButton);
-
-    vert->addLayout(horz);
+    dialog.refreshSolution(solutions);
 
     QObject::connect(&dialog, SIGNAL(setUpScene(int,int,QGraphicsScene*)), this, SLOT(setUpScene(int,int,QGraphicsScene*)));
-    QObject::connect(okButton, SIGNAL(clicked()), &dialog, SLOT(reject()));
-    QObject::connect(saveButton, SIGNAL(clicked()), &dialog, SLOT(saveSceneAsImage()));
 
     dialog.exec();
 }

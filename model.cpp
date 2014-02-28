@@ -1,5 +1,6 @@
 #include "model.h"
 #include <QtSql>
+#include <QGraphicsSimpleTextItem>
 
 #define ABS(x) (x > 0 ? x : -1 * x)
 
@@ -627,46 +628,73 @@ void Model::setUpScene(int width, int height, QGraphicsScene *scene)
 {
     QVector<QPen> pens; pens << QPen(Qt::red) << QPen(Qt::green) << QPen(Qt::blue);
     int p = -1;
+
+    double max = solutionsToShow[0].values[0], maxW = solutionsToShow[0].meta["To"] - solutionsToShow[0].meta["From"];
+    foreach (Solution solution, solutionsToShow)
+    {
+        for (int k = 0; k < solution.values.size(); ++k)
+        {
+            if (ABS(solution.values[k]) > max)
+                max = ABS(solution.values[k]);
+        }
+        if (solution.meta["To"] - solution.meta["From"] > maxW)
+            maxW = solution.meta["To"] - solution.meta["From"];
+    }
+
+    double unitX = 0, unitY = 0, rad = height / 50.0, halfX, start, step;
+    double sceneWidth = width - 2, sceneHeight = height - 2;
+
+    if (solutionsToShow[0].methodId == EULER_METHOD_ID)
+    {
+        halfX = sceneWidth / 2;
+        unitX = sceneWidth / maxW;
+    }
+    else
+    {
+        step = 1;
+        halfX = 0;
+        start = 0;
+        if (solutionsToShow[0].values.size() == 1)
+            unitX = (sceneWidth - rad / 2);
+        else
+            unitX = (sceneWidth - rad / 2) / (solutionsToShow[0].values.size() - 1);
+    }
+    scene->setSceneRect(0, 0, sceneWidth, sceneHeight);
+    unitY = (sceneHeight / 2 - rad / 2) / max;
+
     foreach (Solution solution, solutionsToShow)
     {
         p++;
-    QVector<double> column = solution.values;
+        QVector<double> column = solution.values;
 
+        QPainterPath *path = new QPainterPath;
 
-    double max = column[0], min = column[0];
+        if (solutionsToShow[0].methodId == EULER_METHOD_ID)
+        {
+            start = solution.meta["From"];
+            step = solution.meta["Step"];
+        }
 
-    for (int i = 1; i < column.size(); ++i)
-    {
-        if (max < column[i])
-            max = column[i];
-        if (column[i] < min)
-            min = column[i];
-    }
+        scene->addLine(0, height / 2, width, height / 2);
+        scene->addLine(halfX, 0, halfX, height);
+        QGraphicsSimpleTextItem *x = scene->addSimpleText("x");
+        x->setPos(sceneWidth - x->boundingRect().width(), sceneHeight / 2);
+        QGraphicsSimpleTextItem *y = scene->addSimpleText("y");
+        y->setPos(halfX + 2, 0);
 
-    QPainterPath *path = new QPainterPath;
+        if (column.size() == 1) addPointAt(scene, unitX,  unitY * column[0], rad, sceneHeight, pens[p]);
 
-    double unitX = 0, unitY = 0, rad = height / 50.0;
-    double sceneWidth = width - 2, sceneHeight = height - 2;
+        for (int i = 0; i < column.size() - 1; ++i)
+        {
+            scene->addLine(halfX + (start + i * step) * unitX, sceneHeight / 2 - unitY * column[i], halfX + (start + (i + 1) * step) * unitX, sceneHeight / 2 - unitY * column[i + 1], pens[p]);
+            if (step == 1)
+            {
+                QGraphicsSimpleTextItem *x = scene->addSimpleText(QString("%1").arg(i));
+                x->setPos(i * unitX, sceneHeight / 2);
+            }
+        }
 
-    scene->setSceneRect(0, 0, sceneWidth, sceneHeight);
-
-    unitY = (sceneHeight / 2 - rad / 2) / ABS(max);
-    if (column.size() == 1)
-            unitX = (sceneWidth - rad / 2);
-    else
-        unitX = (sceneWidth - rad / 2) / (column.size() - 1);
-
-    scene->addLine(0, height / 2, width, height / 2);
-    scene->addLine(0, 0, 0, height);
-
-    if (column.size() == 1) addPointAt(scene, unitX,  unitY * column[0], rad, sceneHeight, pens[p]);
-
-    for (int i = 0; i < column.size() - 1; ++i)
-    {
-        scene->addLine(i * unitX, sceneHeight / 2 - unitY * column[i], (i + 1) * unitX, sceneHeight / 2 - unitY * column[i + 1], pens[p]);
-    }
-
-    scene->addPath(*path, pens[p]);
+        scene->addPath(*path, pens[p]);
     }
 }
 

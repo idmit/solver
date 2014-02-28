@@ -17,7 +17,6 @@
 #define INCOMPLETE_TASK_MSG "Your input is incomplete"
 #define DELETE_WARNING "You are going to permanently delete some tasks. Are you sure?"
 #define SAVE_SUCCESS_MSG "Selected tasks were successfully saved"
-#define IMAGE_BUTTON_TEXT "Save as Image"
 #define SOLUTION_GROUP_TEXT "Solution"
 #define STATUS_DURATION 4000
 
