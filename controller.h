@@ -90,13 +90,18 @@ public slots:
     (OUT) scene -- scene to be filled with solution visualization
      */
     void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
-
-    void deleteHistoryItems();
-    void saveSessionItems();
-    void quitApp();
+    
     void proposeToSaveSession();
+    void quitApp();
 
+    /*
+    (IN) lValues -- list of left sides of task equations
+    (IN) rValues -- list of right sides of task equations
+     */
     void createTask(QStringList lValues, QStringList rValues);
+    void saveSessionItems();
+    void deleteHistoryItems();
+    
 private:
     QDialog *createDialog(QString msg, QWidget *parent);
 

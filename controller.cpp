@@ -390,7 +390,7 @@ void Controller::createTask(QStringList lValues, QStringList rValues)
 
 void Controller::proposeToSaveSession()
 {
-    QVector<int> unsavedSessionIndexes = model->unsavedSessionIndexes();
+    QVector<int> unsavedSessionIndexes = model->indexesOfUnsavedSessionTasks();
 
     if (unsavedSessionIndexes.size() == 0)
         return;
@@ -409,7 +409,6 @@ void Controller::proposeToSaveSession()
 
 void Controller::quitApp()
 {
-
     proposeToSaveSession();
     exit(0);
 }

@@ -705,7 +705,7 @@ bool Model::saveSelectedTasks(QVector<int> numbersInSession, bool all)
     return savedAny;
 }
 
-QVector<int> Model::unsavedSessionIndexes()
+QVector<int> Model::indexesOfUnsavedSessionTasks()
 {
     QVector<int> unsavedIndexes;
 

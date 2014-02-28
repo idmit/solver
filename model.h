@@ -154,10 +154,11 @@ public slots:
     (OUT) INPUT_COMPLETE if task formulation is correct
      */
     InputCompleteness createTask(QStringList lValues, QStringList rValues, int taskTypeId, int taskIdInDB = 0);
-    void retrieveTaskFromSession(int taskTypeId, int taskNumberInHistory, QStringList *lValues, QStringList *rValues);
 
-    QVector<int> unsavedSessionIndexes();
+    void retrieveTaskFromSession(int taskTypeId, int taskNumberInHistory, QStringList *lValues, QStringList *rValues);
     void retrieveTaskSolutionsBySessionIndex(int index, QStringList &solutionValues);
+
+    QVector<int> indexesOfUnsavedSessionTasks();
 private:
     QVector<Task> tasksInSession;
     int sessionIndexOfTaskInFocus;
@@ -178,6 +179,9 @@ private:
      */
     void parseTask(QStringList lValues, QStringList rValues, Matrix &matrix, Vector &column);
 
+    /*
+    (IN) i -- index of task in session
+     */
     int saveTaskFromSession(int i);
 
     /*
