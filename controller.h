@@ -81,6 +81,7 @@ public slots:
     (IN) solutionMethodId -- id of a solution method with which task in process solution should exist
      */
     void showLastSolution();
+    void showTaskSolutions();
 
     /*
     (IN) width -- width of graphics view

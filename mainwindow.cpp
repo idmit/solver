@@ -74,3 +74,8 @@ void MainWindow::on_showAllCheckBox_stateChanged(int arg1)
 {
     emit showAllCheckBoxChanged(ui->taskTypesCombo->currentIndex());
 }
+
+void MainWindow::on_allSolutionsButton_clicked()
+{
+    emit allSolutionsButtonClicked();
+}

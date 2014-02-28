@@ -388,13 +388,19 @@ bool Model::retrieveSolutionFromDB(int taskIdInDB, int solutionMethodId, QHash<Q
     return solutionExists;
 }
 
-void Model::retrieveSessionSolutionValues(QStringList &solutionValues)
+void Model::retrieveTaskSolutionsBySessionIndex(int index, QStringList &solutionValues)
 {
-    QVector<Solution> solutions = tasksInSession[sessionIndexOfTaskInFocus].solutions;
-    Solution solution = solutions[lastSolutionIndex];
-    foreach (double value, solution.values)
+    if (index < 0)
+        index = sessionIndexOfTaskInFocus;
+
+    foreach (Solution solution, tasksInSession[index].solutions)
     {
-        solutionValues << QString::number(value);
+        QString values = "";
+        foreach (double val, solution.values)
+        {
+            values += QString::number(val) + " ";
+        }
+        solutionValues << values;
     }
 }
 
@@ -550,7 +556,6 @@ static void addPointAt(QGraphicsScene *scene, double x, double y, double rad, do
 void Model::setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene)
 {
     QVector<double> column(solution.size());
-
     for (int i = 0; i < solution.size(); ++i)
         column[i] = solution[i].toDouble();
 

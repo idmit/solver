@@ -32,7 +32,7 @@ signals:
     void processTask(int taskNumberInHistory);
     void showAllCheckBoxChanged(int taskTypeIndex);
     void quitButtonClicked();
-
+    void allSolutionsButtonClicked();
 public slots:
     /*
     (IN) status -- string to be placed in status bar
@@ -61,6 +61,8 @@ private slots:
     void on_newTaskButton_clicked();
     void on_taskHistoryList_doubleClicked(const QModelIndex &index);
     void on_showAllCheckBox_stateChanged(int arg1);
+
+    void on_allSolutionsButton_clicked();
 
 private:
     Ui::MainWindow *ui;

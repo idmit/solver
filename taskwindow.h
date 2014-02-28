@@ -96,7 +96,10 @@ public:
     {
         QGraphicsScene *scene = new QGraphicsScene(graphicsView);
         graphicsView->setScene(scene);
-        emit setUpScene(graphicsView->width(), graphicsView->height(), solution, scene);
+        foreach (QString sol, solutions)
+        {
+            emit setUpScene(graphicsView->width(), graphicsView->height(), sol.split(" ", QString::SkipEmptyParts), scene);
+        }
         if (event) event->accept();
     }
     void resizeEvent(QResizeEvent * event)
@@ -109,7 +112,7 @@ public:
     /*
     List of strings to be displayed one by one as a result. It is processed to get an image
      */
-    QStringList solution;
+    QStringList solutions;
 
 public slots:
     void saveSceneAsImage()

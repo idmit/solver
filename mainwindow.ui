@@ -79,6 +79,13 @@
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="allSolutionsButton">
+        <property name="text">
+         <string>All solutions</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="newTaskButton">
         <property name="text">
          <string>Create task</string>

@@ -155,8 +155,9 @@ public slots:
      */
     InputCompleteness createTask(QStringList lValues, QStringList rValues, int taskTypeId, int taskIdInDB = 0);
     void retrieveTaskFromSession(int taskTypeId, int taskNumberInHistory, QStringList *lValues, QStringList *rValues);
-    void retrieveSessionSolutionValues(QStringList &solutionValues);
+
     QVector<int> unsavedSessionIndexes();
+    void retrieveTaskSolutionsBySessionIndex(int index, QStringList &solutionValues);
 private:
     QVector<Task> tasksInSession;
     int sessionIndexOfTaskInFocus;
