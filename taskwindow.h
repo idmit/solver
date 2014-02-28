@@ -96,9 +96,9 @@ public:
     {
         QGraphicsScene *scene = new QGraphicsScene(graphicsView);
         graphicsView->setScene(scene);
-        foreach (QString sol, solutions)
+        for (int k = 0; k < solutionsNumber; ++k)
         {
-            emit setUpScene(graphicsView->width(), graphicsView->height(), sol.split(" ", QString::SkipEmptyParts), scene);
+            emit setUpScene(graphicsView->width(), graphicsView->height(), scene);
         }
         if (event) event->accept();
     }
@@ -112,7 +112,7 @@ public:
     /*
     List of strings to be displayed one by one as a result. It is processed to get an image
      */
-    QStringList solutions;
+    int solutionsNumber;
 
 public slots:
     void saveSceneAsImage()
@@ -139,7 +139,7 @@ public slots:
     }
 
 signals:
-    void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
+    void setUpScene(int width, int height, QGraphicsScene *scene);
 };
 
 #endif // TASKWINDOW_H

@@ -127,7 +127,7 @@ void Controller::showTaskWindow(int taskIndexInHistory)
 
     showSolutionMethods(taskTypeId);
 
-    if (taskTypeId == LE_TYPE_ID)
+    if (taskTypeId == LE_TYPE_ID || taskTypeId == ODE_TYPE_ID)
         taskWindow->enableAddButtonAtFirstLine(false);
     else if (SLAE_TYPE_ID)
         taskWindow->enableAddButtonAtFirstLine(true);
@@ -158,19 +158,20 @@ void Controller::showTaskWindow(int taskIndexInHistory)
 
 void Controller::showLastSolution()
 {
-    QStringList solutions;
-    model->retrieveTaskSolutionsBySessionIndex(-1, solutions);
+    QString solution;
+    model->retrieveLastSolution(solution);
+    model->setLastSolutionToBeShowed();
 
     DialogWithGraphicsView dialog(taskWindow);
     QVBoxLayout *vert = new QVBoxLayout(&dialog), *solutionLayout = new QVBoxLayout(&dialog);
     QHBoxLayout *horz = new QHBoxLayout(&dialog);
     QGraphicsView *view = new QGraphicsView(&dialog);
-    QLabel *result = new QLabel(solutions[0], &dialog);
+    QLabel *result = new QLabel(solution.split(" ", QString::SkipEmptyParts).join('\n'), &dialog);
     QPushButton *okButton = new QPushButton(OK_TEXT, &dialog), *saveButton = new QPushButton(IMAGE_BUTTON_TEXT, &dialog);
     QGroupBox *outputData = new QGroupBox(SOLUTION_GROUP_TEXT, &dialog);
 
     dialog.graphicsView = view;
-    dialog.solutions = solutions;
+    dialog.solutionsNumber = 1;
 
     dialog.setWindowModality(Qt::WindowModal);
     dialog.resize(800, 400);
@@ -187,7 +188,7 @@ void Controller::showLastSolution()
 
     vert->addLayout(horz);
 
-    QObject::connect(&dialog, SIGNAL(setUpScene(int,int,QStringList,QGraphicsScene*)), this, SLOT(setUpScene(int,int,QStringList,QGraphicsScene*)));
+    QObject::connect(&dialog, SIGNAL(setUpScene(int,int,QGraphicsScene*)), this, SLOT(setUpScene(int,int,QGraphicsScene*)));
     QObject::connect(okButton, SIGNAL(clicked()), &dialog, SLOT(reject()));
     QObject::connect(saveButton, SIGNAL(clicked()), &dialog, SLOT(saveSceneAsImage()));
 
@@ -276,9 +277,9 @@ void Controller::askMeta(QStringList keys, QHash<QString, QString> *textMeta)
     }
 }
 
-void Controller::setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene)
+void Controller::setUpScene(int width, int height, QGraphicsScene *scene)
 {
-    model->setUpScene(width, height, solution, scene);
+    model->setUpScene(width, height, scene);
 }
 
 QDialog *Controller::createDialog(QString msg, QWidget *parent)
@@ -415,11 +416,16 @@ void Controller::quitApp()
 
 void Controller::showTaskSolutions()
 {
-    QStringList solutions;
     QVector<int> selectedIndexes;
+    QStringList solutions;
     mainWindow->selectedHistoryListIndexes(selectedIndexes);
-
+    if (selectedIndexes.isEmpty())
+    {
+        alert("Select task", mainWindow);
+        return;
+    }
     model->retrieveTaskSolutionsBySessionIndex(selectedIndexes[0], solutions);
+    model->setSolutionsOfTaskToBeShowed(selectedIndexes[0]);
 
     DialogWithGraphicsView dialog(taskWindow);
     QVBoxLayout *vert = new QVBoxLayout(&dialog), *solutionLayout = new QVBoxLayout(&dialog);
@@ -435,17 +441,17 @@ void Controller::showTaskSolutions()
     }
 
     dialog.graphicsView = view;
-    dialog.solutions = solutions;
+    dialog.solutionsNumber = solutions.size();
 
     dialog.setWindowModality(Qt::WindowModal);
     dialog.resize(800, 400);
     dialog.setLayout(vert);
 
     solutionLayout->addWidget(view);
-    foreach (QLabel *widget, results)
-    {
-        solutionLayout->addWidget(widget);
-    }
+//    foreach (QLabel *widget, results)
+//    {
+//        solutionLayout->addWidget(widget);
+//    }
 
     outputData->setLayout(solutionLayout);
 
@@ -456,7 +462,7 @@ void Controller::showTaskSolutions()
 
     vert->addLayout(horz);
 
-    QObject::connect(&dialog, SIGNAL(setUpScene(int,int,QStringList,QGraphicsScene*)), this, SLOT(setUpScene(int,int,QStringList,QGraphicsScene*)));
+    QObject::connect(&dialog, SIGNAL(setUpScene(int,int,QGraphicsScene*)), this, SLOT(setUpScene(int,int,QGraphicsScene*)));
     QObject::connect(okButton, SIGNAL(clicked()), &dialog, SLOT(reject()));
     QObject::connect(saveButton, SIGNAL(clicked()), &dialog, SLOT(saveSceneAsImage()));
 

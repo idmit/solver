@@ -89,7 +89,7 @@ public slots:
     (IN) solution -- list of strings (one for each coordinate)
     (OUT) scene -- scene to be filled with solution visualization
      */
-    void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
+    void setUpScene(int width, int height, QGraphicsScene *scene);
     
     void proposeToSaveSession();
     void quitApp();

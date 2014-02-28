@@ -254,6 +254,23 @@ bool Model::taskIsValid(QStringList lValues, QStringList rValues, int taskTypeId
             if (!converts) return false;
         }
         break;
+    case ODE_TYPE_ID:
+    {
+        QStringList row = lValues[0].split(" ", QString::SkipEmptyParts);
+        QStringList rightSide = rValues[0].split(" ", QString::SkipEmptyParts);
+        bool converts = true;
+
+        if (row.size() != ODE_PARAMS_NUM || rightSide.size() != 1)
+        {
+            return false;
+        }
+
+        for (int k = 0; k < row.size(); ++k)
+        {
+            row[k].toDouble(&converts);
+            if (!converts) return false;
+        }
+    }
     default:
         break;
     }
@@ -261,8 +278,23 @@ bool Model::taskIsValid(QStringList lValues, QStringList rValues, int taskTypeId
     return true;
 }
 
-void Model::parseTask(QStringList lValues, QStringList rValues, Matrix &matrix, Vector &column)
+void Model::parseTask(QStringList lValues, QStringList rValues, Matrix &matrix, Vector &column, int taskTypeId)
 {
+    if (taskTypeId == ODE_TYPE_ID)
+    {
+        QVector<double> row(0);
+
+        row.clear();
+        foreach (const QString &number, lValues[0].split(" ", QString::SkipEmptyParts))
+        {
+            row << number.toDouble();
+        }
+        matrix[0] = row;
+
+        column[0] = rValues[0].split(" ", QString::SkipEmptyParts)[0].toDouble();
+        return;
+    }
+
     int dim = lValues.size();
     QVector<double> row(0);
 
@@ -343,7 +375,7 @@ int Model::retrieveSolutionFromSession(Task task, int solutionMethodId, QHash<QS
     return -1;
 }
 
-bool Model::retrieveSolutionFromDB(int taskIdInDB, int solutionMethodId, QHash<QString, double> meta, QStringList *solution)
+bool Model::retrieveSolutionFromDB(int taskIdInDB, int solutionMethodId, QHash<QString, double> meta,  QVector<double> *solution)
 {
     bool solutionExists = false;
 
@@ -369,9 +401,10 @@ bool Model::retrieveSolutionFromDB(int taskIdInDB, int solutionMethodId, QHash<Q
 
         int i = 0;
         bool found = true;
+        QStringList sortedKeys = sort(meta.keys());
         while (q.next())
         {
-            if (meta.values()[i] != q.value(1).toDouble())
+            if (meta[sortedKeys[i]] != q.value(1).toDouble())
             {
                 found = false;
             }
@@ -382,7 +415,13 @@ bool Model::retrieveSolutionFromDB(int taskIdInDB, int solutionMethodId, QHash<Q
         {
             solutionExists = true;
             if (!solution) return solutionExists;
-            solution->append(query.value(1).toString());
+            q.prepare(SELECT_VALUES);
+            q.bindValue(":solutionId", solutionId);
+            q.exec();
+            while (q.next())
+            {
+                solution->append(q.value(0).toDouble());
+            }
         }
     }
     return solutionExists;
@@ -404,28 +443,45 @@ void Model::retrieveTaskSolutionsBySessionIndex(int index, QStringList &solution
     }
 }
 
+void Model::retrieveLastSolution(QString &values)
+{
+    values = "";
+    foreach (double val, tasksInSession[sessionIndexOfTaskInFocus].solutions[lastSolutionIndex].values)
+    {
+        values += QString::number(val) + " ";
+    }
+}
+
 void Model::saveSolution(Solution &solution, int taskIdInDB)
 {
     QSqlDatabase db = QSqlDatabase::database(CONNECTION_NAME);
     QSqlQuery query(db);
 
-    for (int i = 0; i < solution.values.size(); ++i)
-    {
-        query.prepare(INSERT_SOLUTION);
-        query.bindValue(":taskId", taskIdInDB);
-        query.bindValue(":value", solution.values[i]);
-        query.bindValue(":methodId", solution.methodId);
-        query.exec();
-    }
+    query.prepare(INSERT_SOLUTION);
+    query.bindValue(":taskId", taskIdInDB);
+    query.bindValue(":methodId", solution.methodId);
+    query.exec();
 
     int solutionId = query.lastInsertId().toInt();
 
-    for (int i = 0; i < solution.meta.values().size(); ++i)
+    for (int i = 0; i < solution.values.size(); ++i)
+    {
+        query.prepare(INSERT_VALUE);
+        query.bindValue(":solutionId", solutionId);
+        query.bindValue(":value", solution.values[i]);
+        query.exec();
+    }
+
+    qDebug() << query.lastError();
+
+    QStringList sortedKeys = sort(solution.meta.keys());
+
+    for (int i = 0; i < sortedKeys.size(); ++i)
     {
         query.prepare(INSERT_META);
         query.bindValue(":solutionId", solutionId);
-        query.bindValue(":name", solution.meta.keys()[i]);
-        query.bindValue(":value", solution.meta.values()[i]);
+        query.bindValue(":name", sortedKeys[i]);
+        query.bindValue(":value", solution.meta[sortedKeys[i]]);
         query.exec();
     }
 
@@ -493,33 +549,45 @@ InputCompleteness Model::solveTask(int solutionMethodId)
         solution.meta = meta;
     }
         break;
+    case EULER_METHOD_ID:
+    {
+        QStringList keys;
+        keys << "From" << "To" << "Step" << "Initial value";
+        emit getMeta(keys, &textMeta);
+        if (!metaIsValid(textMeta, meta))
+            return INPUT_INVALID_META;
+        if (meta["To"] - meta["From"] <= 0 || meta["Step"] <= 0 || meta["Step"] > meta["To"] - meta["From"])
+            return INPUT_INVALID_META;
+        solution.meta = meta;
+        QVector<double> dummy(ceil((meta["To"] - meta["From"]) / meta["Step"]));
+        result = dummy;
+    }
+        break;
     default:
         break;
     }
 
-    if (tasksInSession[sessionIndexOfTaskInFocus].idInDB != 0)
-        if (retrieveSolutionFromDB(tasksInSession[sessionIndexOfTaskInFocus].idInDB, solutionMethodId, meta, &valuesAsList))
-        {
-            for (int k = 0; k < valuesAsList.size(); ++k)
-            {
-                result[k] = valuesAsList[k].toDouble();
-            }
-            solution.values = result;
-            solution.isSaved = true;
-            lastSolutionIndex = tasksInSession[sessionIndexOfTaskInFocus].solutions.size();
-            tasksInSession[sessionIndexOfTaskInFocus].solutions << solution;
-            return INPUT_COMPLETE;
-        } else {}
+
+    int index = retrieveSolutionFromSession(tasksInSession[sessionIndexOfTaskInFocus], solutionMethodId, meta, &values);
+
+    if (index != -1)
+    {
+        lastSolutionIndex = index;
+        return INPUT_COMPLETE;
+    }
     else
     {
-        int index = retrieveSolutionFromSession(tasksInSession[sessionIndexOfTaskInFocus], solutionMethodId, meta, &values);
-
-        if (index != -1)
-        {
-            lastSolutionIndex = index;
-            return INPUT_COMPLETE;
-        }
+        if (tasksInSession[sessionIndexOfTaskInFocus].idInDB != 0)
+            if (retrieveSolutionFromDB(tasksInSession[sessionIndexOfTaskInFocus].idInDB, solutionMethodId, meta, &values))
+            {
+                solution.values = values;
+                solution.isSaved = true;
+                lastSolutionIndex = tasksInSession[sessionIndexOfTaskInFocus].solutions.size();
+                tasksInSession[sessionIndexOfTaskInFocus].solutions << solution;
+                return INPUT_COMPLETE;
+            }
     }
+
 
     switch (solutionMethodId)
     {
@@ -536,6 +604,8 @@ InputCompleteness Model::solveTask(int solutionMethodId)
         result[0] = bisection(matrix[0][0], column[0], meta["Precision of bisection"]);
         break;
     }
+    case EULER_METHOD_ID:
+        result = euler(meta["From"], meta["To"], meta["Step"], meta["Initial value"], matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3]);
     default:
         break;
     }
@@ -553,15 +623,19 @@ static void addPointAt(QGraphicsScene *scene, double x, double y, double rad, do
     scene->addEllipse(x - rad / 2, height / 2 - y - rad / 2, rad, rad, pen);
 }
 
-void Model::setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene)
+void Model::setUpScene(int width, int height, QGraphicsScene *scene)
 {
-    QVector<double> column(solution.size());
-    for (int i = 0; i < solution.size(); ++i)
-        column[i] = solution[i].toDouble();
+    QVector<QPen> pens; pens << QPen(Qt::red) << QPen(Qt::green) << QPen(Qt::blue);
+    int p = -1;
+    foreach (Solution solution, solutionsToShow)
+    {
+        p++;
+    QVector<double> column = solution.values;
+
 
     double max = column[0], min = column[0];
 
-    for (int i = 1; i < solution.size(); ++i)
+    for (int i = 1; i < column.size(); ++i)
     {
         if (max < column[i])
             max = column[i];
@@ -570,7 +644,6 @@ void Model::setUpScene(int width, int height, QStringList solution, QGraphicsSce
     }
 
     QPainterPath *path = new QPainterPath;
-    QPen red(Qt::red);
 
     double unitX = 0, unitY = 0, rad = height / 50.0;
     double sceneWidth = width - 2, sceneHeight = height - 2;
@@ -578,20 +651,23 @@ void Model::setUpScene(int width, int height, QStringList solution, QGraphicsSce
     scene->setSceneRect(0, 0, sceneWidth, sceneHeight);
 
     unitY = (sceneHeight / 2 - rad / 2) / ABS(max);
-    unitX = (sceneWidth - rad / 2) / solution.size();
+    if (column.size() == 1)
+            unitX = (sceneWidth - rad / 2);
+    else
+        unitX = (sceneWidth - rad / 2) / (column.size() - 1);
 
     scene->addLine(0, height / 2, width, height / 2);
     scene->addLine(0, 0, 0, height);
 
-    addPointAt(scene, unitX,  unitY * column[0], rad, sceneHeight, red);
+    if (column.size() == 1) addPointAt(scene, unitX,  unitY * column[0], rad, sceneHeight, pens[p]);
 
-    for (int i = 1; i < solution.size(); ++i)
+    for (int i = 0; i < column.size() - 1; ++i)
     {
-        addPointAt(scene, (i + 1) * unitX,  unitY * column[i], rad, sceneHeight, red);
-        scene->addLine(i * unitX, sceneHeight / 2 - unitY * column[i - 1], (i + 1) * unitX, sceneHeight / 2 - unitY * column[i]);
+        scene->addLine(i * unitX, sceneHeight / 2 - unitY * column[i], (i + 1) * unitX, sceneHeight / 2 - unitY * column[i + 1], pens[p]);
     }
 
-    scene->addPath(*path, red);
+    scene->addPath(*path, pens[p]);
+    }
 }
 
 void Model::eraseSelectedTasks(QVector<int> numbersInHistory, int typeId)
@@ -649,7 +725,8 @@ double Model::bisection(double a, double b, double precision)
 
 InputCompleteness Model::createTask(QStringList lValues, QStringList rValues, int taskTypeId, int taskIdInDB)
 {
-    int dim = lValues.size();
+    int expectedDim = taskTypeId == ODE_TYPE_ID ? ODE_PARAMS_NUM : lValues.size();
+    int dim = expectedDim;
 
     if (taskIdInDB)
         for (int k = 0; k < tasksInSession.size(); ++k)
@@ -669,7 +746,7 @@ InputCompleteness Model::createTask(QStringList lValues, QStringList rValues, in
     Matrix matrix(dim);
     Vector column(dim);
 
-    parseTask(lValues, rValues, matrix, column);
+    parseTask(lValues, rValues, matrix, column, taskTypeId);
 
     Task task(taskIdInDB, taskTypeId);
     task.matrix = matrix;
@@ -716,4 +793,19 @@ QVector<int> Model::indexesOfUnsavedSessionTasks()
     }
 
     return unsavedIndexes;
+}
+
+Vector Model::euler(double start, double end, double step, double initval, double expval, double sinval, double cosval, double constval)
+{
+    int pointNumber = ceil((end - start) / step) + 1;
+    Vector y(pointNumber);
+
+    y[0] = initval;
+
+    for (int i = 1; i < pointNumber; ++i)
+    {
+        y[i] = y[i - 1] + step * (exp(expval * (start + (i - 1) * step))*(sinval * sin((start + (i - 1) * step)) + constval + cosval * cos((start + (i - 1) * step))));
+    }
+
+    return y;
 }

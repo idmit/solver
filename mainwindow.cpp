@@ -70,8 +70,12 @@ bool MainWindow::showAllCheckBoxChecked()
     return ui->showAllCheckBox->isChecked();
 }
 
-void MainWindow::on_showAllCheckBox_stateChanged(int arg1)
+void MainWindow::on_showAllCheckBox_stateChanged(int arg)
 {
+    if (ui->showAllCheckBox->isChecked())
+        ui->allSolutionsButton->hide();
+    else
+        ui->allSolutionsButton->show();
     emit showAllCheckBoxChanged(ui->taskTypesCombo->currentIndex());
 }
 

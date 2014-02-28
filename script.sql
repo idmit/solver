@@ -48,8 +48,16 @@ FOREIGN KEY (task_id) REFERENCES Tasks (id)
     ON DELETE CASCADE,
 FOREIGN KEY (method_id) REFERENCES Methods (id)
     ON UPDATE CASCADE
-    ON DELETE CASCADE,
-value DOUBLE NOT NULL
+    ON DELETE CASCADE
+);
+
+CREATE TABLE `Vals`
+(
+solution_id INT NOT NULL,
+value DOUBLE NOT NULL,
+FOREIGN KEY (solution_id) REFERENCES Solutions (id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 );
 
 CREATE TABLE `Meta` 
@@ -68,10 +76,11 @@ value DOUBLE NOT NULL
 );
 
 
-INSERT INTO `Types` (name) VALUES ("LE"), ("SLAE");
+INSERT INTO `Types` (name) VALUES ("LE"), ("SLAE"), ("ODE");
 
 INSERT INTO `Methods` (name, type_id) VALUES ('Native', 1), ('Bisection', 1);
 INSERT INTO `Methods` (name, type_id) VALUES ('Reflection', 2);
+INSERT INTO `Methods` (name, type_id) VALUES ('Euler', 3);
 
 INSERT INTO `Tasks` (type_id) VALUES (1);
 INSERT INTO `Tasks` (type_id) VALUES (2);

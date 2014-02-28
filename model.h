@@ -11,12 +11,13 @@
 /* Type IDS in DB */
 #define LE_TYPE_ID   1
 #define SLAE_TYPE_ID 2
+#define ODE_TYPE_ID 3
 
 /* Methods ID in DB */
 #define NATIVE_METHOD_ID    1
 #define BISECTION_METHOD_ID 2
 #define REFLECTION_METHOD_ID    3
-#define SEIDEL_METHOD_ID 4
+#define EULER_METHOD_ID 4
 
 /* SQL QUERIES */
 #define CONNECTION_NAME  "Solver"
@@ -28,11 +29,15 @@
 #define SELECT_METHODS_IDS "SELECT id FROM Methods WHERE type_id = :typeId"
 #define INSERT_TASK "INSERT INTO Tasks (type_id) VALUES (:typeId)"
 #define INSERT_EQ "INSERT INTO Equations (value, left_right, task_id) VALUES (:value, :leftRight, :taskId)"
-#define SELECT_SOLUTIONS "SELECT id, value FROM Solutions WHERE task_id = :taskId AND method_id = :methodId"
+#define SELECT_SOLUTIONS "SELECT id FROM Solutions WHERE task_id = :taskId AND method_id = :methodId"
 #define SELECT_META "SELECT name, value FROM Meta WHERE solution_id = :solutionId"
-#define INSERT_SOLUTION "INSERT INTO Solutions (task_id, method_id, value) VALUES (:taskId, :methodId, :value)"
+#define SELECT_VALUES "SELECT value FROM Vals WHERE solution_id = :solutionId"
+#define INSERT_SOLUTION "INSERT INTO Solutions (task_id, method_id) VALUES (:taskId, :methodId)"
+#define INSERT_VALUE "INSERT INTO Vals (solution_id, value) VALUES (:solutionId, :value)"
 #define INSERT_META "INSERT INTO Meta (solution_id, name, value) VALUES (:solutionId, :name, :value)"
 #define DELETE_TASK "DELETE FROM Tasks WHERE id = :taskId"
+
+#define ODE_PARAMS_NUM 4
 
 enum InputCompleteness
 {
@@ -122,7 +127,7 @@ public slots:
     (OUT) solution -- list of strings (one for each coordinate)
     (OUT) true if solution exists
      */
-    bool retrieveSolutionFromDB(int taskIdInDB, int solutionMethodId, QHash<QString, double> meta, QStringList *solution = 0);
+    bool retrieveSolutionFromDB(int taskIdInDB, int solutionMethodId, QHash<QString, double> meta, QVector<double> *solution = 0);
 
     int retrieveSolutionFromSession(Task task, int solutionMethodId, QHash<QString, double> meta, QVector<double> *values);
 
@@ -132,7 +137,7 @@ public slots:
     (IN) solution -- list of strings (one for each coordinate)
     (OUT) scene -- scene to be filled with solution visualization
      */
-    void setUpScene(int width, int height, QStringList solution, QGraphicsScene *scene);
+    void setUpScene(int width, int height, QGraphicsScene *scene);
 
     /*
     (IN) typeId -- id of type from which history task deletion is requested
@@ -157,12 +162,16 @@ public slots:
 
     void retrieveTaskFromSession(int taskTypeId, int taskNumberInHistory, QStringList *lValues, QStringList *rValues);
     void retrieveTaskSolutionsBySessionIndex(int index, QStringList &solutionValues);
+    void retrieveLastSolution(QString &values);
 
     QVector<int> indexesOfUnsavedSessionTasks();
+    void setLastSolutionToBeShowed() { solutionsToShow.clear(); solutionsToShow << tasksInSession[sessionIndexOfTaskInFocus].solutions[lastSolutionIndex]; }
+    void setSolutionsOfTaskToBeShowed(int i) { solutionsToShow.clear(); solutionsToShow =  tasksInSession[i].solutions; }
 private:
     QVector<Task> tasksInSession;
     int sessionIndexOfTaskInFocus;
     int lastSolutionIndex;
+    QVector<Solution> solutionsToShow;
 
     /*
     (IN) lValues -- list of left sides of task equations
@@ -177,7 +186,7 @@ private:
     (OUT) matrix -- matrix containing that task's left sides
     (OUT) vector -- vector containing that task's right sides
      */
-    void parseTask(QStringList lValues, QStringList rValues, Matrix &matrix, Vector &column);
+    void parseTask(QStringList lValues, QStringList rValues, Matrix &matrix, Vector &column, int taskTypeId);
 
     /*
     (IN) i -- index of task in session
@@ -202,6 +211,25 @@ private:
     (OUT) found root 
      */
     double bisection(double a, double b, double precision);
+
+    Vector euler(double start, double end, double step, double initval, double expval, double sinval, double cosval, double constval);
+    QStringList sort(QStringList oldList)
+    {
+        QStringList list = oldList;
+        for (int i = 0; i < list.size() - 1; ++i)
+        {
+            for (int j = i + 1; j < list.size(); ++j)
+            {
+                if (QString::compare(list[i], list[j]) > 0)
+                {
+                    QString tmp = list[i];
+                    list[i] = list[j];
+                    list[j] = tmp;
+                }
+            }
+        }
+        return list;
+    }
 };
 
 #endif // MODEL_H
