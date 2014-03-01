@@ -630,6 +630,7 @@ void Model::setUpScene(int width, int height, QGraphicsScene *scene)
     int p = -1;
 
     double max = solutionsToShow[0].values[0], maxW = solutionsToShow[0].meta["To"] - solutionsToShow[0].meta["From"];
+    double lW = solutionsToShow[0].meta["From"], rW = solutionsToShow[0].meta["To"];
     foreach (Solution solution, solutionsToShow)
     {
         for (int k = 0; k < solution.values.size(); ++k)
@@ -637,9 +638,12 @@ void Model::setUpScene(int width, int height, QGraphicsScene *scene)
             if (ABS(solution.values[k]) > max)
                 max = ABS(solution.values[k]);
         }
-        if (solution.meta["To"] - solution.meta["From"] > maxW)
-            maxW = solution.meta["To"] - solution.meta["From"];
+        if (solution.meta["To"] > rW)
+            rW = solution.meta["To"];
+        if (solution.meta["From"] < lW)
+            lW = solution.meta["From"];
     }
+    maxW = rW - lW;
 
     double unitX = 0, unitY = 0, rad = height / 50.0, halfX, start, step;
     double sceneWidth = width - 2, sceneHeight = height - 2;
@@ -669,6 +673,7 @@ void Model::setUpScene(int width, int height, QGraphicsScene *scene)
 
         QPainterPath *path = new QPainterPath;
 
+        double d;
         if (solutionsToShow[0].methodId == EULER_METHOD_ID)
         {
             start = solution.meta["From"];
@@ -676,17 +681,17 @@ void Model::setUpScene(int width, int height, QGraphicsScene *scene)
         }
 
         scene->addLine(0, height / 2, width, height / 2);
-        scene->addLine(halfX, 0, halfX, height);
+        scene->addLine((0 - lW) * unitX, 0, (0 - lW) * unitX, height);
         QGraphicsSimpleTextItem *x = scene->addSimpleText("x");
         x->setPos(sceneWidth - x->boundingRect().width(), sceneHeight / 2);
         QGraphicsSimpleTextItem *y = scene->addSimpleText("y");
-        y->setPos(halfX + 2, 0);
+        y->setPos((0 - lW) * unitX + 2, 0);
 
         if (column.size() == 1) addPointAt(scene, unitX,  unitY * column[0], rad, sceneHeight, pens[p]);
 
         for (int i = 0; i < column.size() - 1; ++i)
         {
-            scene->addLine(halfX + (start + i * step) * unitX, sceneHeight / 2 - unitY * column[i], halfX + (start + (i + 1) * step) * unitX, sceneHeight / 2 - unitY * column[i + 1], pens[p]);
+            scene->addLine( (start - lW + i * step) * unitX, sceneHeight / 2 - unitY * column[i], (start - lW + (i + 1) * step) * unitX, sceneHeight / 2 - unitY * column[i + 1], pens[p]);
             if (step == 1)
             {
                 QGraphicsSimpleTextItem *x = scene->addSimpleText(QString("%1").arg(i));
