@@ -75,8 +75,14 @@ public:
     explicit Model(QObject *parent = 0);
 
 signals:
+    /*
+     Sent when model finished attempt to connect, passing attempt result
+     */
     void connectionAttemptFinished(bool result);
-    void getMeta(QStringList keys, QHash<QString, QString> *textMeta);
+    /*
+     Sent when model needs metadata, passing needed keys and pointer to write by
+     */
+    void needMeta(QStringList keys, QHash<QString, QString> *textMeta);
 
 public slots:
     /*
@@ -212,7 +218,23 @@ private:
      */
     double bisection(double a, double b, double precision);
 
+    /*
+    (IN) start -- start of solution segment
+    (IN) end -- end of solution segment
+    (IN) step -- step of the Euler method by x-axis
+    (IN) initval -- function mean at start point
+    (IN) expval -- coefficient in exp function
+    (IN) sinval -- coefficint in front of sin function
+    (IN) cosval -- coefficint in front of cos function
+    (IN) constval -- coefficint in front of exp function
+    (OUT) vector of function means in segment points
+     */
     Vector euler(double start, double end, double step, double initval, double expval, double sinval, double cosval, double constval);
+    
+    /*
+    (IN) oldList -- list to be sorted alphabetically
+    (OUT) list of strings sorted alphabetically
+     */
     QStringList sort(QStringList oldList)
     {
         QStringList list = oldList;

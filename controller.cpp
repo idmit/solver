@@ -32,12 +32,12 @@ void Controller::initialize(MainWindow *_mainWindow, ConnectionWindow *_connecti
 
     QObject::connect(mainWindow, SIGNAL(showAllCheckBoxChanged(int)), this, SLOT(showTaskHistory(int)));
     QObject::connect(mainWindow, SIGNAL(allSolutionsButtonClicked()), this, SLOT(showTaskSolutions()));
-    QObject::connect(mainWindow, SIGNAL(processTask(int)), this, SLOT(showTaskWindow(int)));
+    QObject::connect(mainWindow, SIGNAL(listPositionDoubleClicked(int)), this, SLOT(showTaskWindow(int)));
 
     QObject::connect(taskWindow, SIGNAL(createButtonClicked(QStringList,QStringList)), this, SLOT(createTask(QStringList,QStringList)));
     QObject::connect(taskWindow, SIGNAL(solveButtonClicked(QStringList,QStringList)), this, SLOT(solveTask()));
 
-    QObject::connect(model, SIGNAL(getMeta(QStringList,QHash<QString,QString>*)), this, SLOT(askMeta(QStringList,QHash<QString,QString>*)));
+    QObject::connect(model, SIGNAL(needMeta(QStringList,QHash<QString,QString>*)), this, SLOT(askMeta(QStringList,QHash<QString,QString>*)));
 }
 
 void Controller::alert(QString msg, QWidget *parent)
@@ -154,6 +154,8 @@ void Controller::showTaskWindow(int taskIndexInHistory)
         taskWindow->enableSolutionMode();
     }
 
+    taskWindow->setVisibleHeader(taskTypeId == ODE_TYPE_ID);
+
     taskWindow->show();
 }
 
@@ -168,7 +170,7 @@ void Controller::showLastSolution()
 
     dialog.solutionsNumber = 1;
 
-    QObject::connect(&dialog, SIGNAL(setUpScene(int,int,QGraphicsScene*)), this, SLOT(setUpScene(int,int,QGraphicsScene*)));
+    QObject::connect(&dialog, SIGNAL(needScene(int,int,QGraphicsScene*)), this, SLOT(setUpScene(int,int,QGraphicsScene*)));
     dialog.exec();
 }
 
@@ -409,7 +411,7 @@ void Controller::showTaskSolutions()
 
     dialog.refreshSolution(solutions);
 
-    QObject::connect(&dialog, SIGNAL(setUpScene(int,int,QGraphicsScene*)), this, SLOT(setUpScene(int,int,QGraphicsScene*)));
+    QObject::connect(&dialog, SIGNAL(needScene(int,int,QGraphicsScene*)), this, SLOT(setUpScene(int,int,QGraphicsScene*)));
 
     dialog.exec();
 }

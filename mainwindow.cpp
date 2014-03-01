@@ -51,12 +51,12 @@ void MainWindow::on_taskTypesCombo_currentIndexChanged(int index)
 
 void MainWindow::on_newTaskButton_clicked()
 {
-    emit processTask(-1);
+    emit listPositionDoubleClicked(-1);
 }
 
 void MainWindow::on_taskHistoryList_doubleClicked(const QModelIndex &index)
 {
-    emit processTask(index.row());
+    emit listPositionDoubleClicked(index.row());
 }
 
 void MainWindow::selectedHistoryListIndexes(QVector<int> &selectedIndexes) const

@@ -19,7 +19,13 @@ public:
     ~ConnectionWindow();
 
 signals:
+    /*
+     * Sent when user specified all options for connection
+     */
     void connectionOptionsSpecified();
+    /*
+     * Sent when quit button clicked
+     */
     void quitButtonClicked();
 
 public slots:

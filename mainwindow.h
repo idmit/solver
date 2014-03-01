@@ -28,10 +28,25 @@ public:
     ~MainWindow();
 
 signals:
+    /*
+     Sent when user chooses different task type, passing new index
+     */
     void differentTaskTypeChosen(int newIndex);
-    void processTask(int taskNumberInHistory);
+    /*
+     Sent when list position double clicked, passing clicked index
+     */
+    void listPositionDoubleClicked(int taskNumberInHistory);
+    /*
+     Sent when checkbox state changes, passing chosen type index
+     */
     void showAllCheckBoxChanged(int taskTypeIndex);
+    /*
+     Sent when quit button clicked
+     */
     void quitButtonClicked();
+    /*
+     Sent when all solutions button clicked
+     */
     void allSolutionsButtonClicked();
 public slots:
     /*

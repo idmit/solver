@@ -221,3 +221,8 @@ void TaskWindow::enableCreationMode()
     ui->solveButton->setVisible(false);
     ui->createButton->setVisible(true);
 }
+
+void TaskWindow::setVisibleHeader(bool vis)
+{
+    ui->odeLabel->setVisible(vis);
+}

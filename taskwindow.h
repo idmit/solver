@@ -23,8 +23,17 @@ public:
     ~TaskWindow();
 
 signals:
+    /*
+     Sent when edit button clicked
+     */
     void editButtonClicked();
+    /*
+     Sent when solve button clicked, passing filled data
+     */
     void solveButtonClicked(QStringList lValues, QStringList rValues);
+    /*
+     Sent when create button clicked, passing filled data
+     */
     void createButtonClicked(QStringList lValues, QStringList rValues);
 
 public slots:
@@ -69,6 +78,7 @@ public slots:
 
     void enableSolutionMode();
     void enableCreationMode();
+    void setVisibleHeader(bool vis);
 private slots:
     void on_solveButton_clicked();
     void on_editButton_clicked();

@@ -28,11 +28,20 @@ public:
 
 public slots:
     void saveSceneAsImage();
+    /*
+    (IN) solution -- string to be set as label
+     */
     void refreshSolution(QString solution);
+    /*
+    (IN) solution -- list of strings, each to be set as label
+     */
     void refreshSolution(QStringList solution);
 
 signals:
-    void setUpScene(int width, int height, QGraphicsScene *scene);
+    /*
+     * Sent when window is about to show scene, passing width and height of view and pointer to write by
+     */
+    void needScene(int width, int height, QGraphicsScene *scene);
 
 private slots:
     void on_backButton_clicked();

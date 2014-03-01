@@ -542,7 +542,7 @@ InputCompleteness Model::solveTask(int solutionMethodId)
         }
         QStringList keys;
         keys << "Precision of bisection";
-        emit getMeta(keys, &textMeta);
+        emit needMeta(keys, &textMeta);
         if (!metaIsValid(textMeta, meta))
         {
             return INPUT_INVALID_META;
@@ -554,7 +554,7 @@ InputCompleteness Model::solveTask(int solutionMethodId)
     {
         QStringList keys;
         keys << "From" << "To" << "Step" << "Initial value";
-        emit getMeta(keys, &textMeta);
+        emit needMeta(keys, &textMeta);
         if (!metaIsValid(textMeta, meta))
             return INPUT_INVALID_META;
         if (meta["To"] - meta["From"] <= 0 || meta["Step"] <= 0 || meta["Step"] > meta["To"] - meta["From"])
@@ -666,6 +666,32 @@ void Model::setUpScene(int width, int height, QGraphicsScene *scene)
     scene->setSceneRect(0, 0, sceneWidth, sceneHeight);
     unitY = (sceneHeight / 2 - rad / 2) / max;
 
+    double yAxPos = 5;
+    if (lW < 0 && rW > 0)
+        yAxPos = (0 - lW) * unitX;
+
+    scene->addLine(0, height / 2, width, height / 2);
+    scene->addLine(yAxPos, 0, yAxPos, height);
+    QGraphicsSimpleTextItem *x = scene->addSimpleText("x");
+    x->setPos(sceneWidth - x->boundingRect().width(), sceneHeight / 2);
+    QGraphicsSimpleTextItem *y = scene->addSimpleText("y");
+    y->setPos(yAxPos + 2, 0);
+
+    double width4 = width / 4;
+    double height4 = height / 4;
+
+    if (maxW != 0)
+    for (int i = 0; i < 5; ++i)
+    {
+        QGraphicsSimpleTextItem *subscrX = scene->addSimpleText(QString("%1").arg(lW + i * maxW / 4));
+        subscrX->setPos(i * width4, sceneHeight / 2);
+        if (i != 2)
+        {
+            QGraphicsSimpleTextItem *subscrY = scene->addSimpleText(QString("%1").arg(-max + i * max / 2));
+            subscrY->setPos(yAxPos, sceneHeight - subscrY->boundingRect().height() - i * height4);
+        }
+    }
+
     foreach (Solution solution, solutionsToShow)
     {
         p++;
@@ -673,19 +699,11 @@ void Model::setUpScene(int width, int height, QGraphicsScene *scene)
 
         QPainterPath *path = new QPainterPath;
 
-        double d;
         if (solutionsToShow[0].methodId == EULER_METHOD_ID)
         {
             start = solution.meta["From"];
             step = solution.meta["Step"];
         }
-
-        scene->addLine(0, height / 2, width, height / 2);
-        scene->addLine((0 - lW) * unitX, 0, (0 - lW) * unitX, height);
-        QGraphicsSimpleTextItem *x = scene->addSimpleText("x");
-        x->setPos(sceneWidth - x->boundingRect().width(), sceneHeight / 2);
-        QGraphicsSimpleTextItem *y = scene->addSimpleText("y");
-        y->setPos((0 - lW) * unitX + 2, 0);
 
         if (column.size() == 1) addPointAt(scene, unitX,  unitY * column[0], rad, sceneHeight, pens[p]);
 

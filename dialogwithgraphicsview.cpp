@@ -11,7 +11,7 @@ DialogWithGraphicsView::DialogWithGraphicsView(QWidget *parent) :
     setWindowModality(Qt::WindowModal);
     resize(800, 400);
     on_backButton_clicked();
-    QObject::connect(ui->okButton, SIGNAL(clicked()), this, SLOT(reject()));
+    QObject::connect(ui->okButton, SIGNAL(clicked()), this, SLOT(accept()));
     QObject::connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(saveSceneAsImage()));
 }
 
@@ -43,7 +43,7 @@ void DialogWithGraphicsView::showEvent(QShowEvent *event)
     ui->graphicsView->setScene(scene);
     for (int k = 0; k < solutionsNumber; ++k)
     {
-        emit setUpScene(ui->graphicsView->width(), ui->graphicsView->height(), scene);
+        emit needScene(ui->graphicsView->width(), ui->graphicsView->height(), scene);
     }
     if (event) event->accept();
 

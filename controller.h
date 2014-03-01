@@ -27,6 +27,9 @@ public:
     explicit Controller(QWidget *parent = 0);
 
 signals:
+    /*
+     * Sent when status of some task changed, passing new status and timeout
+     */
     void statusChanged(QString status, int timeout);
 
 public slots:
